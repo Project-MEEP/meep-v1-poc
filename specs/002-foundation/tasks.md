@@ -250,6 +250,15 @@ Cargo workspace from plan.md: `crates/meep-core/`, `crates/meep-storage/`, `crat
 - [ ] T145 [P] Write failing tests then implement in `crates/meep-storage/src/lock.rs` and the start-up path: a running program means any program that opened the store through the lock; a refusal is also written to standard error and the process exits non-zero (FR-024, FR-035, CHK044, CHK045)
 - [ ] T146 [P] Add to `crates/meep-core/locales/foundation.ftl` and contracts/owner-messages.md: the delete-confirmation line saying earlier backups still contain the record, and the recovery-key-open line saying a fresh normal key was stored (FR-004, FR-010, CHK004, CHK009)
 
+### Phase 8d: Access decisions (ACCESS-02, FOUND-12, PLAN-29)
+
+- [ ] T147 [P] [US6] Write a failing router test in `crates/meep-web/tests/no_store.rs` (tower `oneshot`): every route that returns record data sends `Cache-Control: no-store`, including error and redirect responses on those routes (FR-057, FR-021)
+- [ ] T148 [P] [US1] Write failing tests in `crates/meep-storage/tests/key_slots.rs` for data-model.md key_slots.method, key_slots.wrapped_data_key, key_slots.wrap_nonce and key_slots.created_at: the store opens through the keychain slot and through the recovery slot; adding or replacing a slot rewraps the data key and leaves every record and database page unchanged; no copy of the data key exists in the file in the clear (raw-byte scan); the keychain slot's wrapping key never appears in the file (FR-055, FOUND-12, FR-004, FR-005)
+- [ ] T149 [US1] Implement `key_slots` in `crates/meep-storage/src/slots.rs` and rework `keychain.rs`, `recovery.rs` and `startup.rs` (T048, T050, T051) so the keychain holds a wrapping key and each method has its own wrapped copy of the data key; expose no operation to add or replace a method in v1.0 (FR-055, FOUND-12, FOUND-02 item 3)
+- [ ] T150 **[OWNER QUESTION]** Review PLAN-29 (length 91 printed digits, Damm check digit per group, 8-digit key ID) and confirm or change it; T151 and T152 wait for the answer (FR-056)
+- [ ] T151 [P] [US1] Write failing tests in `crates/meep-storage/tests/recovery_format.rs` for data-model.md key_slots.key_id: the printed key has fixed digit groups each with a check digit; a mistyped group is flagged and named; a key that passes every check digit but is wrong fails to unwrap and is refused; the key ID is printed with the key and listed at every recovery prompt, including when the store has several recovery keys (FR-056, FR-032, PLAN-29)
+- [ ] T152 [US1] Implement the recovery-key format and key ID in `crates/meep-storage/src/recovery.rs` as PLAN-29 is confirmed, and show the key ID at every recovery prompt through the foundation messages (FR-056, FR-032, PLAN-29)
+
 ---
 
 ## Phase 9: Polish & Cross-Cutting Concerns

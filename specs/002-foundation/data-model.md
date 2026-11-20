@@ -12,7 +12,7 @@ Phase 1 output. What the store holds, how keys relate, and the rules that keep i
 | `backups/` | Default folder for owner backups, with `.partial` files only while one is being written (PLAN-21) |
 | `damaged-work/` | Private owner-only working folder used only while a damaged store is examined; empty otherwise, and any leftover is deleted at the next start (FR-045, PLAN-20) |
 
-The store key lives in the operating-system keychain, never in these files. The recovery key is never stored anywhere (FOUND-02).
+The data key (called the store key elsewhere in this document, FOUND-12) is never stored in the clear: the keychain slot holds a key that unwraps it, and each unlock method has a wrapped copy in `key_slots`. The recovery key is never stored anywhere (FOUND-02).
 
 ## Tables
 
@@ -23,10 +23,20 @@ The store key lives in the operating-system keychain, never in these files. The 
 | `store_id` | Random identifier of this store | UUID v4; names the keychain entry and salts the recovery wrap (PLAN-15) |
 | `account_id` | The owner's random account ID | UUID v4, same on every record (R9, FR-007); a restore adopts the backup's value (FR-032) |
 | `format_version` | Version of the store's own layout | Integer; a newer value than the running Meep understands is refused (not guessed) |
-| `recovery_wrapped_store_key` | The store key encrypted under the recovery wrap key | Lets the recovery key reopen the store (R7, FR-004); no other copy of the store key exists in the file |
-| `recovery_nonce` | Nonce used for that wrap | Random, never reused |
 | `created_at` | When the store was created | UTC, RFC 3339 |
 | `last_successful_backup_at` | Time of the last verified backup | Written only after a backup is verified and renamed (FR-044); null until the first |
+
+### `key_slots` (one row per unlock method, FOUND-12)
+
+| Field | Meaning | Rule |
+|---|---|---|
+| `slot_id` | Identifier of the slot | Integer, unique |
+| `method` | The unlock method | Enum: `keychain`, `recovery` in v1.0; `passkey`, `hardware` later (AUTH-01) |
+| `wrapped_data_key`, `wrap_nonce` | The data key encrypted under that method's key | XChaCha20-Poly1305, random nonce never reused; the only copy of the data key in the file (R7, FR-004, FR-055) |
+| `key_id` | The short key ID (FR-056) | Digits, non-secret; set for `recovery` slots, null otherwise |
+| `created_at` | When the slot was made | UTC, RFC 3339 |
+
+The `keychain` slot's wrapping key is a random 256-bit key held in the operating-system keychain (FR-005); the `recovery` slot's wrapping key comes from the recovery key (PLAN-15, PLAN-29). Adding or replacing a slot rewraps the data key only (FOUND-12).
 
 ### `records` (one row per record)
 
@@ -104,7 +114,7 @@ Destroying a record's wrapped key makes its content and every purpose subkey unr
 4. Every write operation is one transaction: record, key and log entry land together or not at all (FR-015, PLAN-18).
 5. The change log accepts only appends, never carries content or keys, and verifies by recomputing every hash from the genesis entry (FR-013, FR-014).
 6. A record's content can be read only with its own key; deleting the key destroys the record (FR-009, FR-010).
-7. A store opens only with the store key or the recovery key; the file alone reveals nothing (FR-001, FR-003, FR-004).
+7. A store opens only with the unwrapped data key, through the keychain slot or the recovery slot; the file alone reveals nothing (FR-001, FR-003, FR-004).
 8. A restore targets an empty store unless the owner chooses "Replace everything"; any breached rule refuses the whole restore (FR-017).
 
 ## State transitions

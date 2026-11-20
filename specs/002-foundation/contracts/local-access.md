@@ -38,7 +38,7 @@ A request is accepted only if all of these hold; otherwise it is refused with st
 
 ## Responses
 
-All responses send `Cache-Control: no-store`, `X-Content-Type-Options: nosniff` and the content security policy `default-src 'self'` with no inline script and no inline style needing `unsafe-inline`, so other sites cannot embed or load Meep content. The server sends **no CORS headers** at all (SEC-05). Templates escape output by default; `|safe` is forbidden by CI.
+All responses, in particular every response that contains record data (FR-057), send `Cache-Control: no-store`, `X-Content-Type-Options: nosniff` and the content security policy `default-src 'self'` with no inline script and no inline style needing `unsafe-inline`, so other sites cannot embed or load Meep content. The server sends **no CORS headers** at all (SEC-05). Templates escape output by default; `|safe` is forbidden by CI.
 
 ## Not covered in v1.0 (FOUND-02)
 
