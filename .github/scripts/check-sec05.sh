@@ -8,7 +8,11 @@ rs=$(git ls-files '*.rs')
 if [ -n "$rs" ]; then
   hits=$(printf '%s\n' "$rs" | xargs grep -nE 'Box::leak|String::leak|Vec::leak' 2>/dev/null || true)
   [ -n "$hits" ] && { echo "FAIL: Box::leak, String::leak or Vec::leak (SEC-05 item 1):"; echo "$hits"; fail=1; }
-  iso=$(printf '%s\n' "$rs" | grep -vE '/tests/|_test\.rs$' | xargs grep -nE 'set_use_isolating\([[:space:]]*false' 2>/dev/null || true)
+  iso=""
+  for f in $(printf '%s\n' "$rs" | grep -vE '/tests/|_test\.rs$'); do
+    # join lines so a call split across lines is still matched
+    if tr '\n\r' '  ' < "$f" | grep -qE 'set_use_isolating[[:space:]]*\([[:space:]]*false'; then iso="$iso$f"$'\n'; fi
+  done
   [ -n "$iso" ] && { echo "FAIL: Fluent isolation turned off outside tests (SEC-05 item 5):"; echo "$iso"; fail=1; }
   outside=$(printf '%s\n' "$rs" | grep -v '^crates/meep-storage/' || true)
   if [ -n "$outside" ]; then
