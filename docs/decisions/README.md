@@ -32,4 +32,6 @@ R5 (no sign-in in v1.0) was confirmed earlier and is recorded in the spec.
 
 ## Open items
 
+- **v2 entry condition (HCP-X):** a "Don't share this name outside Meep" control before any automatic outbound sharing (NAMES-01).
+- **Delegation entry condition:** edits made by someone other than the owner keep the prior wording visible to the owner (NAMES-02).
 - **R7, before v1.1:** recovery drill from the printed key; decide on a hardware key as a second unlock.
