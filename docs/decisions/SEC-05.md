@@ -4,6 +4,7 @@
 - **Status:** Confirmed
 - **Date:** 2026-11-20
 - **Owner:** Owner
+- **Update 2026-11-20:** the full-name box byte cap is **1,536 bytes** (384 graphemes x 4, the same ratio as the 512-byte name-part cap), Confirmed by the owner.
 - **Note:** The owner called this SEC-01; SEC-01 is already the master spec's open question on plaintext secrets, so it is SEC-05.
 
 ## Decision
@@ -21,6 +22,6 @@
 - **Spec 002 (foundation):** items 1, 2, 3, 5 and 7 (amends FR-021 and R5's contract, plan, tasks).
 - **Spec 001 (names):** item 4, the NAMEVAL rule IDs, the grapheme and byte caps, the character rules, the hostile-input corpus and round-trip acceptance tests; item 6 for the validators.
 
-## Open question
+## Later, not v1.0
 
-The 512-byte cap is given per name part. Whether the full-name box (384 graphemes) has its own byte cap, and what it is, is not decided; names task T103 asks the owner. Nothing is built on a guessed value.
+The 4-bytes-per-grapheme ratio suits Latin script. Some scripts pack more bytes into one visible character (a Devanagari conjunct can be 9 to 12 bytes, an emoji family sequence 25), so long names in them would hit the byte cap before the grapheme cap. When non-Latin scripts get real support, guard against Zalgo with a cap on code points per grapheme and a generous byte cap behind it.
