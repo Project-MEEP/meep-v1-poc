@@ -16,3 +16,5 @@ AES-GCM via `aes-gcm` 0.11.1 (acceptable fallback); whole-database encryption al
 ## Notes
 
 Authenticated cipher with a long random nonce. Required tests: with `secure_delete` on, the key row overwritten and the log checkpointed, a deleted name's key and ciphertext cannot be found in the database file or log.
+
+Ownership: key wrapping and destruction primitives belong to spec 002; names calls `destroy_record_key` and `RecordStore::delete` through the ports.

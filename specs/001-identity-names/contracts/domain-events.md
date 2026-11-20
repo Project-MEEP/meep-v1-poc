@@ -7,7 +7,6 @@ Names emits these events; the foundation's change log (spec 002) subscribes and 
 | NameAdded | A name is saved the first time | record id, use, status, date | Content stays only in the encrypted record |
 | NameEdited | A correction is saved in place | record id, date, which parts changed, keyed fingerprint of the prior value | Only the new wording is stored; the fingerprint is non-reversible and is meaningless once the record key is destroyed (NAMES-02, R8) |
 | NameRetired | Status set to No longer used | record id, date, optional end date | |
-| NameReactivated | Status set back to Active | record id, date | Only if the owner confirms reactivation is a feature (see data-model) |
 | NamePromoted | "Make this my legal name" | record id promoted, record id of the former Legal name, date | The former Legal name becomes an Active Also known as (ID-01) |
 | PreferredReplaced | A new Preferred name replaces the old one | new id, old id, date | Old becomes an Active Also known as (R13) |
 | NameDeleted | The owner deletes a name | record id, date only | Content and key destroyed (R8) |

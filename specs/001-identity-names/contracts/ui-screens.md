@@ -14,7 +14,7 @@ What the owner sees and does. Server-rendered pages, minimal JavaScript. Shared 
 - Shows each name with its use, status (Active or No longer used) and the short form where space calls for it.
 - Retired names are shown greyed out, never hidden (ID-01).
 - Status is shown by text as well as colour.
-- Actions per name: edit, retire or reactivate (see data-model), "Make this my legal name" on Also known as entries, delete.
+- Actions per name: edit, retire (reactivating a retired name is not built until the owner decides, task T058), "Make this my legal name" on Also known as entries, delete.
 - Empty state: a prompt to add the first name.
 - Over 50 names: the add action explains the limit (NAMES-03).
 

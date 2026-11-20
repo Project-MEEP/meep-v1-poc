@@ -16,3 +16,5 @@
 ## Notes
 
 Mainstream synchronous SQLite crate with SQLCipher exposed as a feature. Risk: the bundled build may need the vendored-OpenSSL variant on Windows.
+
+Ownership: the encrypted store belongs to spec 002; names consumes it through the `RecordStore` port.

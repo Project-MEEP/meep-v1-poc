@@ -225,6 +225,7 @@ enable pronouns in Settings, and confirm they then appear as configured.
 
 ## Assumptions
 
+- Principle 26 (warn, never adjudicate) allows blocking only for data integrity and authorization. The refusals in this feature are integrity rules the owner set, not legal or factual judgments: the rebuild check (ID-04, R14), the length and count limits (NAMES-03) and one Legal and at most one Preferred name (R12). Meep never blocks a name for any other reason.
 - The v1.0 foundation (record envelope, encrypted local storage, change history, JSON export and import, no sign-in, owner's machine only) is delivered by spec 002 and provides the saved, deleted and exported behavior this feature relies on.
 - This feature uses the shared interface elements and theme toggle from spec 010 and adds no navigation of its own.
 - Pronouns are included in v1.0 (R4 Confirmed), hidden by default. Visibility choices and the always-included JSON export rule come from the owner's clarification of 2026-11-19; principle 27 itself is still marked Proposed in the constitution, so this rule rests on that clarification.
