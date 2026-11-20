@@ -16,6 +16,8 @@ Technical approach, all drawn from Confirmed decisions (R1 to R17, NAMES-01 to N
 
 **Primary Dependencies** (all verified on crates.io 2026-11-19, see [research.md](research.md)): `rusqlite` 0.43.0 (`bundled-sqlcipher`), `keyring` 4.2.0, `unicode-segmentation` 1.13.3, `unicode-normalization` 0.1.26, `chacha20poly1305` 0.11.0, `hmac` 0.13.0, `sha2` 0.11.1, `hkdf` 0.13.0, `zeroize` 1.9.2, `rand` 0.10.4, `uuid` 1.29.3, `serde` 1.0.229 and `serde_json` 1.0.154, `thiserror` 2.0.21, `axum` 0.8.9 on `tokio` 1.54.1, `askama` 0.16.1, `fluent-templates` 0.15.1. Test-only: `cucumber` 0.23.0, `proptest` 1.12.0. All are MIT or Apache-2.0 (two carry the additional Unicode-3.0 terms). Every choice is **Proposed** until the owner confirms its decision record.
 
+**Ownership note (FOUND-01, BUILD-01)**: storage, keys, encryption, the change log, backup and restore, and the loopback server are the foundation's (spec 002); names' own dependencies reduce to the text, template, Fluent and test crates, and the crates listed above for storage and keys are used through the foundation, not by names.
+
 **Storage**: One encrypted local database file (SQLCipher through `rusqlite`) owned by the foundation (spec 002). Names adds tables and per-record encrypted content, described in [data-model.md](data-model.md).
 
 **Testing**: `cargo test` for unit tests; `cucumber` Given/When/Then for the star-gated acceptance tests (AT-23, AT-26 to AT-31); `proptest` for round-trip and rebuild properties. Browser-level checks (AT-41, AT-42, WCAG 2.2 AA) belong to spec 010 and run against the names screens once they exist.
