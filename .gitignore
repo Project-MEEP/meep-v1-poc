@@ -1,0 +1,15 @@
+# Secrets / personal data - never commit
+.env
+.env.*
+*.pem
+*.key
+*.p12
+secrets/
+credentials*
+*.local
+.claude/settings.local.json
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
