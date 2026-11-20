@@ -1,14 +1,14 @@
 # PLAN-29: Recovery key format: digits, fixed groups, per-group check digit, key ID
 
 - **ID:** PLAN-29
-- **Status:** Proposed
+- **Status:** Confirmed
 - **Date:** 2026-11-20
 - **Owner:** Owner
 - **Source:** [Meep Access Review 2026-11-20 08:48 CT](../reviews/Meep-Access-Review_2026-11-20_0848-CT.md) (the owner's decisions of 09:46 CT)
 
 ## Decision
 
-**For the owner's review.** Confirmed parts (owner, D5): a short key ID is printed with the key and shown at every recovery prompt; the key is digits only in fixed groups with a per-group checksum so a mistyped group is flagged. Proposed exact scheme:
+**Confirmed by the owner on 2026-11-20 as proposed below (length 91 printed digits, Damm check digit per group, 8-digit key ID).** Confirmed parts (owner, D5): a short key ID is printed with the key and shown at every recovery prompt; the key is digits only in fixed groups with a per-group checksum so a mistyped group is flagged. Proposed exact scheme:
 
 - **Length:** the 256-bit key as a 78-digit decimal number (10^78 is larger than 2^256), written as 13 groups of 6 digits.
 - **Checksum:** one check digit after each group, computed with the Damm algorithm (detects every single-digit error and every swap of two adjacent digits within a group). Printed as 13 groups of 7 digits, 91 digits in all.
@@ -19,4 +19,4 @@
 
 ## Notes
 
-Amends the encoding in PLAN-15 if confirmed. Open for the owner: the length (91 printed digits) and the Damm check digit.
+Amends the encoding in PLAN-15 (base32 replaced). Nothing is open.

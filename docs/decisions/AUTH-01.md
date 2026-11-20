@@ -17,4 +17,4 @@ Refines the whiteboard AUTH row (SSO login with authenticator 2FA) and does not 
 
 ## Notes
 
-Build only after v1.0 (CLAUDE.md rule 1). D9 is an opt-in exception to "the recovery key is never stored" (FR-002, principle 15) and needs that wording reconciled when it is specified. ACCESS-02 (layers) and FOUND-12 (wrapped copies) are what make it possible without a backdoor.
+Build only after v1.0 (CLAUDE.md rule 1). Owner, 2026-11-20: D9 is vNext only; FR-002 and principle 15 stand unchanged for v1.0. D9 is an opt-in exception to "the recovery key is never stored" (FR-002, principle 15) and needs that wording reconciled when it is specified. ACCESS-02 (layers) and FOUND-12 (wrapped copies) are what make it possible without a backdoor.
