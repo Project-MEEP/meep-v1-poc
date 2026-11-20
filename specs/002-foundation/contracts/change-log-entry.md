@@ -29,7 +29,7 @@ An entry's body is a JSON object with these members, serialized in a canonical f
 | `restored_from_rescue_backup` | First normal entry of a store restored from a rescue backup | `date` (FOUND-03) |
 | `restored_from_backup` | First entry after a normal restore | `date` |
 
-Features add their own kinds through `register_kind`; names adds its own (added, edited, retired, reactivated, promoted, replaced) and the log never holds a name's words, parts, short form or pronoun text (spec 001 domain-events contract).
+Features add their own kinds through `register_kind` and append entries by passing events to `save`, `update` and `delete` (FOUND-08); names adds its own (added, edited, retired, reactivated, promoted, replaced) and the log never holds a name's words, parts, short form or pronoun text (spec 001 domain-events contract).
 
 ## Verification
 
