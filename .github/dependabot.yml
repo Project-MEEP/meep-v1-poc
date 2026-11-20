@@ -1,0 +1,19 @@
+# Automated dependency-update pull requests (VZ-01). Every update arrives as a pull request and
+# must pass all-green (ENG-03). GitHub Actions stay pinned by commit hash; Dependabot updates
+# the hash and the version comment together.
+version: 2
+updates:
+  - package-ecosystem: "cargo"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: "deps"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: "ci"

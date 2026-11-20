@@ -1,6 +1,6 @@
-# Meep Spec v1.0 (2026-11-19 22:22 CT)
+# Meep Spec v1.0 (2026-11-19 23:58 CT)
 
-Last changed 2026-11-19 22:22 CT · Samantha Schroff
+Last changed 2026-11-19 23:58 CT · Samantha Schroff
 
 ## How to use this spec (for implementers)
 
@@ -50,7 +50,7 @@ Meep (Alpha.Meep, product line v1) is a free, MIT-licensed, user-owned system of
 
 **Publishing identity:** Samantha Schroff. Code: github.com/Project-MEEP/meep-v1-poc (public, owned by the Project-MEEP GitHub organization; empty as of 2026-11-19 20:28 CT).
 
-**Spec naming (Confirmed 2026-11-19):** a spec carries the build version it targets plus the date and time it was last changed, e.g. "Meep Spec v1.0 (2026-11-19 22:22 CT)". The newest time is the current copy. When v1.0 ships, a new spec starts as v1.1.
+**Spec naming (Confirmed 2026-11-19):** a spec carries the build version it targets plus the date and time it was last changed, e.g. "Meep Spec v1.0 (2026-11-19 23:58 CT)". The newest time is the current copy. When v1.0 ships, a new spec starts as v1.1.
 
 | Status | Meaning |
 | --- | --- |
@@ -103,7 +103,7 @@ The owner settled 48 items in this session (32 below plus Readiness R1 to R4 and
 
 **Added after the spec review (Confirmed 2026-11-19):** ID-09 spacing rule; ID-10 FHIR use mapping; v1.0 runs with no login, reachable only from the owner's own machine (R5); AT-24, AT-25 and AT-32 move to v1.1; AT-41 and AT-42 added for the theme toggle; v1.0 includes the minimum foundation listed under Engineering rules.
 
-**Decisions recorded in the repository** (`docs/decisions/`, Confirmed 2026-11-19): R1 to R17 (Readiness); PRON-01a (pronoun visibility); NAMES-01 (retired names in outbound exports, sharing flag); NAMES-02 (corrections keep only the new wording); NAMES-03 (limits); NAMES-04 (short form); NAMES-05 (checklist resolutions, CHK001 to CHK039); NAMES-06 (reactivating a retired name); FOUND-01 (spec 002 owns key, storage, change-log-format and export-envelope primitives); CONST-27 (principle 27 Confirmed); COMMIT-ID (alias and its email accepted in commit metadata); BUILD-01 (v1.0 build order). The planning choices PLAN-01 to PLAN-12 are Proposed until the owner confirms them.
+**Decisions recorded in the repository** (`docs/decisions/`, Confirmed 2026-11-19): R1 to R17 (Readiness); PRON-01a (pronoun visibility); NAMES-01 (retired names in outbound exports, sharing flag); NAMES-02 (corrections keep only the new wording); NAMES-03 (limits); NAMES-04 (short form); NAMES-05 (checklist resolutions, CHK001 to CHK039); NAMES-06 (reactivating a retired name); FOUND-01 (spec 002 owns key, storage, change-log-format and export-envelope primitives); CONST-27 (principle 27 Confirmed); COMMIT-ID (alias and its email accepted in commit metadata); BUILD-01 (v1.0 build order); FOUND-02 to FOUND-07 (foundation); VZ-01 (release gate "vulns at zero", Proposed). The planning choices PLAN-01 to PLAN-12 are Proposed until the owner confirms them.
 
 ## Roadmap
 
@@ -112,13 +112,25 @@ v1 is at gate G1 (requirement baseline), now scoped per feature; v1.0 can enter 
 | Version | Contents | Entry condition (Proposed) |
 | --- | --- | --- |
 | v1 Alpha | Assistant platform, Dr. Office patient mode, identity and names, caregiver workspaces, vault, P2P; web + Android | One feature per point release: v1.0 names, v1.1 insurance intake |
-| First stable long-term release | iOS app begins (PLAT-02); owner enrolls in the Apple developer program | v1 stable and operating |
+| First stable long-term release | iOS app begins (PLAT-02); owner enrolls in the Apple developer program | v1 stable and operating, and the VZ-01 release gates pass (Proposed) |
 | v2 | Optional cloud backup (BKP); caregiver and provider exchange roles (HCP-X); import from provider apps (PRN) | v1 passes G5; HCP-01 decided |
 | v3 | Provider views and importable modules (HCP-V); Digital Ombudsman (OMB); simplified interface for cognitive impairment (V3-SIMPLE); wardship (WARD, v3 or v4) | v2 operating; OMB-01 defined |
 | v4 | Minors and guardian governance (GOV-01) | Legal review and guardian model before G1 |
 | Later, no version | Native Windows client; more name conventions (family-name-first, Portuguese, Filipino); multi-persona; Exec Mgmt integration; further domains (ARCH-02); emergency access to DNR and POA (ACCESS-01); commercialization | Owner places them |
 
 **Gates:** G0 discovery (done), G1 requirement baseline, G2 architecture plan, G3 build readiness, G4 verified build, G5 operate.
+
+**Release gates for the first stable long-term release (VZ-01, Proposed):** "vulns at zero". The release ships only when all of these hold:
+
+1. Zero known open vulnerabilities in Meep and all dependencies on the release commit (`cargo-deny` advisories clean). *Started.*
+2. `#![forbid(unsafe_code)]` in all Meep crates. *Started.*
+3. All dependencies audited with `cargo-vet` before the long-term release.
+4. AI security review on every pull request, part of the `all-green` gate. *Started (report-only until the owner picks a provider).*
+5. Fuzz targets for every input parser (name entry, address parser, backup import; later card intake), run in CI.
+6. Pre-release adversarial review: an AI red-team pass plus a threat-model check against the built system; every finding fixed or recorded as an accepted risk.
+7. Post-release fix-time targets: critical fixed and shipped through a signed update within 72 hours, high within 14 days. *Proposed numbers; the owner confirms them before the long-term release.*
+
+Automated dependency-update pull requests are also on from the start.
 
 ## Constitution
 
@@ -557,6 +569,7 @@ v1.0 (names) is clear to start: all Readiness decisions were confirmed by the ow
 
 | Date | Change | By |
 | --- | --- | --- |
+| 2026-11-19 | Release gates for the first stable long-term release added (VZ-01, Proposed): vulns at zero; items 1, 2 and 4 and automated dependency updates started | Owner, Claude |
 | 2026-11-19 | Principle 27 Confirmed; 44 × 44 px targets for menus and the theme toggle; build order BUILD-01; references to decision records NAMES-01 to NAMES-06, FOUND-01, CONST-27, COMMIT-ID | Owner, Claude |
 | 2026-11-19 | Names clarifications (retired names in exports, corrections, limits, short form) recorded in spec 001; commit-identity requirement removed (alias and its email in commit metadata accepted); decision records added | Owner, Claude |
 | 2026-11-19 | Readiness R1 to R4 and R6 to R17 confirmed; R7 revisit before v1.1; R8 built in v1.0 foundation; R14 note; decision records added under docs/decisions/; setup checklist updated | Owner, Claude |
