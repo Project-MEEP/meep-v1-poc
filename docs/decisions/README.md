@@ -46,6 +46,7 @@ R5 (no sign-in in v1.0) was confirmed earlier and is recorded in the spec.
 | [FOUND-09](FOUND-09.md) | Multi-part changes (for example exactly one Legal name) are one atomic batch operation | Confirmed | 2026-11-20 |
 | [FOUND-10](FOUND-10.md) | Anchor the change-log head outside the store (open question) | Proposed | 2026-11-20 |
 | [FOUND-08](FOUND-08.md) | Feature events travel with record writes (save, update, delete), validated by the foundation | Confirmed | 2026-11-20 |
+| [FOUND-11](FOUND-11.md) | Launch-token exchange for local access; amends FOUND-02 item 2 | Confirmed | 2026-11-20 |
 | [FOUND-07](FOUND-07.md) | Test-only features (plaintext store, in-memory key store) never ship: CI check, start-up guard | Confirmed | 2026-11-19 |
 | [FOUND-06](FOUND-06.md) | Backups while saving: as-of snapshot, nothing delayed, verified before naming, last-backup shown | Confirmed | 2026-11-19 |
 | [FOUND-05](FOUND-05.md) | Owner backup: zip with read-me, data, schema; versioned; docs published and checked | Confirmed | 2026-11-19 |
