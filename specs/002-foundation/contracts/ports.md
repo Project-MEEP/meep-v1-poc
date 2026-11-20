@@ -36,7 +36,7 @@ Features add entries only by passing `events` to `save`, `update` and `delete` (
 | `purpose_value(record_id, purpose, input)` | Returns a keyed, non-reversible value tied to the record's own key and the named purpose (for example the edit fingerprint, NAMES-02); meaningless after the record key is destroyed (FR-012) | `NotFound`; `RecordKeyDestroyed` |
 | `destroy_record_key(record_id)` | Destroys the record's wrapped key; only `delete` and restore call it (FR-010) | `NotFound` |
 
-Features never receive a record key, the store key or the recovery key. There is no operation that returns key material (FR-025, principle 15).
+Features never receive a record key, the store key or the recovery key. There is no operation that returns key material (FR-025, principle 15). Unlock methods and their wrapped copies of the data key (FOUND-12) are foundation-internal; no port exposes them, and v1.0 offers no way to add or replace one.
 
 ## BackupFragment (contributed by each feature)
 
