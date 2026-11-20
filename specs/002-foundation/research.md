@@ -9,7 +9,7 @@ Phase 0 output. Every technology choice is **Proposed** until the owner confirms
 | Crate names, versions, licenses, last update | crates.io API | All found. `rusqlite` 0.43.0 (MIT), `libsqlite3-sys` 0.40.0, `sqlcipher-src` 420.0.0 (SQLCipher 4.20.0 on SQLite 3.54.1, libtomcrypt 1.18.2; license "MIT AND BSD-3-Clause AND blessing AND WTFPL"), `keyring` 4.2.0, `zip` 9.8.0 (MIT), `schemars` 1.2.3 (MIT), `jsonschema` 0.61.2 (MIT), `serde_json_canonicalizer` 0.4.1 (MIT), `serde_jcs` 0.3.0, `data-encoding` 2.11.1, `subtle` 2.6.1 (**BSD-3-Clause**), `tower` 0.5.3, `tower-http` 0.7.1, `cookie` 0.18.2, `tempfile` 3.27.0, `time` 0.3.55. `fd-lock` 4.0.4 and `fs4` 1.1.0 exist but are not needed (see lock row). `fail` 0.5.1 was last updated in 2022 and is not used. |
 | `rusqlite` SQLCipher features | crates.io feature list for `libsqlite3-sys` 0.40.0 | `bundled-sqlcipher` (pulls `sqlcipher-src`), `bundled-sqlcipher-vendored-openssl` (adds `openssl-sys/vendored`), `sqlcipher` (link a system SQLCipher) |
 | **SQLCipher build on this PC, `bundled-sqlcipher`** | Throwaway project in the session scratchpad, outside the repo | **Fails**: the build script stops with "Missing environment variable OPENSSL_DIR or OPENSSL_DIR is not set". `sqlcipher-src` mentions a libtomcrypt provider "for targets without a system crypto library", but `libsqlite3-sys` still asks for OpenSSL on Windows MSVC. |
-| **SQLCipher build, `bundled-sqlcipher-vendored-openssl`** | Same throwaway project | **Fails at the first attempt**: OpenSSL is built from source (`no-asm`, so no NASM needed) but its configure step needs a native `perl` on the Windows PATH, and only Git's bash-side Perl exists. A winget install of Strawberry Perl was started; see "Spike status" below. |
+| **SQLCipher build, `bundled-sqlcipher-vendored-openssl`** | Same throwaway project, after installing Strawberry Perl 5.42.3 with `winget` | **Passes on this PC** (cold debug build 7 min 41 s, OpenSSL compiled from source). The program printed `cipher_version=4.20.0 community`, `plaintext_visible_in_file=false` and `open_without_key_fails=true`. Harmless linker warnings (LNK4099, a missing debug-symbol file for OpenSSL). The first attempts failed for two separate reasons, both now understood: no native Perl on the Windows PATH, and the OpenSSL source copy exceeding Windows' 260-character path limit when the project sat in a deeply nested folder. |
 | One-running-copy lock | Throwaway project using `std::fs::File::try_lock` (rustc 1.100.0) | **Verified on this PC**: a second process was refused ("lock held by another") while the first held the lock; after the first was hard-killed (a simulated crash) a third process acquired the lock. No crate is needed. |
 | Operating-system keychain backends | `keyring` 4.2.0 feature list | The feature list shows `cli`, `default`, `v1`, so per-platform backend selection is **not confirmed** from metadata; to be confirmed in the first scaffold task against `keyring`'s documentation and a throwaway test on Windows. |
 | SQLite and SQLCipher behaviors (WAL recovery on open, `secure_delete`, `wal_checkpoint(TRUNCATE)`, `cipher_integrity_check`) | Documented behavior known to the author | **Not machine-verified in this session.** Each is covered by a required test in the plan (PLAN-16, PLAN-20) so the claim is proven at implementation. |
@@ -18,8 +18,15 @@ Phase 0 output. Every technology choice is **Proposed** until the owner confirms
 
 ## Spike status
 
-- **Done and verified:** the operating-system lock (works on Windows, releases on a kill); the crate and feature inventory.
-- **Blocked on this PC:** SQLCipher needs either a system OpenSSL (`OPENSSL_DIR` with headers and libraries) or the vendored OpenSSL build, which needs a native Windows Perl. The Perl install is in progress; if it finishes, the vendored build is retried and the result is added to PLAN-14. If it does not finish, the first scaffold task must settle it, and the owner can choose between installing Strawberry Perl, installing a prebuilt OpenSSL development package, or both. The design below does not depend on which.
+- **Done and verified:** the operating-system lock (works on Windows, releases on a kill); the crate and feature inventory; **the SQLCipher build on Windows through `bundled-sqlcipher-vendored-openssl`**.
+- **Windows build prerequisites (verified on this PC, 2026-11-19):**
+  1. The Microsoft C++ Build Tools (already installed for Rust).
+  2. **Strawberry Perl** (installed with `winget install StrawberryPerl.StrawberryPerl`; the install needed an administrator approval). It must be on the Windows PATH before the build; Git's bash-side Perl does not count and OpenSSL's Windows build should not use it.
+  3. The **vendored OpenSSL feature**: `rusqlite` with `bundled-sqlcipher-vendored-openssl`. Plain `bundled-sqlcipher` fails without `OPENSSL_DIR`.
+  4. **Windows long paths.** The OpenSSL source tree is copied into the build folder and its longest file paths passed 260 characters when the project was deeply nested, which produced "files missing" errors during OpenSSL's configure step. The preferred fix is the one-time administrator setting `LongPathsEnabled` plus `git config core.longpaths true`. As a fallback only, set `CARGO_TARGET_DIR` to a short folder such as `C:\mt`, which is what made the spike pass. On this PC `LongPathsEnabled` is currently off (0) and `core.longpaths` is unset; changing the system setting needs the owner's approval.
+  5. A cold build takes several minutes because OpenSSL is compiled from source; CI caches the build (PLAN-14).
+- **Windows CI:** a `windows-latest` build job (build plus unit tests) is added to the workflow and the `all-green` gate so Windows-only failures are caught. The runner image already provides Perl 5.42.0, the C++ tools and Rust; it was not run yet because the workspace does not exist.
+- **Still to confirm in the scaffold:** the macOS and Linux builds, and the `keyring` per-platform backends.
 
 ## Decisions
 
@@ -34,7 +41,7 @@ Phase 0 output. Every technology choice is **Proposed** until the owner confirms
 - **Decision**: `rusqlite` 0.43.0 with `bundled-sqlcipher`, or `bundled-sqlcipher-vendored-openssl` when no system OpenSSL exists (the owner's R2 choice at product level). Open with a raw 256-bit key derived from the store key, WAL journal mode, `synchronous=FULL`, `secure_delete=ON`, foreign keys on.
 - **Rationale**: SQLCipher gives whole-file encryption and is the confirmed choice. The spike showed the Windows build needs more than the crate alone.
 - **Alternatives**: plain SQLite with application-level encryption of every column (loses whole-file encryption and the header), a different encrypted database (not the owner's choice), linking a system SQLCipher (`sqlcipher` feature; fewer build steps but a second thing to install and version).
-- **Open**: which of the two build routes to use on Windows (see Spike status); Linux and macOS builds to confirm in the scaffold.
+- **Decision on the Windows route**: use `bundled-sqlcipher-vendored-openssl`, with the prerequisites in Spike status (Strawberry Perl, the C++ tools, long paths, and a CI build cache). Linux and macOS builds are to be confirmed in the scaffold.
 
 ### D3. Key hierarchy (PLAN-15, refines PLAN-03, PLAN-04, PLAN-05)
 
@@ -124,7 +131,7 @@ Ports and adapters (the three ports, with the store and fakes as adapters); Stra
 
 ## Remaining open items (none block planning)
 
-1. SQLCipher build route on Windows (system OpenSSL or vendored with a native Perl) and the macOS and Linux builds.
+1. The macOS and Linux SQLCipher builds, and the owner's approval to enable Windows long paths on this PC (the build works without it only with the short `CARGO_TARGET_DIR` fallback).
 2. `keyring` per-platform backend features, and the owner's preference for the recovery-key presentation (base32 groups or words).
 3. `cargo-deny` configuration for BSD-3-Clause, blessing and WTFPL.
 4. Whether `sqlcipher-src`'s libtomcrypt option can avoid OpenSSL on Windows (not exposed by `libsqlite3-sys` today).

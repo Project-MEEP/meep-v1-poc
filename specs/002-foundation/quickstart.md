@@ -4,8 +4,14 @@ A validation guide, not implementation. The workspace does not exist yet, so the
 
 ## Prerequisites
 
-- Rust stable (installed: rustc 1.100.0 with rustfmt and clippy) and the Microsoft C++ Build Tools (installed).
-- For the SQLCipher build: **either** a system OpenSSL (`OPENSSL_DIR`) **or** a native Windows Perl for the vendored OpenSSL build (see research.md, Spike status). This is the one prerequisite not yet settled on this PC.
+- Rust stable (installed: rustc 1.100.0 with rustfmt and clippy).
+- **Windows build prerequisites for the encrypted store (verified 2026-11-19, PLAN-14):**
+  1. Microsoft C++ Build Tools (installed).
+  2. Strawberry Perl on the Windows PATH (`winget install StrawberryPerl.StrawberryPerl`; needs an administrator approval). Open a new terminal after installing so the PATH is picked up.
+  3. The vendored OpenSSL feature: `rusqlite` with `bundled-sqlcipher-vendored-openssl`.
+  4. Windows long paths: set `LongPathsEnabled` once (administrator) and run `git config core.longpaths true`. Without long paths, a deeply nested project folder makes the OpenSSL build fail with "files missing"; the fallback is a short build folder, for example `CARGO_TARGET_DIR=C:\mt`.
+  5. Expect a cold build of several minutes (OpenSSL is compiled from source); later builds are cached.
+- On macOS and Linux the SQLCipher build is still to be confirmed in the scaffold.
 - No network is needed to run anything (FR-027).
 
 ## Commands (once the workspace exists)

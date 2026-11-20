@@ -7,7 +7,7 @@
 
 ## Decision
 
-`rusqlite` 0.43.0 with `bundled-sqlcipher`, or `bundled-sqlcipher-vendored-openssl` when no system OpenSSL exists (the owner's R2 choice at product level); open with a raw 256-bit key derived from the store key, WAL mode, `synchronous=FULL`, `secure_delete=ON`.
+`rusqlite` 0.43.0 with `bundled-sqlcipher-vendored-openssl` on Windows (verified), and `bundled-sqlcipher` where a system OpenSSL exists (the owner's R2 choice at product level); open with a raw 256-bit key derived from the store key, WAL mode, `synchronous=FULL`, `secure_delete=ON`.
 
 ## Alternatives considered
 
@@ -15,4 +15,4 @@ Plain SQLite with application-level encryption; a system SQLCipher through the `
 
 ## Notes
 
-Spike on this PC (2026-11-19): `bundled-sqlcipher` fails without `OPENSSL_DIR`; the vendored build fails because it needs a native Windows `perl` (`no-asm` is already used, so no NASM). Open: which route to use on Windows. Refines PLAN-02.
+Spike on this PC (2026-11-19): plain `bundled-sqlcipher` fails without `OPENSSL_DIR`. `bundled-sqlcipher-vendored-openssl` **passes** once Strawberry Perl is installed and the project is on a short path: SQLCipher 4.20.0 community, content not visible in the file, opening without the key fails; a cold debug build took 7 min 41 s. Windows build prerequisites: C++ Build Tools, Strawberry Perl on PATH, the vendored feature, and long paths (preferred: `LongPathsEnabled` plus `git config core.longpaths true`, which needs the owner's approval; fallback: a short `CARGO_TARGET_DIR`). CI gets a `windows-latest` build and unit-test job in the `all-green` gate, with a build cache because OpenSSL is compiled from source. Open: macOS and Linux builds. Refines PLAN-02.
