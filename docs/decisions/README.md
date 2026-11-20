@@ -16,6 +16,18 @@ R5 (no sign-in in v1.0) was confirmed earlier and is recorded in the spec.
 | [NAMES-02](NAMES-02.md) | Corrections keep only the new wording; real changes add a new name | Confirmed | 2026-11-19 |
 | [NAMES-03](NAMES-03.md) | Limits: 128 characters per box, 384 full-name box, 50 names | Confirmed | 2026-11-19 |
 | [NAMES-04](NAMES-04.md) | Short form: per name, display only, not exported | Confirmed | 2026-11-19 |
+| [PLAN-01](PLAN-01.md) | Workspace layout | Proposed | 2026-11-19 |
+| [PLAN-02](PLAN-02.md) | Encrypted database access | Proposed | 2026-11-19 |
+| [PLAN-03](PLAN-03.md) | Key custody | Proposed | 2026-11-19 |
+| [PLAN-04](PLAN-04.md) | Per-record keys and crypto-shredding | Proposed | 2026-11-19 |
+| [PLAN-05](PLAN-05.md) | Tamper-evidence for corrections | Proposed | 2026-11-19 |
+| [PLAN-06](PLAN-06.md) | Text normalization and character counting | Proposed | 2026-11-19 |
+| [PLAN-07](PLAN-07.md) | Web server and templates | Proposed | 2026-11-19 |
+| [PLAN-08](PLAN-08.md) | Interface text | Proposed | 2026-11-19 |
+| [PLAN-09](PLAN-09.md) | Export formats | Proposed | 2026-11-19 |
+| [PLAN-10](PLAN-10.md) | Design patterns in Rust | Proposed | 2026-11-19 |
+| [PLAN-11](PLAN-11.md) | Identifiers and addresses | Proposed | 2026-11-19 |
+| [PLAN-12](PLAN-12.md) | Test tooling | Proposed | 2026-11-19 |
 | [PRON-01a](PRON-01a.md) | Pronoun visibility in v1.0 (Only me / Included in exports; JSON backup always includes) | Confirmed | 2026-11-19 |
 | [R6](R6.md) | First domain address for names (ARCH-02) | Confirmed | 2026-11-19 |
 | [R7](R7.md) | Database key custody with no login | Confirmed | 2026-11-19 |
