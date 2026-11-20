@@ -1,6 +1,6 @@
 # Contract: Change-log entry and chain
 
-FR-013, FR-014, FOUND-01, FOUND-03, PLAN-17.
+FR-013, FR-014, FOUND-01, FOUND-03, PLAN-17, LOG-01. This log is the History log; the Diagnostic log is in contracts/logging.md.
 
 ## Entry body (what is hashed)
 
@@ -10,7 +10,9 @@ An entry's body is a JSON object with these members, serialized in a canonical f
 |---|---|---|
 | `seq` | integer | 0 for the genesis entry, then 1, 2, 3 ... with no gaps |
 | `ts` | string | UTC time, RFC 3339; informational only, never used for ordering |
-| `record_id` | string or null | The record concerned |
+| `record_alias` | string or null | The record concerned, by its random alias, never its id or content (LOG-01, FR-048) |
+| `actor` | string | `owner` or `system` |
+| `outcome` | string | `ok`, `refused` or `failed` |
 | `kind` | string | A registered event kind |
 | `details` | object | Only keys registered for that kind; values are ids, counts, enums or short fixed phrases, never content or keys |
 | `prev_hash` | string | Lowercase hex of the previous entry's hash; 64 zeros for the genesis entry |

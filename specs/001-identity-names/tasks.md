@@ -286,6 +286,19 @@ T034 rebuild_property.rs  T035 add_name.feature
 
 ## Notes
 
+## Phase 7b: Input validation (SEC-05, LOG-01)
+
+**Purpose**: the name input rules the owner confirmed on 2026-11-20. Lives in `crates/meep-core/src/text.rs` and `name/validation.rs` with the existing validation tasks; needs the foundation's typed log API (foundation T131) for rule IDs **[DEP-002]**.
+
+- [x] T103 Closed: the owner confirmed the full-name box byte cap is 1,536 bytes (384 graphemes x 4, SEC-05, FR-001b); a NAMEVAL rule ID for it is in T104 and a 1,537-byte case is in T107
+- [ ] T104 [P] Write failing tests in `crates/meep-core/tests/nameval_rules.rs`: a table of every rule `NAMEVAL-01` onward (limits, the 512-byte part cap and the 1,536-byte full-name cap (each with its own rule ID), control characters including null, bidi overrides and isolates U+202A to U+202E and U+2066 to U+2069, noncharacters) where each rule has one ID, one Fluent message ID and one fixture; a rejected box does not block saving other valid boxes; the rejection message cites the rule ID (FR-001b, FR-001c, FR-001d, SEC-05 item 4)
+- [ ] T105 [P] Write failing tests in `crates/meep-core/tests/accept_rules.rs`: ZWJ and ZWNJ are accepted; apostrophes, hyphens, spaces, accents, non-Latin scripts, emoji ZWJ sequences and Turkish İ and ı are never rejected (FR-001c, SEC-05 item 4)
+- [ ] T106 Implement the rule table in `crates/meep-core/src/name/rules.rs` with stable `NAMEVAL-nn` IDs used by validation, the Fluent messages in `crates/meep-web/locales/en/main.ftl` and the log calls (rule ID and field reference only, never the text); extend `text.rs` and `name/validation.rs` for the byte cap and character rules (FR-001b, FR-001c, FR-001d, LOG-01 item 4) **[DEP-002]**
+- [ ] T107 [P] Create the hostile-input fixture corpus `tests/fixtures/names/hostile.json` (synthetic): `Robert'); DROP TABLE Students;--`, `O'Brien`, `<script>alert(1)</script>`, text with U+202E, Zalgo text, a null byte, 10,000 characters, a 1,537-byte full-name case (invalid) and a 1,536-byte one (valid), NFD "José", an emoji ZWJ sequence, Turkish İ and ı, each marked valid or invalid with the expected rule ID (SEC-05 item 6)
+- [ ] T108 [P] Write acceptance tests in `tests/acceptance/features/name_input_safety.feature` and its steps: every valid fixture round-trips byte-identical after save and read (accepted input is stored as normalized, and the test states the normalized form it expects), and every invalid fixture is rejected with the right rule ID; the hostile text is escaped in the rendered page (SEC-05 item 6, ENG-02)
+- [ ] T109 [P] Write property tests with `proptest` in `crates/meep-core/tests/validator_props.rs`: normalization is idempotent, validation never panics on any Unicode string, a string accepted once is accepted after normalization, no accepted string contains a forbidden character, and counts never exceed the limits (SEC-05 item 6)
+- [ ] T110 [P] Add `cargo-fuzz` targets `fuzz/fuzz_targets/normalize.rs` and `validate_name.rs` for the normalizer and validator, a short run in CI and a longer scheduled run (SEC-05 item 6, VZ-01 item 5)
+
 - Out of scope and not tasked: ID-06, AT-24, AT-25, AT-32, v1.1 and later, login, delegates, AI, cloud (spec Out of Scope).
 - Open questions that need the owner: T026 (recovery-key format), T058 (reactivation), T080 (USCDI layout), T100 (promoting PLAN decisions).
 - All fixtures are synthetic; no real personal data or email addresses (constitution).

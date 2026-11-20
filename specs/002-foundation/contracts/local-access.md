@@ -1,6 +1,6 @@
 # Contract: Local access rules
 
-R5, FR-020, FR-021, FOUND-02, PLAN-25. Meep is reachable only from the owner's own machine, with no sign-in in v1.0.
+R5, FR-020, FR-021, FOUND-02, PLAN-25, SEC-05. Meep is reachable only from the owner's own machine, with no sign-in in v1.0.
 
 ## Binding
 
@@ -26,7 +26,7 @@ A request is accepted only if all of these hold; otherwise it is refused with st
 
 ## Responses
 
-All responses send `Cache-Control: no-store`, `X-Content-Type-Options: nosniff` and a content security policy that allows only the server's own origin, so other sites cannot embed or load Meep content.
+All responses send `Cache-Control: no-store`, `X-Content-Type-Options: nosniff` and the content security policy `default-src 'self'` with no inline script and no inline style needing `unsafe-inline`, so other sites cannot embed or load Meep content. The server sends **no CORS headers** at all (SEC-05). Templates escape output by default; `|safe` is forbidden by CI.
 
 ## Not covered in v1.0 (FOUND-02)
 
@@ -37,3 +37,4 @@ Other user accounts on the same computer are not guarded against: a different op
 - A connection attempt to the machine's network address is refused.
 - A request with a wrong `Host`, a foreign `Origin`, `Sec-Fetch-Site: cross-site`, or no token on a state-changing request gets 403.
 - A normal same-origin request with the token succeeds with no sign-in.
+- These are Rust integration tests against the router itself using tower `oneshot` with forged `Host`, `Origin` and `Sec-Fetch-Site` headers; no browser is needed (SEC-05). Browser-level tests stay with spec 010.
