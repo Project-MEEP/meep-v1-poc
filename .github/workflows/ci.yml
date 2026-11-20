@@ -1,7 +1,7 @@
 name: CI
 
 # ENG-02 / ENG-03: runs on every push to any branch and every pull request to main.
-# Rust jobs are skipped until a Cargo.toml exists (the workspace is not scaffolded yet).
+# Rust jobs, including the Windows build, are skipped until a Cargo.toml exists (the workspace is not scaffolded yet).
 on:
   push:
   pull_request:
@@ -64,6 +64,28 @@ jobs:
       - if: hashFiles('Cargo.toml') == ''
         run: echo "No Cargo.toml yet; unit tests skipped."
 
+  build-windows:
+    name: build-windows
+    runs-on: windows-latest
+    # The owner runs Windows: catch Windows-only failures (for example the vendored OpenSSL
+    # build and path-length limits for the SQLCipher dependency, PLAN-14).
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - if: hashFiles('Cargo.toml') != ''
+        run: git config --global core.longpaths true
+      - if: hashFiles('Cargo.toml') != ''
+        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # v1
+        with:
+          toolchain: stable
+      - if: hashFiles('Cargo.toml') != ''
+        uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+      - if: hashFiles('Cargo.toml') != ''
+        run: cargo build --workspace --all-targets
+      - if: hashFiles('Cargo.toml') != ''
+        run: cargo test --workspace
+      - if: hashFiles('Cargo.toml') == ''
+        run: echo "No Cargo.toml yet; Windows build skipped."
+
   acceptance-domain:
     name: acceptance-domain
     runs-on: ubuntu-latest
@@ -91,7 +113,7 @@ jobs:
   all-green:
     name: all-green
     if: always()
-    needs: [guard, lint, deps, unit, acceptance-domain, acceptance-web]
+    needs: [guard, lint, deps, unit, build-windows, acceptance-domain, acceptance-web]
     runs-on: ubuntu-latest
     steps:
       - name: Require every job to pass
