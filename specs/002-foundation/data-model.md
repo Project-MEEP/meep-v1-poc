@@ -33,6 +33,7 @@ The store key lives in the operating-system keychain, never in these files. The 
 | Field | Meaning | Rule |
 |---|---|---|
 | `id` | Record identifier | UUID v4 (envelope, FR-006) |
+| `alias` | Short random name used by logs instead of the id or content | Random, assigned at creation, from a curated character set that cannot spell words or look like names (PLAN-28); unique among records; never derived from content; gone with the row, so a deleted record's alias resolves to nothing (FR-048, R8) |
 | `address` | Where the record lives | Five dot-separated segments, validated by the shared checker (R16, FR-008); stored as written, compared case-insensitively |
 | `provenance` | Where the record came from | Text from a small set: entered, imported, restored (PLAN-24) |
 | `authority` | The statement Meep claims no authority | Always the value `none` (FR-006) |
@@ -54,7 +55,9 @@ The account ID is carried by every record through the header, not repeated as un
 |---|---|---|
 | `seq` | Entry number | Starts at 0 with the genesis entry; strictly increasing, no gaps |
 | `ts` | Time of the event | UTC, informational |
-| `record_id` | The record concerned | May be null for store-level events |
+| `record_alias` | The record concerned, by alias | Null for store-level events; replaces the earlier `record_id` column so the log never carries the id (LOG-01, FR-048) |
+| `actor` | Who or what did it | Enum: `owner`, `system` (LOG-01) |
+| `outcome` | How it ended | Enum: `ok`, `refused`, `failed` (LOG-01) |
 | `kind` | Kind of event | From a registry; each feature registers its kinds and the detail keys each may carry (FR-014, PLAN-17) |
 | `details` | Feature-defined details | Only registered keys; never content or keys (FR-014, R8) |
 | `prev_hash`, `hash` | The chain links | SHA-256 over the canonical entry body, which includes `prev_hash` (PLAN-17) |

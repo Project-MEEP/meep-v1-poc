@@ -52,6 +52,9 @@ R5 (no sign-in in v1.0) was confirmed earlier and is recorded in the spec.
 | [FOUND-02](FOUND-02.md) | Foundation: plain open backup with a warning; one-person computer; recovery key not replaceable in v1.0 | Confirmed | 2026-11-19 |
 | [VZ-02](VZ-02.md) | AI review of every pull request: Claude Code Action then Codex; CodeQL; grouped Dependabot | Confirmed | 2026-11-20 |
 | [VZ-01](VZ-01.md) | Release gate "vulns at zero" for the first stable long-term release | Proposed | 2026-11-19 |
+| [PLAN-28](PLAN-28.md) | Logging design: change log fields, encrypted diagnostic file, alias alphabet, typed log API | Proposed | 2026-11-20 |
+| [LOG-01](LOG-01.md) | Logging: History log and Diagnostic log, content-free, FieldRef and record alias | Confirmed | 2026-11-20 |
+| [SEC-05](SEC-05.md) | Input validation and injection: static SQL, autoescape, localhost hardening, name input rules, hostile-input tests | Confirmed | 2026-11-20 |
 | [BUILD-01](BUILD-01.md) | v1.0 build order: spec 002, then 010, then names screens; no throwaway placeholders | Confirmed | 2026-11-19 |
 | [NAMES-05](NAMES-05.md) | Checklist resolutions (CHK001 to CHK039) | Confirmed | 2026-11-19 |
 | [NAMES-06](NAMES-06.md) | Reactivating a retired name | Confirmed | 2026-11-19 |

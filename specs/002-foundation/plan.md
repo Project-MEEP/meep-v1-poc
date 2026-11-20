@@ -115,6 +115,17 @@ docs/decisions/                     # PLAN-13 to PLAN-27 (Proposed)
 
 **Structure Decision**: four crates. `meep-core` holds the ports and the pure rules so names and the shared UI can be tested with fakes (BUILD-01 lets domain work proceed before the foundation lands). `meep-storage` owns everything that touches the file, the keychain and the lock. `meep-backup` is separate because it only needs the ports and the zip and schema crates, which keeps the store crate small and lets backup tests run without a database. `meep-web` carries the foundation's server shell; spec 010 and spec 001 add screens to it later. The workspace is created at implementation time, not by this plan.
 
+## Logging and input safety (LOG-01, SEC-05)
+
+Confirmed by the owner 2026-11-20; the design choices below are Proposed (PLAN-28) until confirmed.
+
+- **History log** is the existing change log (PLAN-17) with the LOG-01 fixed fields: the entry carries `record_alias`, `actor` and `outcome` (contracts/change-log-entry.md).
+- **Record alias** (FR-048): generated at record creation from a curated 32-symbol alphabet with no vowels and no look-alike characters, in two groups (for example `K7X-4PM`), checked for uniqueness at save; stored in `records.alias` (data-model.md).
+- **Diagnostic log** (contracts/logging.md): a second encrypted database file opened with an HKDF subkey of the store key, written as fixed-column rows, trimmed to a size cap (default 5 MiB, a tunable) by dropping the oldest rows. Before the store key exists, diagnostics stay in memory for that run.
+- **Typed log API:** a `log` module in `meep-core` exposing functions that take `FieldRef`, alias, `RuleId`, shape and enum types; `check-logging.sh` bans direct `println!`, `eprintln!`, `dbg!`, `tracing` and `log` macros elsewhere.
+- **SEC-05 SQL rule:** `meep-storage` wraps rusqlite behind functions taking `&'static str` and bound parameters; `check-sec05.sh` fails on `Box::leak`, on rusqlite `execute` or `prepare` outside `meep-storage`, and on `|safe` in templates. Both checks run in CI now (they pass trivially until Rust exists).
+- **Localhost hardening** tests use tower `oneshot` against the axum router (contracts/local-access.md).
+
 ## Impacts on other specs (not edited here)
 
 Spec 001's task list should be adjusted when it is next revised, because ownership moved to the foundation (FOUND-01, FOUND-02, BUILD-01):

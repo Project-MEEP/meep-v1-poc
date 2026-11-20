@@ -22,6 +22,10 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Secret, data and personal-info guard
         run: bash .github/scripts/guard.sh
+      - name: Injection and logging checks (SEC-05, LOG-01)
+        run: |
+          bash .github/scripts/check-sec05.sh
+          bash .github/scripts/check-logging.sh
 
   lint:
     name: lint
