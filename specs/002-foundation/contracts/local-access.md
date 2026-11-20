@@ -24,6 +24,10 @@ A request is accepted only if all of these hold; otherwise it is refused with st
 - The page the owner opens receives a cookie (`HttpOnly`, `SameSite=Strict`, no `Domain`) and an anti-forgery token embedded in each form or sent in a request header; a state-changing request must present both and they must match (double submit).
 - The token is not a sign-in and does not identify the owner. It only stops other web pages from making Meep act (FR-021).
 
+## Launch token (FR-052)
+
+Each launch creates a cryptographically random token. It is never passed on a command line and never left in a URL: Meep writes a launch file readable only by the current operating-system user that redirects into Meep; the server swaps the token for a `SameSite=Strict`, `HttpOnly` cookie and redirects to a clean URL. A request without a valid cookie is refused with `request-refused`. The token is never logged. This is not a sign-in (R5). Residual risk, stated in the documentation: code running as the same operating-system user can still read the launch file or reach the port.
+
 ## Responses
 
 All responses send `Cache-Control: no-store`, `X-Content-Type-Options: nosniff` and the content security policy `default-src 'self'` with no inline script and no inline style needing `unsafe-inline`, so other sites cannot embed or load Meep content. The server sends **no CORS headers** at all (SEC-05). Templates escape output by default; `|safe` is forbidden by CI.
