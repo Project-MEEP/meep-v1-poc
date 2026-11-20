@@ -41,7 +41,7 @@ Phase 0 output. Every technology choice is **Proposed** until the owner confirms
 - **Decision**: `rusqlite` 0.43.0 with `bundled-sqlcipher`, or `bundled-sqlcipher-vendored-openssl` when no system OpenSSL exists (the owner's R2 choice at product level). Open with a raw 256-bit key derived from the store key, WAL journal mode, `synchronous=FULL`, `secure_delete=ON`, foreign keys on.
 - **Rationale**: SQLCipher gives whole-file encryption and is the confirmed choice. The spike showed the Windows build needs more than the crate alone.
 - **Alternatives**: plain SQLite with application-level encryption of every column (loses whole-file encryption and the header), a different encrypted database (not the owner's choice), linking a system SQLCipher (`sqlcipher` feature; fewer build steps but a second thing to install and version).
-- **Decision on the Windows route**: use `bundled-sqlcipher-vendored-openssl`, with the prerequisites in Spike status (Strawberry Perl, the C++ tools, long paths, and a CI build cache). Linux and macOS builds are to be confirmed in the scaffold.
+- **Decision on the Windows route**: use `bundled-sqlcipher-vendored-openssl`, with the prerequisites in Spike status (Strawberry Perl, the C++ tools, a short build-folder path, and a CI build cache). Linux and macOS builds are to be confirmed in the scaffold.
 
 ### D3. Key hierarchy (PLAN-15, refines PLAN-03, PLAN-04, PLAN-05)
 
