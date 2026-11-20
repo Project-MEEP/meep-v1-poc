@@ -86,6 +86,18 @@ jobs:
       - if: hashFiles('Cargo.toml') == ''
         run: echo "No Cargo.toml yet; Windows build skipped."
 
+  release-features:
+    name: release-features
+    runs-on: ubuntu-latest
+    # FOUND-07: test-only cargo features must never be compiled into a release build or artifact.
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - if: hashFiles('Cargo.toml') != ''
+        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # v1
+        with:
+          toolchain: stable
+      - run: bash .github/scripts/check-release-features.sh
+
   acceptance-domain:
     name: acceptance-domain
     runs-on: ubuntu-latest
@@ -113,7 +125,7 @@ jobs:
   all-green:
     name: all-green
     if: always()
-    needs: [guard, lint, deps, unit, build-windows, acceptance-domain, acceptance-web]
+    needs: [guard, lint, deps, unit, build-windows, release-features, acceptance-domain, acceptance-web]
     runs-on: ubuntu-latest
     steps:
       - name: Require every job to pass

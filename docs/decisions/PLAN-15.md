@@ -16,3 +16,5 @@ A passphrase-derived recovery key; a 24-word phrase encoding; a single key for e
 ## Notes
 
 Both keys are full-strength random values so no password-stretching is needed. Open: recovery-key presentation, `keyring` backends per platform. Refines PLAN-03, PLAN-04, PLAN-05.
+
+Analysis fix (2026-11-19): key access goes through a `KeyStore` trait with `OsKeyStore` (keyring) and a test-only `InMemoryKeyStore`, so tests run on CI runners without a keychain (FOUND-07).

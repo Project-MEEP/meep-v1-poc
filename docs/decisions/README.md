@@ -43,6 +43,7 @@ R5 (no sign-in in v1.0) was confirmed earlier and is recorded in the spec.
 | [PLAN-10](PLAN-10.md) | Design patterns in Rust | Proposed | 2026-11-19 |
 | [PLAN-11](PLAN-11.md) | Identifiers and addresses | Proposed | 2026-11-19 |
 | [PLAN-12](PLAN-12.md) | Test tooling | Proposed | 2026-11-19 |
+| [FOUND-07](FOUND-07.md) | Test-only features (plaintext store, in-memory key store) never ship: CI check, start-up guard | Confirmed | 2026-11-19 |
 | [FOUND-06](FOUND-06.md) | Backups while saving: as-of snapshot, nothing delayed, verified before naming, last-backup shown | Confirmed | 2026-11-19 |
 | [FOUND-05](FOUND-05.md) | Owner backup: zip with read-me, data, schema; versioned; docs published and checked | Confirmed | 2026-11-19 |
 | [FOUND-04](FOUND-04.md) | One running copy: OS-held lock, check after unexpected stop, refuse when unsure | Confirmed | 2026-11-19 |
