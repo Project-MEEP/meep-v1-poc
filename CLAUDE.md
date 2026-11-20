@@ -12,10 +12,15 @@ This repository is PUBLIC.
    numbers, addresses, account IDs, keys, tokens, or real records, in code, docs,
    comments, commits, issues or PRs. Use the synthetic fixtures in the spec.
    Real data lives only in the git-ignored `data/` folder. The one public
-   identity is the owner's chosen publishing identity (spec PUB-ID).
+   identity is the owner's chosen publishing identity (spec PUB-ID) and the
+   owner's public alias with its matching email, which the owner has said is
+   not PII. Nothing else personal belongs here, and do not add that email to
+   files unless the owner asks.
 5. **Pull requests only (ENG-03).** Never commit or push to `main`. Use a
    feature branch and open a PR. Merge only when every CI check is green.
-6. **Commit identity** is the GitHub noreply address only.
+6. **Commit identity:** commits you make use the GitHub noreply address.
+   Squash merges made on GitHub may show the owner's public alias and its
+   matching email; that is accepted.
 7. **Warn, never block** (principle 26), except for data integrity and
    authorization.
 8. Reference spec IDs (ID-04, R7, AT-28, ...) in commits, tests and PRs.
