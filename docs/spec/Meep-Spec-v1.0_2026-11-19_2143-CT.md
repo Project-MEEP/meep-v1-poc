@@ -1,6 +1,6 @@
-# Meep Spec v1.0 (2026-11-19 20:52 CT)
+# Meep Spec v1.0 (2026-11-19 21:43 CT)
 
-Last changed 2026-11-19 20:52 CT · Samantha Schroff
+Last changed 2026-11-19 21:43 CT · Samantha Schroff
 
 ## How to use this spec (for implementers)
 
@@ -50,7 +50,7 @@ Meep (Alpha.Meep, product line v1) is a free, MIT-licensed, user-owned system of
 
 **Publishing identity:** Samantha Schroff. Code: github.com/Project-MEEP/meep-v1-poc (public, owned by the Project-MEEP GitHub organization; empty as of 2026-11-19 20:28 CT).
 
-**Spec naming (Confirmed 2026-11-19):** a spec carries the build version it targets plus the date and time it was last changed, e.g. "Meep Spec v1.0 (2026-11-19 20:52 CT)". The newest time is the current copy. When v1.0 ships, a new spec starts as v1.1.
+**Spec naming (Confirmed 2026-11-19):** a spec carries the build version it targets plus the date and time it was last changed, e.g. "Meep Spec v1.0 (2026-11-19 21:43 CT)". The newest time is the current copy. When v1.0 ships, a new spec starts as v1.1.
 
 | Status | Meaning |
 | --- | --- |
@@ -278,7 +278,6 @@ v1.1 turns a photo of the front and back of an insurance card into a structured,
 **Data and code rules**
 
 - Real card images and extracted data never enter git; tests use a synthetic card.
-- Commits use Tal Kiraifayi's GitHub noreply address.
 - Cloud AI is used only after a per-item yes from the owner (EGRESS-01), through a swappable adapter with no default vendor.
 
 **Candidate crates (verify at G2):** `ocrs` (OCR), `rxing` (PDF417 barcode).
@@ -486,7 +485,6 @@ v1.0 (names) is clear to start: all Readiness decisions were confirmed by the ow
 
 - [x] Create the GitHub organization (Project-MEEP) and the public repo (meep-v1-poc)
 - [x] First commit: MIT `LICENSE`, `TRADEMARKS.md`, `SECURITY.md`, `README.md` with the "always free" notice, `.gitignore` covering `data/`, `.env` and `target/` (PR #1)
-- [x] Set git identity to Tal's GitHub noreply address
 - [ ] Scrub history files before committing them (rev 1.1's byline carries the owner's full legal name), then commit the v0.4 starter ZIP, rev 1.0, rev 1.1 and this spec (A-09), then run `specify init` without overwriting them
 - [x] Add the CI workflow and add the `all-green` required check (branch protection on main is already on: pull request required, no force-push, applies to administrators)
 - [ ] Install the Claude GitHub App on Project-MEEP, limited to meep-v1-poc, for push and pull-request work from Claude chats
@@ -556,6 +554,7 @@ v1.0 (names) is clear to start: all Readiness decisions were confirmed by the ow
 
 | Date | Change | By |
 | --- | --- | --- |
+| 2026-11-19 | Names clarifications (retired names in exports, corrections, limits, short form) recorded in spec 001; commit-identity requirement removed (alias and its email in commit metadata accepted); decision records added | Owner, Claude |
 | 2026-11-19 | Readiness R1 to R4 and R6 to R17 confirmed; R7 revisit before v1.1; R8 built in v1.0 foundation; R14 note; decision records added under docs/decisions/; setup checklist updated | Owner, Claude |
 | 2026-11-19 | ENG-03: pull requests only, enforced by branch protection on main | Owner, Claude |
 | 2026-11-19 | Implementer pass: "How to use this spec" section, v1.0 scope and out-of-scope lists, R12 to R17, glossary of terms and open-question IDs | Owner, Claude |

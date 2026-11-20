@@ -11,6 +11,11 @@ R5 (no sign-in in v1.0) was confirmed earlier and is recorded in the spec.
 | [R2](R2.md) | Encryption at rest in v1.0 | Confirmed | 2026-11-19 |
 | [R3](R3.md) | Web front end | Confirmed | 2026-11-19 |
 | [R4](R4.md) | Pronouns in v1.0 | Confirmed | 2026-11-19 |
+| [COMMIT-ID](COMMIT-ID.md) | Commit identity: alias and its email in commit metadata accepted; no noreply requirement | Confirmed | 2026-11-19 |
+| [NAMES-01](NAMES-01.md) | Retired names included in outbound exports; sharing flag in the data model, control before v2 | Confirmed | 2026-11-19 |
+| [NAMES-02](NAMES-02.md) | Corrections keep only the new wording; real changes add a new name | Confirmed | 2026-11-19 |
+| [NAMES-03](NAMES-03.md) | Limits: 128 characters per box, 384 full-name box, 50 names | Confirmed | 2026-11-19 |
+| [NAMES-04](NAMES-04.md) | Short form: per name, display only, not exported | Confirmed | 2026-11-19 |
 | [PRON-01a](PRON-01a.md) | Pronoun visibility in v1.0 (Only me / Included in exports; JSON backup always includes) | Confirmed | 2026-11-19 |
 | [R6](R6.md) | First domain address for names (ARCH-02) | Confirmed | 2026-11-19 |
 | [R7](R7.md) | Database key custody with no login | Confirmed | 2026-11-19 |

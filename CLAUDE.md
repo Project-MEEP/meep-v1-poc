@@ -18,9 +18,10 @@ This repository is PUBLIC.
    files unless the owner asks.
 5. **Pull requests only (ENG-03).** Never commit or push to `main`. Use a
    feature branch and open a PR. Merge only when every CI check is green.
-6. **Commit identity:** commits you make use the GitHub noreply address.
-   Squash merges made on GitHub may show the owner's public alias and its
-   matching email; that is accepted.
+6. **Commit identity:** there is no required commit address. Commit metadata
+   may show the owner's public alias or its matching email; that is accepted,
+   and history is not rewritten for it (decision COMMIT-ID). This does not
+   relax rule 4 for file contents.
 7. **Warn, never block** (principle 26), except for data integrity and
    authorization.
 8. Reference spec IDs (ID-04, R7, AT-28, ...) in commits, tests and PRs.
