@@ -1,0 +1,40 @@
+# cargo-deny configuration (VZ-01 item 1, principle 18, FR-027). Run by the `deps` job on every
+# pull request and by the daily `advisories` workflow on main.
+
+[graph]
+all-features = false
+
+[advisories]
+version = 2
+db-urls = ["https://github.com/rustsec/advisory-db"]
+yanked = "deny"
+# Unmaintained crates that Meep depends on directly are denied; transitive ones are reported.
+unmaintained = "workspace"
+# No ignores. Any entry added here needs a written reason and the owner's approval (VZ-01):
+# ignore = [ { id = "RUSTSEC-XXXX-XXXX", reason = "..." } ]
+ignore = []
+
+[licenses]
+version = 2
+allow = ["MIT", "Apache-2.0", "Unicode-3.0", "BSD-3-Clause"]
+confidence-threshold = 0.8
+# The SQLite "blessing" notice and WTFPL (carried by sqlcipher-src) are not allowed yet: they
+# show up as findings until the owner approves reviewed exceptions (foundation task T029).
+
+[bans]
+multiple-versions = "warn"
+wildcards = "deny"
+# FR-027: Meep makes no outside network request, so network-client crates are banned.
+deny = [
+  { crate = "reqwest" },
+  { crate = "ureq" },
+  { crate = "hyper-tls" },
+  { crate = "isahc" },
+  { crate = "curl" },
+  { crate = "surf" },
+]
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
