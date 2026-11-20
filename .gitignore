@@ -1,4 +1,5 @@
-# Secrets / personal data - never commit
+# Real data and secrets - never commit
+data/
 .env
 .env.*
 *.pem
@@ -8,6 +9,10 @@ secrets/
 credentials*
 *.local
 .claude/settings.local.json
+
+# Rust
+target/
+
 # OS / editor
 .DS_Store
 Thumbs.db
