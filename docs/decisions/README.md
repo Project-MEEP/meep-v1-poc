@@ -43,6 +43,8 @@ R5 (no sign-in in v1.0) was confirmed earlier and is recorded in the spec.
 | [PLAN-10](PLAN-10.md) | Design patterns in Rust | Proposed | 2026-11-19 |
 | [PLAN-11](PLAN-11.md) | Identifiers and addresses | Proposed | 2026-11-19 |
 | [PLAN-12](PLAN-12.md) | Test tooling | Proposed | 2026-11-19 |
+| [FOUND-09](FOUND-09.md) | Multi-part changes (for example exactly one Legal name) are one atomic batch operation | Confirmed | 2026-11-20 |
+| [FOUND-10](FOUND-10.md) | Anchor the change-log head outside the store (open question) | Proposed | 2026-11-20 |
 | [FOUND-08](FOUND-08.md) | Feature events travel with record writes (save, update, delete), validated by the foundation | Confirmed | 2026-11-20 |
 | [FOUND-11](FOUND-11.md) | Launch-token exchange for local access; amends FOUND-02 item 2 | Confirmed | 2026-11-20 |
 | [FOUND-07](FOUND-07.md) | Test-only features (plaintext store, in-memory key store) never ship: CI check, start-up guard | Confirmed | 2026-11-19 |
@@ -58,6 +60,9 @@ R5 (no sign-in in v1.0) was confirmed earlier and is recorded in the spec.
 | [SEC-05](SEC-05.md) | Input validation and injection: static SQL, autoescape, localhost hardening, name input rules, hostile-input tests | Confirmed | 2026-11-20 |
 | [BUILD-01](BUILD-01.md) | v1.0 build order: spec 002, then 010, then names screens; no throwaway placeholders | Confirmed | 2026-11-19 |
 | [NAMES-05](NAMES-05.md) | Checklist resolutions (CHK001 to CHK039) | Confirmed | 2026-11-19 |
+| [NAMES-07](NAMES-07.md) | Keystone changes: plain or typed confirmation, a toast and a tray entry | Confirmed | 2026-11-20 |
+| [UI-02](UI-02.md) | Toasts are transient notices | Confirmed | 2026-11-20 |
+| [UI-03](UI-03.md) | Notifications tray: timestamped, dismissible, dismissals in the History log | Confirmed | 2026-11-20 |
 | [NAMES-06](NAMES-06.md) | Reactivating a retired name | Confirmed | 2026-11-19 |
 | [FOUND-01](FOUND-01.md) | Spec 002 ownership of key, storage, log-format and export-envelope primitives | Confirmed | 2026-11-19 |
 | [CONST-27](CONST-27.md) | Principle 27 (no lock-in) confirmed | Confirmed | 2026-11-19 |

@@ -7,7 +7,7 @@
 
 ## Decision
 
-History log = the change log with fields `record_alias`, `actor`, `outcome`. Diagnostic log = a second encrypted database under an HKDF subkey of the store key, fixed columns, oldest rows dropped at a size cap (default 5 MiB). Record aliases come from a 32-symbol vowel-free alphabet in two groups of three or four, unique at save. In-memory diagnostics before the store key exists. A typed `log` module is the only way to log; CI scripts ban other logging calls.
+History log = the change log with fields `record_alias`, `actor`, `outcome`. Diagnostic log = a second encrypted database under an HKDF subkey of the store key, fixed columns, oldest rows dropped at a size cap (default 5 MiB). Record aliases come from a 32-symbol vowel-free alphabet in two groups of three or four, unique at save. Before the store key exists, diagnostics go to a size-capped plaintext boot log of fixed error codes and timestamps only, moved into the encrypted Diagnostic log after unlock and then cleared (LOG-01 item 3). A typed `log` module is the only way to log; CI scripts ban other logging calls.
 
 ## Alternatives considered
 
