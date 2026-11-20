@@ -1,6 +1,6 @@
-# Meep Spec v1.0 (2026-11-19 21:43 CT)
+# Meep Spec v1.0 (2026-11-19 22:22 CT)
 
-Last changed 2026-11-19 21:43 CT · Samantha Schroff
+Last changed 2026-11-19 22:22 CT · Samantha Schroff
 
 ## How to use this spec (for implementers)
 
@@ -50,7 +50,7 @@ Meep (Alpha.Meep, product line v1) is a free, MIT-licensed, user-owned system of
 
 **Publishing identity:** Samantha Schroff. Code: github.com/Project-MEEP/meep-v1-poc (public, owned by the Project-MEEP GitHub organization; empty as of 2026-11-19 20:28 CT).
 
-**Spec naming (Confirmed 2026-11-19):** a spec carries the build version it targets plus the date and time it was last changed, e.g. "Meep Spec v1.0 (2026-11-19 21:43 CT)". The newest time is the current copy. When v1.0 ships, a new spec starts as v1.1.
+**Spec naming (Confirmed 2026-11-19):** a spec carries the build version it targets plus the date and time it was last changed, e.g. "Meep Spec v1.0 (2026-11-19 22:22 CT)". The newest time is the current copy. When v1.0 ships, a new spec starts as v1.1.
 
 | Status | Meaning |
 | --- | --- |
@@ -64,7 +64,7 @@ Sources: owner whiteboards and answers; ChatGPT checkpoint rev 1.0 (2026-11-03);
 
 ## Decisions made 2026-11-19
 
-The owner settled 47 items in this session (31 below plus Readiness R1 to R4 and R6 to R17, confirmed 2026-11-19); each is binding unless marked otherwise.
+The owner settled 48 items in this session (32 below plus Readiness R1 to R4 and R6 to R17, confirmed 2026-11-19); each is binding unless marked otherwise.
 
 | ID | Decision | Status |
 | --- | --- | --- |
@@ -99,8 +99,11 @@ The owner settled 47 items in this session (31 below plus Readiness R1 to R4 and
 | V3-SIMPLE | v3 adds a simplified interface for cognitive impairment over the same structure | Deferred |
 | COMMERCIAL | Commercializing or moving under Sandbox Servers | Deferred, no version |
 | UPCOMING | "Upcoming" status for a pending legal name | Rejected; Active covers it |
+| BUILD-01 | v1.0 build order: spec 002 (foundation), then spec 010 (shared UI elements), then the names screens on the real 010 elements; names domain work may proceed against port fakes; no throwaway placeholders | Confirmed |
 
 **Added after the spec review (Confirmed 2026-11-19):** ID-09 spacing rule; ID-10 FHIR use mapping; v1.0 runs with no login, reachable only from the owner's own machine (R5); AT-24, AT-25 and AT-32 move to v1.1; AT-41 and AT-42 added for the theme toggle; v1.0 includes the minimum foundation listed under Engineering rules.
+
+**Decisions recorded in the repository** (`docs/decisions/`, Confirmed 2026-11-19): R1 to R17 (Readiness); PRON-01a (pronoun visibility); NAMES-01 (retired names in outbound exports, sharing flag); NAMES-02 (corrections keep only the new wording); NAMES-03 (limits); NAMES-04 (short form); NAMES-05 (checklist resolutions, CHK001 to CHK039); NAMES-06 (reactivating a retired name); FOUND-01 (spec 002 owns key, storage, change-log-format and export-envelope primitives); CONST-27 (principle 27 Confirmed); COMMIT-ID (alias and its email accepted in commit metadata); BUILD-01 (v1.0 build order). The planning choices PLAN-01 to PLAN-12 are Proposed until the owner confirms them.
 
 ## Roadmap
 
@@ -167,7 +170,7 @@ These 27 principles bind every spec, plan and task; no assistant may override th
 **Authority**
 
 26. **Warn, never adjudicate.** Meep records, attributes and warns. It never blocks an owner's change on legal or factual grounds and never claims a document is valid. Every uploaded artifact is informational only. Meep still blocks for data integrity (a record that would be corrupt) and authorization (a delegate acting outside granted scope).
-27. **No lock-in.** Every record can be exported in an open, documented format at any time, without Meep running. *(Proposed)*
+27. **No lock-in.** Every record can be exported in an open, documented format at any time, without Meep running.
 
 ## v1 features
 
@@ -214,7 +217,7 @@ People enter names in three familiar fields; Meep stores them as labeled parts m
 
 **Entry (ID-05).** Three fields: First name, Middle name, Last name. Each accepts several words. Only one of First or Last is required; Middle is never required and no filler like "NMN" is stored. Several words in Last default to one compound surname (ID-08).
 
-Each field's ⋯ menu (labeled for screen readers, at least 24 × 24 px per WCAG 2.2 SC 2.5.8, larger preferred):
+Each field's ⋯ menu (labeled for screen readers, at least 44 × 44 px (owner decision NAMES-05; WCAG 2.2 SC 2.5.8 requires only 24 × 24)):
 
 - Change a word's type; split or keep together
 - Two separate last names (Spanish), with optional father's/mother's labels
@@ -455,7 +458,7 @@ Every feature ships with unit and acceptance tests, follows clean-code practice,
 
 **v1.0 minimum foundation:** record envelope (ID, address, provenance, `authority: none`, timestamps); address parser; encrypted local database; append-only hash-chained change log; JSON export and import, which also serves as v1.0's backup and restore; server reachable only from the owner's own machine, no login (R5).
 
-**v1.0 shared UI elements (UI-01).** Text field, ⋯ menu, button, toggle, list row, status label, and a Settings page. Theme: a standard icon button in the app header switches between light and dark on every screen. It shows a moon in light mode and a sun in dark mode (the mode you'll switch to), with a spoken and hover label such as "Switch to dark mode". Settings also offers Light, Dark, or Match my device; the choice is remembered per user and applied before the page draws, so dark mode never flashes white on load. Both themes meet WCAG 2.2 AA contrast; status is never shown by color alone and the palette is checked for color-vision deficiency; motion respects the device's reduced-motion setting; nothing flashes or autoplays.
+**v1.0 shared UI elements (UI-01).** Text field, ⋯ menu, button, toggle, list row, status label, and a Settings page. Theme: a standard icon button of at least 44 × 44 px in the app header switches between light and dark on every screen. It shows a moon in light mode and a sun in dark mode (the mode you'll switch to), with a spoken and hover label such as "Switch to dark mode". Settings also offers Light, Dark, or Match my device; the choice is remembered per user and applied before the page draws, so dark mode never flashes white on load. Both themes meet WCAG 2.2 AA contrast; status is never shown by color alone and the palette is checked for color-vision deficiency; motion respects the device's reduced-motion setting; nothing flashes or autoplays.
 
 ## Readiness for the first coding session
 
@@ -554,6 +557,7 @@ v1.0 (names) is clear to start: all Readiness decisions were confirmed by the ow
 
 | Date | Change | By |
 | --- | --- | --- |
+| 2026-11-19 | Principle 27 Confirmed; 44 × 44 px targets for menus and the theme toggle; build order BUILD-01; references to decision records NAMES-01 to NAMES-06, FOUND-01, CONST-27, COMMIT-ID | Owner, Claude |
 | 2026-11-19 | Names clarifications (retired names in exports, corrections, limits, short form) recorded in spec 001; commit-identity requirement removed (alias and its email in commit metadata accepted); decision records added | Owner, Claude |
 | 2026-11-19 | Readiness R1 to R4 and R6 to R17 confirmed; R7 revisit before v1.1; R8 built in v1.0 foundation; R14 note; decision records added under docs/decisions/; setup checklist updated | Owner, Claude |
 | 2026-11-19 | ENG-03: pull requests only, enforced by branch protection on main | Owner, Claude |

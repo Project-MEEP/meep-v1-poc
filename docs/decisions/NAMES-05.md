@@ -50,7 +50,7 @@ Resolutions to the requirements-quality checklist (CHK001 to CHK039), written in
 **Boundaries**
 - CHK035, CHK036: spec 002 owns the change-log entry format and the JSON export envelope; names owns only its payloads and the names fragment.
 - CHK037: assumptions about spec 002 are listed and checked when it lands; if it differs, names adapts through its ports and the spec is updated by pull request.
-- CHK038: if a spec 010 element cannot meet a names need, names requests a change to 010 and never builds its own version.
+- CHK038: if a spec 010 element cannot meet a names need, names requests a change to 010 and never builds its own version; there are no throwaway placeholders, and the build order is spec 002, then spec 010, then the names screens (BUILD-01).
 - CHK039: tasks cite FR numbers; the rule is stated in the spec.
 
-Notes: the 44 by 44 pixel target is stricter than the 24 by 24 pixel minimum in the owner's master spec; spec 001 follows this decision.
+Notes: the 44 by 44 pixel target is stricter than the 24 by 24 pixel minimum in the owner's master spec; the owner confirmed keeping it (2026-11-19), and the master spec is updated to match.

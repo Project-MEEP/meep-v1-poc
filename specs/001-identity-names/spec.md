@@ -267,7 +267,8 @@ These are not built here and are recorded so they cannot be forgotten (NAMES-01,
 
 ## Boundaries and Traceability
 
-- If a shared interface element from spec 010 cannot meet a names need, names requests a change to spec 010; it never builds its own version.
+- If a shared interface element from spec 010 cannot meet a names need, names requests a change to spec 010; it never builds its own version, and there are no throwaway placeholders.
+- Build order (BUILD-01): spec 002 (foundation), then spec 010 (shared UI elements), then the names screens on the real 010 elements. Names domain and core work may proceed now against port fakes.
 - Every task for this feature cites the FR numbers it serves, so a requirement with no task is visible (checked by `/speckit-analyze`).
 
 ## Out of Scope (v1.0)
