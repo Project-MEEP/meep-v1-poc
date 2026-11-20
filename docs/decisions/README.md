@@ -49,6 +49,7 @@ R5 (no sign-in in v1.0) was confirmed earlier and is recorded in the spec.
 | [FOUND-04](FOUND-04.md) | One running copy: OS-held lock, check after unexpected stop, refuse when unsure | Confirmed | 2026-11-19 |
 | [FOUND-03](FOUND-03.md) | Damaged store: read-only open, rescue backup, fresh chain, new recovery key | Confirmed | 2026-11-19 |
 | [FOUND-02](FOUND-02.md) | Foundation: plain open backup with a warning; one-person computer; recovery key not replaceable in v1.0 | Confirmed | 2026-11-19 |
+| [VZ-02](VZ-02.md) | AI review of every pull request: Claude Code Action then Codex; CodeQL; grouped Dependabot | Confirmed | 2026-11-20 |
 | [VZ-01](VZ-01.md) | Release gate "vulns at zero" for the first stable long-term release | Proposed | 2026-11-19 |
 | [BUILD-01](BUILD-01.md) | v1.0 build order: spec 002, then 010, then names screens; no throwaway placeholders | Confirmed | 2026-11-19 |
 | [NAMES-05](NAMES-05.md) | Checklist resolutions (CHK001 to CHK039) | Confirmed | 2026-11-19 |

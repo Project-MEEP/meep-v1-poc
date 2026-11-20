@@ -113,18 +113,103 @@ jobs:
   ai-security-review:
     name: ai-security-review
     runs-on: ubuntu-latest
-    # VZ-01 item 4: provider-neutral harness; report-only until the owner configures a provider.
+    # VZ-02 (a): first reviewer, Claude Code Action. Enforcing once AI_REVIEW_ENFORCE=true; report-only before.
+    # Uses the pull_request event (not pull_request_target), so fork pull requests get no secrets and no write access.
+    # The prompt is read from the BASE commit so a pull request cannot rewrite its own reviewer.
+    permissions:
+      contents: read
+      pull-requests: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
-      - run: bash .github/scripts/ai-security-review.sh
+          persist-credentials: false
+      - name: Plan
+        id: plan
+        run: bash .github/scripts/ai-review-plan.sh
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-          AI_REVIEW_PROVIDER: ${{ vars.AI_REVIEW_PROVIDER }}
+          HAS_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN != '' && 'yes' || '' }}
+      - name: Load the base-commit prompt
+        id: prompt
+        if: steps.plan.outputs.run == 'true'
+        run: |
+          {
+            echo 'text<<PROMPT_EOF'
+            cat "$RUNNER_TEMP/review-prompt.md"
+            echo
+            echo "Base commit: $BASE_SHA"
+            echo "Head commit: $HEAD_SHA"
+            echo 'PROMPT_EOF'
+          } >> "$GITHUB_OUTPUT"
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      - name: Claude Code review
+        id: claude
+        if: steps.plan.outputs.run == 'true'
+        continue-on-error: true
+        uses: anthropics/claude-code-action@c84e279f859e2591391e95bd309286eb111c345f # v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ github.token }}
+          allowed_bots: "dependabot[bot]"
+          prompt: ${{ steps.prompt.outputs.text }}
+          claude_args: >-
+            --max-turns 25
+            --allowedTools "Read,Grep,Glob,Bash(git diff:*),Bash(git log:*),Bash(git show:*)"
+            --json-schema '{"type":"object","required":["findings"],"properties":{"findings":{"type":"array","items":{"type":"object","required":["severity","file","summary"],"properties":{"severity":{"enum":["critical","high","medium","low","info"]},"file":{"type":"string"},"summary":{"type":"string"}}}}}}'
+      - name: Gate
+        run: bash .github/scripts/ai-review-gate.sh
+        env:
+          PLAN_RUN: ${{ steps.plan.outputs.run }}
+          PLAN_REASON: ${{ steps.plan.outputs.reason }}
+          ACTION_OUTCOME: ${{ steps.claude.outcome }}
+          STRUCTURED_OUTPUT: ${{ steps.claude.outputs.structured_output }}
           AI_REVIEW_ENFORCE: ${{ vars.AI_REVIEW_ENFORCE }}
-          AI_REVIEW_API_KEY: ${{ secrets.AI_REVIEW_API_KEY }}
+
+  agent-rules:
+    name: agent-rules
+    runs-on: ubuntu-latest
+    # VZ-02 (c): CLAUDE.md and AGENTS.md carry identical shared rules.
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: bash .github/scripts/check-agent-rules-sync.sh
+
+  codeql:
+    name: codeql (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    # VZ-02: non-AI baseline. Free for public repositories. Rust runs once a Cargo.toml exists.
+    permissions:
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [actions, rust]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - id: gate
+        run: |
+          if [ "${{ matrix.language }}" = "rust" ] && [ ! -f Cargo.toml ]; then echo "run=false" >> "$GITHUB_OUTPUT"; else echo "run=true" >> "$GITHUB_OUTPUT"; fi
+      - if: steps.gate.outputs.run == 'true' && matrix.language == 'rust'
+        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # v1
+        with:
+          toolchain: stable
+      - if: steps.gate.outputs.run == 'true'
+        uses: github/codeql-action/init@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: none
+      - if: steps.gate.outputs.run == 'true'
+        uses: github/codeql-action/analyze@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
+        with:
+          category: /language:${{ matrix.language }}
+      - if: steps.gate.outputs.run != 'true'
+        run: echo "No Cargo.toml yet; CodeQL for Rust skipped."
 
   acceptance-domain:
     name: acceptance-domain
@@ -153,7 +238,7 @@ jobs:
   all-green:
     name: all-green
     if: always()
-    needs: [guard, lint, deps, unit, build-windows, release-features, forbid-unsafe, ai-security-review, acceptance-domain, acceptance-web]
+    needs: [guard, lint, deps, unit, build-windows, release-features, forbid-unsafe, ai-security-review, agent-rules, codeql, acceptance-domain, acceptance-web]
     runs-on: ubuntu-latest
     steps:
       - name: Require every job to pass

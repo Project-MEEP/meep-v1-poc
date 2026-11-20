@@ -2,6 +2,7 @@
 
 This repository is PUBLIC.
 
+<!-- shared-rules:start -->
 1. **Build only v1.0** (the names feature, app shell, shared UI, minimum
    foundation). Anything labeled v1.1, v2, v3, v4 or Deferred is context, not work.
 2. **Only "Confirmed" decisions are binding.** If a default has not been
@@ -27,3 +28,7 @@ This repository is PUBLIC.
 8. Reference spec IDs (ID-04, R7, AT-28, ...) in commits, tests and PRs.
 9. If PII is ever committed, stop and tell the owner. History must be rewritten.
 10. Do not commit older spec revisions until their bylines are scrubbed.
+11. **Open pull requests as drafts** (`gh pr create --draft`). Mark one ready for
+    review only after `all-green` passes; that starts the second AI review (VZ-02).
+    Every review conversation must be fixed or explicitly answered before merge.
+<!-- shared-rules:end -->

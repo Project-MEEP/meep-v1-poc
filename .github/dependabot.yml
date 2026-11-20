@@ -1,19 +1,33 @@
-# Automated dependency-update pull requests (VZ-01). Every update arrives as a pull request and
-# must pass all-green (ENG-03). GitHub Actions stay pinned by commit hash; Dependabot updates
+# Automated dependency-update pull requests (VZ-01, VZ-02). Every update arrives as a pull request
+# and must pass all-green (ENG-03). GitHub Actions stay pinned by commit hash; Dependabot updates
 # the hash and the version comment together.
+#
+# Routine version updates are grouped into one weekly pull request per ecosystem (Dependabot cannot
+# group across ecosystems). Security updates are NOT grouped (applies-to: version-updates) and stay
+# immediate, so a vulnerability fix is never held back by the weekly schedule.
 version: 2
 updates:
   - package-ecosystem: "cargo"
     directory: "/"
     schedule:
-      interval: "daily"
-    open-pull-requests-limit: 10
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
     commit-message:
       prefix: "deps"
+    groups:
+      rust-crates:
+        applies-to: version-updates
+        patterns: ["*"]
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "daily"
-    open-pull-requests-limit: 10
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
     commit-message:
       prefix: "ci"
+    groups:
+      github-actions:
+        applies-to: version-updates
+        patterns: ["*"]
