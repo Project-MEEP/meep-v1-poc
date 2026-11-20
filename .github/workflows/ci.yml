@@ -1,0 +1,104 @@
+name: CI
+
+# ENG-02 / ENG-03: runs on every push to any branch and every pull request to main.
+# Rust jobs are skipped until a Cargo.toml exists (the workspace is not scaffolded yet).
+on:
+  push:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  guard:
+    name: guard
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Secret, data and personal-info guard
+        run: bash .github/scripts/guard.sh
+
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - if: hashFiles('Cargo.toml') != ''
+        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # v1
+        with:
+          toolchain: stable
+          components: rustfmt, clippy
+      - if: hashFiles('Cargo.toml') != ''
+        run: cargo fmt --all --check
+      - if: hashFiles('Cargo.toml') != ''
+        run: cargo clippy --workspace --all-targets -- -D warnings
+      - if: hashFiles('Cargo.toml') == ''
+        run: echo "No Cargo.toml yet; lint skipped."
+
+  deps:
+    name: deps
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - if: hashFiles('Cargo.toml') != ''
+        uses: EmbarkStudios/cargo-deny-action@17aeb3c839e42274e2b8adf721c8c65edfdc74dd # v2.1.3
+      - if: hashFiles('Cargo.toml') == ''
+        run: echo "No Cargo.toml yet; cargo-deny skipped."
+
+  unit:
+    name: unit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - if: hashFiles('Cargo.toml') != ''
+        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # v1
+        with:
+          toolchain: stable
+      - if: hashFiles('Cargo.toml') != ''
+        run: cargo test --workspace
+      - if: hashFiles('Cargo.toml') == ''
+        run: echo "No Cargo.toml yet; unit tests skipped."
+
+  acceptance-domain:
+    name: acceptance-domain
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - if: hashFiles('Cargo.toml') != ''
+        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # v1
+        with:
+          toolchain: stable
+      # Given/When/Then tests from the AT list; wired up once the first feature lands.
+      - if: hashFiles('Cargo.toml') != ''
+        run: cargo test --workspace --test acceptance --no-fail-fast
+      - if: hashFiles('Cargo.toml') == ''
+        run: echo "No Cargo.toml yet; domain acceptance skipped."
+
+  acceptance-web:
+    name: acceptance-web
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # Real-browser tests in both themes with WCAG 2.2 AA checks (AT-41, AT-42);
+      # added with the web screens.
+      - run: echo "No web screens yet; web acceptance skipped."
+
+  all-green:
+    name: all-green
+    if: always()
+    needs: [guard, lint, deps, unit, acceptance-domain, acceptance-web]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require every job to pass
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "Job results: $RESULTS"
+          for r in $RESULTS; do
+            if [ "$r" != "success" ]; then echo "A job did not succeed."; exit 1; fi
+          done
