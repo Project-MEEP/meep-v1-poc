@@ -17,4 +17,4 @@ Store the old text encrypted (rejected by NAMES-02); a plain hash (guessable for
 
 Non-reversible, and meaningless once the record key is destroyed (R8).
 
-Ownership: subkey derivation belongs to spec 002 (`derive_subkey`); names computes the HMAC fingerprint of the prior value from that subkey.
+Ownership (superseded, 2026-11-19): the foundation owns subkey derivation and the keyed computation; names calls `KeyCustody::purpose_value(record_id, purpose, input)` and receives only the non-reversible value, never key material (FOUND-01, principle 15). The foundation's own record is PLAN-15.
