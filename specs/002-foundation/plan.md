@@ -12,7 +12,7 @@ Technical approach, all **Proposed** until the owner confirms each decision reco
 
 - A Rust workspace of four crates (core, storage, backup, web) with the store reached through three ports, `RecordStore`, `ChangeLog` and `KeyCustody` (FOUND-01), which names and the shared UI use.
 - SQLCipher through `rusqlite` for the encrypted file (R2). A throwaway build on this PC verified the route on Windows: `bundled-sqlcipher-vendored-openssl` with Strawberry Perl and a short build-folder path (Windows long paths do not help); plain `bundled-sqlcipher` needs an OpenSSL the machine does not have (see research.md). CI gets a `windows-latest` build job so Windows-only failures are caught.
-- A key hierarchy: a random store key in the operating-system keychain, a one-time recovery key that unwraps a stored copy of it, per-record keys wrapped under a subkey of the store key, and purpose-specific subkeys derived from each record key.
+- A key hierarchy: a random data key (the "store key"), with one wrapped copy per unlock method: the keychain slot (a wrapping key held in the operating-system keychain) and the recovery slot (a one-time recovery key), so adding or replacing a method rewraps only (FOUND-12), per-record keys wrapped under a subkey of the store key, and purpose-specific subkeys derived from each record key.
 - Crypto-shredding by destroying a record's wrapped key inside one transaction, with `secure_delete`, a log checkpoint and a test that proves nothing is left (R8).
 - A hash-chained change log with a canonical entry encoding, enforced append-only inside the store.
 - One running copy enforced by an operating-system file lock from the Rust standard library, verified on this PC to be released when the holder is killed (FOUND-04).
@@ -121,9 +121,9 @@ Confirmed by the owner 2026-11-20; the design choices below are Proposed (PLAN-2
 
 - **History log** is the existing change log (PLAN-17) with the LOG-01 fixed fields: the entry carries `record_alias`, `actor` and `outcome` (contracts/change-log-entry.md).
 - **Record alias** (FR-048): generated at record creation from a curated 32-symbol alphabet with no vowels and no look-alike characters, in two groups (for example `K7X-4PM`), checked for uniqueness at save; stored in `records.alias` (data-model.md).
-- **Diagnostic log** (contracts/logging.md): a second encrypted database file opened with an HKDF subkey of the store key, written as fixed-column rows, trimmed to a size cap (default 5 MiB, a tunable) by dropping the oldest rows. Before the store key exists, diagnostics stay in memory for that run.
+- **Diagnostic log** (contracts/logging.md): a second encrypted database file opened with an HKDF subkey of the store key, written as fixed-column rows, trimmed to a size cap (default 5 MiB, a tunable) by dropping the oldest rows. Before the store is unlocked, diagnostics go to a size-capped plaintext boot log of fixed error codes and timestamps only (no paths, user names or free text); its entries move into the encrypted Diagnostic log after unlock and the boot log is cleared (LOG-01 item 3).
 - **Typed log API:** a `log` module in `meep-core` exposing functions that take `FieldRef`, alias, `RuleId`, shape and enum types; `check-logging.sh` bans direct `println!`, `eprintln!`, `dbg!`, `tracing` and `log` macros elsewhere.
-- **SEC-05 SQL rule:** `meep-storage` wraps rusqlite behind functions taking `&'static str` and bound parameters; `check-sec05.sh` fails on `Box::leak`, on rusqlite `execute` or `prepare` outside `meep-storage`, and on `|safe` in templates. Both checks run in CI now (they pass trivially until Rust exists).
+- **SEC-05 SQL rule:** `meep-storage` wraps rusqlite behind functions taking `&'static str` and bound parameters; `check-sec05.sh` fails on `Box::leak`, `String::leak` and `Vec::leak`, on `set_use_isolating(false)` outside tests, on rusqlite `execute` or `prepare` outside `meep-storage`, and on `|safe` in templates. Both checks run in CI now (they pass trivially until Rust exists).
 - **Localhost hardening** tests use tower `oneshot` against the axum router (contracts/local-access.md).
 
 ## Impacts on other specs (not edited here)
