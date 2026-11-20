@@ -11,7 +11,7 @@ The foundation gives every other feature a safe place to keep the owner's record
 Technical approach, all **Proposed** until the owner confirms each decision record (PLAN-13 to PLAN-27), drawn from Confirmed decisions at product level:
 
 - A Rust workspace of four crates (core, storage, backup, web) with the store reached through three ports, `RecordStore`, `ChangeLog` and `KeyCustody` (FOUND-01), which names and the shared UI use.
-- SQLCipher through `rusqlite` for the encrypted file (R2). A throwaway build on this PC verified the route on Windows: `bundled-sqlcipher-vendored-openssl` with Strawberry Perl and Windows long paths (or a short build folder); plain `bundled-sqlcipher` needs an OpenSSL the machine does not have (see research.md). CI gets a `windows-latest` build job so Windows-only failures are caught.
+- SQLCipher through `rusqlite` for the encrypted file (R2). A throwaway build on this PC verified the route on Windows: `bundled-sqlcipher-vendored-openssl` with Strawberry Perl and a short build-folder path (Windows long paths do not help); plain `bundled-sqlcipher` needs an OpenSSL the machine does not have (see research.md). CI gets a `windows-latest` build job so Windows-only failures are caught.
 - A key hierarchy: a random store key in the operating-system keychain, a one-time recovery key that unwraps a stored copy of it, per-record keys wrapped under a subkey of the store key, and purpose-specific subkeys derived from each record key.
 - Crypto-shredding by destroying a record's wrapped key inside one transaction, with `secure_delete`, a log checkpoint and a test that proves nothing is left (R8).
 - A hash-chained change log with a canonical entry encoding, enforced append-only inside the store.

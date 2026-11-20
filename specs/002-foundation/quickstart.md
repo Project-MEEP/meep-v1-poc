@@ -9,7 +9,7 @@ A validation guide, not implementation. The workspace does not exist yet, so the
   1. Microsoft C++ Build Tools (installed).
   2. Strawberry Perl on the Windows PATH (`winget install StrawberryPerl.StrawberryPerl`; needs an administrator approval). Open a new terminal after installing so the PATH is picked up.
   3. The vendored OpenSSL feature: `rusqlite` with `bundled-sqlcipher-vendored-openssl`.
-  4. Windows long paths: set `LongPathsEnabled` once (administrator) and run `git config core.longpaths true`. Without long paths, a deeply nested project folder makes the OpenSSL build fail with "files missing"; the fallback is a short build folder, for example `CARGO_TARGET_DIR=C:\mt`.
+  4. Keep the build folder path short: the `target` folder path must be 121 characters or fewer, or the OpenSSL build fails with "files missing". The repository's own location is fine. Enabling Windows long paths does not help (the OpenSSL build tools are not long-path aware); if the project must live in a deeper folder, set `CARGO_TARGET_DIR` to a short one such as `C:\mt`.
   5. Expect a cold build of several minutes (OpenSSL is compiled from source); later builds are cached.
 - On macOS and Linux the SQLCipher build is still to be confirmed in the scaffold.
 - No network is needed to run anything (FR-027).

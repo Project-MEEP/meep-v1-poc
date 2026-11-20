@@ -23,7 +23,7 @@ Phase 0 output. Every technology choice is **Proposed** until the owner confirms
   1. The Microsoft C++ Build Tools (already installed for Rust).
   2. **Strawberry Perl** (installed with `winget install StrawberryPerl.StrawberryPerl`; the install needed an administrator approval). It must be on the Windows PATH before the build; Git's bash-side Perl does not count and OpenSSL's Windows build should not use it.
   3. The **vendored OpenSSL feature**: `rusqlite` with `bundled-sqlcipher-vendored-openssl`. Plain `bundled-sqlcipher` fails without `OPENSSL_DIR`.
-  4. **Windows long paths.** The OpenSSL source tree is copied into the build folder and its longest file paths passed 260 characters when the project was deeply nested, which produced "files missing" errors during OpenSSL's configure step. The preferred fix is the one-time administrator setting `LongPathsEnabled` plus `git config core.longpaths true`. As a fallback only, set `CARGO_TARGET_DIR` to a short folder such as `C:\mt`, which is what made the spike pass. On this PC `LongPathsEnabled` is currently off (0) and `core.longpaths` is unset; changing the system setting needs the owner's approval.
+  4. **Keep the build folder path short.** The OpenSSL source tree is copied into the build folder and its longest file path inside is 70 characters; with the fixed folders Cargo adds (69 characters) the total must stay under Windows' 260-character limit, so the `target` folder path must be **121 characters or fewer**. Verified: a scratch folder with a 128-character `target` path failed with "files missing" during OpenSSL's configure step (267 characters in total), `C:\mt` passed (144), and the repository's own `C:\Users\sschr\Project-MEEP\target` fits (173). **Enabling Windows long paths did not fix it**: with `LongPathsEnabled` set to 1 (on this PC, 2026-11-19) and `git config core.longpaths true`, the deep scratch build failed the same way, because the OpenSSL build tools (Perl and friends) do not opt in to long paths. The settings are harmless and stay on, but the rule is: keep the repository and its build folder at a short path, or set `CARGO_TARGET_DIR` to a short folder such as `C:\mt`.
   5. A cold build takes several minutes because OpenSSL is compiled from source; CI caches the build (PLAN-14).
 - **Windows CI:** a `windows-latest` build job (build plus unit tests) is added to the workflow and the `all-green` gate so Windows-only failures are caught. The runner image already provides Perl 5.42.0, the C++ tools and Rust; it was not run yet because the workspace does not exist.
 - **Still to confirm in the scaffold:** the macOS and Linux builds, and the `keyring` per-platform backends.
@@ -131,7 +131,7 @@ Ports and adapters (the three ports, with the store and fakes as adapters); Stra
 
 ## Remaining open items (none block planning)
 
-1. The macOS and Linux SQLCipher builds, and the owner's approval to enable Windows long paths on this PC (the build works without it only with the short `CARGO_TARGET_DIR` fallback).
+1. The macOS and Linux SQLCipher builds. (Windows long paths were enabled on this PC but do not help the OpenSSL build; the working rule is a short build-folder path, see Spike status.)
 2. `keyring` per-platform backend features, and the owner's preference for the recovery-key presentation (base32 groups or words).
 3. `cargo-deny` configuration for BSD-3-Clause, blessing and WTFPL.
 4. Whether `sqlcipher-src`'s libtomcrypt option can avoid OpenSSL on Windows (not exposed by `libsqlite3-sys` today).
