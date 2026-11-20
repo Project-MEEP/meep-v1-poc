@@ -14,6 +14,8 @@ Interfaces only. Spec 002 (foundation) and spec 010 (shared UI) own their design
 | Append-only, hash-chained change log that accepts the events in domain-events.md | NAMES-02, R8 |
 | JSON export and import of all records | FR-019; names supplies its fragment |
 
+Spec 002 also owns the change-log entry format and the export envelope; names owns only its event payloads and the names fragment (FOUND-01).
+
 ## From spec 010 (shared UI elements and theme)
 
 | Need | Why names needs it |

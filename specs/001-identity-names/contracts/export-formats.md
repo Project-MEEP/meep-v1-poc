@@ -2,6 +2,10 @@
 
 Three exporters, each built only from the stored labeled parts (ID-04, AT-29). Anything a target format cannot hold is logged as an Also known as rendering (AT-29). Items marked *to confirm at implementation* are not yet checked against the published standard.
 
+## Terms (NAMES-05)
+
+- **Outbound export**: any export made for someone other than the owner (the US health-data form and FHIR in v1.0). **Owner backup**: the owner's own full JSON export. Exports are snapshots: later changes never alter files already made.
+
 ## Common rules
 
 | Rule | Source |
@@ -10,7 +14,10 @@ Three exporters, each built only from the stored labeled parts (ID-04, AT-29). A
 | Outbound exports respect `share_outbound` (default share; no UI in v1.0) | NAMES-01 |
 | Outbound exports never include `short_form` | NAMES-04 |
 | Outbound exports include pronouns only if enabled and visibility is `in_exports` | PRON-01a |
-| The owner's own JSON backup always includes every name and pronouns | FR-019, FR-024a |
+| The owner backup always includes every name (retired included), short forms, sharing flags and pronoun settings | FR-019, FR-024a, NAMES-05 |
+| A retired name's end date goes out where the format can hold it (FHIR period); where it cannot, it is omitted and logged | FR-018a, FR-017 |
+| Deleted names never appear in an export made after the deletion; earlier files cannot be recalled | FR-033 |
+| A new outbound format needs an explicit owner decision | FR-024a |
 | Retired names are included in outbound exports | NAMES-01, ID-10 |
 
 ## 1. FHIR R4 HumanName (outbound)
@@ -44,7 +51,7 @@ A name's `use` and the retired state combine as ID-10 says. A later FHIR release
 - Retired names export as **Previous Name** (owner-verified: USCDI Patient Demographics data class, NAMES-01). The exact element layout is *to confirm at implementation*; this site blocks automated checking.
 - Values a target cannot hold are logged as an Also known as rendering (AT-29).
 
-## 3. JSON backup (owner's own export and import)
+## 3. Owner backup (JSON; export and import)
 
 Complete, open and documented (FR-019); import of an export reproduces equal records.
 

@@ -53,7 +53,7 @@ not a binding rule, until the owner confirms it.
 ### Authority
 
 26. **Warn, never adjudicate.** Meep records, attributes and warns. It never blocks an owner's change on legal or factual grounds and never claims a document is valid. Every uploaded artifact is informational only. Meep still blocks for data integrity (a record that would be corrupt) and authorization (a delegate acting outside granted scope).
-27. *(Proposed)* **No lock-in.** Every record can be exported in an open, documented format at any time, without Meep running.
+27. **No lock-in.** Every record can be exported in an open, documented format at any time, without Meep running.
 
 ## Engineering Constraints
 
@@ -80,4 +80,4 @@ why, and bump the version below. All reviews verify compliance with it, and any
 deviation must be justified in the pull request and approved by the owner. Day-to-day
 rules for AI assistants are in `CLAUDE.md`.
 
-**Version**: 1.0.0 | **Ratified**: 2026-11-19 | **Last Amended**: 2026-11-19
+**Version**: 1.1.0 | **Ratified**: 2026-11-19 | **Last Amended**: 2026-11-19

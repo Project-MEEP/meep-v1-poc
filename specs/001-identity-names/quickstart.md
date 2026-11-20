@@ -34,7 +34,7 @@ Run each against a fresh database. Expected outcomes are in the spec; this table
 | 6 | Export any name to each outside format | Built from parts; anything a target cannot hold is logged as an Also known as rendering | AT-29 |
 | 7 | Fresh install: visit every screen and export | No pronoun appears anywhere | AT-23 |
 | 8 | Enable pronouns; check default visibility | "Only me"; only two visibility choices shown | PRON-01a |
-| 9 | Outbound export versus owner's own JSON backup | Pronouns appear in the backup always; in outbound exports only if "Included in exports" | FR-024a |
+| 9 | Outbound export versus owner backup | Pronouns appear in the backup always; in outbound exports only if "Included in exports" | FR-024a |
 | 10 | Retire "Jordan Lee Pak" | Greyed out in the list; "old" in FHIR and Previous Name in the US form on outbound export; present in the backup | ID-02, NAMES-01 |
 | 11 | Add a second Legal name | Refused with an explanation | R12 |
 | 12 | Replace Preferred "Jordan Rivera" | Old becomes an Active Also known as | R13 |

@@ -7,14 +7,14 @@ What the owner sees and does. Server-rendered pages, minimal JavaScript. Shared 
 - Served only on the loopback address; no sign-in (R5).
 - Every request that changes data carries a per-session anti-forgery token; requests with a non-local `Host` or `Origin` are rejected.
 - Each page works without JavaScript for its core action; JavaScript only improves convenience.
-- WCAG 2.2 AA in both themes (spec 010 owns the checks); ⋯ menus are labeled for screen readers and at least 24 x 24 pixels (spec Identity and names).
+- WCAG 2.2 AA in both themes (spec 010 owns the checks); ⋯ menus are labeled for screen readers and at least 44 x 44 pixels (spec Identity and names).
 
 ## Screen 1: Names (list)
 
 - Shows each name with its use, status (Active or No longer used) and the short form where space calls for it.
 - Retired names are shown greyed out, never hidden (ID-01).
 - Status is shown by text as well as colour.
-- Actions per name: edit, retire (reactivating a retired name is not built until the owner decides, task T058), "Make this my legal name" on Also known as entries, delete.
+- Actions per name: edit, retire, "Mark as in use again" on a retired name's menu (FR-028), "Make this my legal name" on Also known as entries, delete.
 - Empty state: a prompt to add the first name.
 - Over 50 names: the add action explains the limit (NAMES-03).
 
@@ -41,6 +41,16 @@ Behaviour:
 - When on: options she/her, he/him, they/them, use my name, custom (PRON-01).
 - Visibility shows exactly two choices, "Only me" and "Included in exports", defaulting to "Only me"; no "Delegates" choice in v1.0 (PRON-01a).
 - Turning pronouns off again hides them everywhere and in outbound exports (spec Story 5, scenario 8).
+
+## Behaviour added by the checklist review (NAMES-05)
+
+- ⋯ menus are labeled "More options for <field name>" and are at least 44 x 44 pixels; tap-to-label words are buttons reached with Tab and toggled with Space or Enter (FR-013, FR-014).
+- Errors are tied to their field, announced to screen readers, and focus moves to the first error; everything typed stays on screen (FR-001a, FR-032).
+- Retired names show the text "No longer used" plus muted styling that meets 4.5:1 contrast (FR-032).
+- Editing a name asks "Fix a typo" or "Add a new name"; Meep never guesses (FR-002a).
+- Saving a name that changed since it was opened shows "Keep mine" or "Reload", never a silent overwrite (FR-031).
+- Backup and restore: the owner backup downloads everything; restoring works only into an empty store, otherwise it warns and needs "Replace everything"; an import that breaks a limit or the one-Legal rule is refused whole with every problem listed (FR-029).
+- The focus order follows the visual order, focus is visible in both themes, and the page reflows at 320 CSS pixels and 400% zoom (FR-032).
 
 ## Errors and messages
 
