@@ -183,6 +183,7 @@ In v1.0 there is no sign-in. Meep is therefore reachable only from the owner's o
 - Meep stopped unexpectedly: the claim on the store is released by the operating system with no leftover marker; the next start checks the store and the change log before opening normally (FOUND-04).
 - A key is in use when a record is deleted: the delete still destroys that record's key and leaves other records untouched.
 - A backup is made while records are being saved: the changes are saved normally, never delayed; the backup is a consistent snapshot as of the moment it started, and Meep says so (FOUND-06).
+- A damaged-store session is interrupted by a crash: the private working copy is removed at the next start and the original is untouched (FR-045, FOUND-03).
 - A backup is interrupted by a crash or failure: it leaves either a verified backup or no file that looks like a complete backup, and changes saved during it survive (FOUND-06).
 - The recovery key is shown only once and cannot be replaced after setup in v1.0: if the owner dismisses it unread or loses the printed copy, Meep makes clear that the owner backup is the way to protect against losing the normal key as well (R7, owner decision FOUND-02; the v1.1 revisit of key custody may reopen this).
 
@@ -234,6 +235,7 @@ In v1.0 there is no sign-in. Meep is therefore reachable only from the owner's o
 - **FR-042**: When a backup finishes, if any change was made after its "as of" moment, Meep MUST say "Changes you made after <time> aren't in this backup" and offer "Make another backup" (FOUND-06).
 - **FR-043**: A backup MUST be written under a temporary name, fully verified (archive readable, every record and the read-me present), and only then given its final name; an interrupted or failed backup MUST leave no file that looks like a complete backup, and Meep MUST say plainly that it failed (FOUND-06).
 - **FR-044**: The system MUST record the date and time of the last successful backup and make it available to be shown as "Last successful backup: <date and time>" in Settings (the Settings screen belongs to spec 010), so the owner always knows what an emergency restore would lose (FOUND-06).
+- **FR-045**: All damaged-store work MUST happen on a private working copy that only the owner's account can read, that holds nothing but the encrypted store files, that is deleted when the session ends, and any copy left behind by an interrupted session MUST be deleted at the next start; working on the copy leaves the original byte-for-byte unchanged (FR-029, FOUND-03).
 
 ### Key Entities
 
@@ -256,7 +258,7 @@ In v1.0 there is no sign-in. Meep is therefore reachable only from the owner's o
 - **SC-004**: An owner backup restored into an empty store reproduces every record exactly, and re-exporting gives an equal backup, for every synthetic fixture (principle 27).
 - **SC-005**: In 100% of tested failures or interruptions during save, delete, append or restore, the store is unchanged afterwards (NAMES-05).
 - **SC-006**: In 100% of tests, requests from another machine and from another web page are refused, while the owner's own use works with no sign-in (R5).
-- **SC-007**: A new owner can reach the point of having saved their recovery key in under five minutes from first launch [ASSUMPTION: measured with the owner as the test subject].
+- **SC-007**: A new owner can reach the point of having saved their recovery key in under five minutes from first launch, measured by the owner on a fresh install once for each release candidate; it passes if the owner gets there within five minutes with no help.
 - **SC-008**: In 100% of address-checker tests, every valid and invalid address in the fixtures is accepted or refused as specified, with a reason for each refusal (R16).
 - **SC-009**: No record, log entry or backup in the fixtures contains real personal data or an email address (constitution).
 - **SC-010**: A rescue backup made from a synthetic partly damaged store restores cleanly in 100% of tested cases, and the restored store verifies (FOUND-03).
@@ -266,6 +268,7 @@ In v1.0 there is no sign-in. Meep is therefore reachable only from the owner's o
 - **SC-014**: In 100% of tested backups the archive contains the read-me, the data and the schema; the read-me includes every required topic; a newer incompatible version is refused without guessing; and the check that the in-backup and published descriptions match passes on every change (FOUND-05).
 - **SC-015**: In 100% of tested crashes at any point during a backup, the result is either a verified backup or no file that looks like a complete backup, and changes saved during the backup survive the crash (FOUND-06).
 - **SC-016**: In 100% of tested backups made while changes are saved, no change is delayed, the backup matches the store as of its start, and the "changes after <time>" message appears exactly when a later change exists (FOUND-06).
+- **SC-017**: After any damaged-store session, including one interrupted by a crash, no working copy remains once Meep has started again, in 100% of tested cases (FOUND-03, FR-045).
 
 ## Assumptions
 
@@ -282,6 +285,8 @@ In v1.0 there is no sign-in. Meep is therefore reachable only from the owner's o
 - The owner backup is a plain, open file; the owner is warned when making it (FOUND-02).
 
 - The plan specifies how a damaged store is opened without altering it, including changes not yet written (FOUND-03).
+
+- Principle 26 (warn, never adjudicate) allows blocking only for data integrity and for authorization by location. The foundation's refusals are of those two kinds and are set by the owner: a damaged or failed-check store opens read-only (integrity, FOUND-03); a restore that breaks a rule is refused whole (integrity, FR-017); a second running copy is refused (integrity of the single store, FOUND-04); a request from another machine or web page is refused (location, R5). Nothing else is blocked.
 
 ## Out of Scope (v1.0)
 

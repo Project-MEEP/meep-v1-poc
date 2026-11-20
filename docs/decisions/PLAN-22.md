@@ -16,3 +16,5 @@ A separate website; generate docs at release time only.
 ## Notes
 
 One source removes drift by construction; the test catches edits to one side.
+
+Analysis fix (2026-11-19): `docs/format/owner-backup-format.md` is generated from the same sources by a generator binary and compared by the format-docs test, so no published copy can drift.

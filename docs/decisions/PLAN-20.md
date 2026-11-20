@@ -16,3 +16,5 @@ Open in place with an immutable flag (ignores log content); ask the owner to cop
 ## Notes
 
 The database engine can write when opening a log-mode file, so only a copy makes 'never modifies' provable (FR-029, SC-012).
+
+Analysis fix (2026-11-19): the working copy is private (owner-only), holds only the encrypted store files, is deleted at the end of the session, and a leftover is deleted at the next start (FR-045, SC-017). A behavior spike proves that in-place open can change the file before the copy method is relied on.

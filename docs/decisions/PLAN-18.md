@@ -16,3 +16,5 @@ Writing record and log separately; the `fail` crate (last updated 2022).
 ## Notes
 
 Gives FR-015 and is proven by kill tests.
+
+Analysis fix (2026-11-19): failpoints can also return injected I/O errors (disk full, permission denied), and all crash and fault tests are one target, `crates/meep-storage/tests/crash/`.

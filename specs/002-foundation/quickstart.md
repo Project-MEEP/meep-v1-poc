@@ -59,11 +59,14 @@ Run each against a fresh store directory unless stated.
 | 23 | After scenario 22, use the old recovery key | Fails; the new recovery key opens it | SC-011, FR-032 |
 | 24 | Chain break versus unreadable data | Two different messages; the break message names a software fault or outside editing, never an intruder | FR-033 |
 | 25 | Request from another machine, from another web page, with a wrong Host or no token | Refused; the owner's own request works with no sign-in | SC-006, FR-020, FR-021 |
-| 26 | Check the published format description against the backup read-me | They match; editing one side fails CI | FR-040, SC-014 |
+| 26 | Check the published format description against the backup read-me | They match, including the generated format document; editing any side fails CI | FR-040, SC-014 |
+| 27 | Kill Meep during a rescue of a damaged store, start again | No working copy remains; the original is byte-identical | FR-045, SC-017, SC-012 |
+| 28 | Set the clock backwards between two log entries | The chain still verifies; entries stay in order | FR-013 |
+| 29 | Build a release artifact with a test-only feature; start a non-test binary with one compiled in | CI fails the build; the program aborts before opening any store | FOUND-07 |
 
 ## Done when
 
 - The master spec's foundation unit-test list passes (envelope on every record, address parser, database will not open without its key, append-only hash-chained log, export and re-import equal).
-- Scenarios 1 to 26 behave as stated.
+- Scenarios 1 to 29 behave as stated.
 - The crash, lock and destruction tests (scenarios 8, 16, 19, 20) are in CI and pass.
 - `all-green` passes.

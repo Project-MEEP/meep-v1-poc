@@ -10,6 +10,7 @@ Phase 1 output. What the store holds, how keys relate, and the rules that keep i
 | `store.db-wal` | The database's write-ahead log, created and removed by the database engine |
 | `store.lock` | A lock file the running Meep holds with an operating-system lock (PLAN-19); contains nothing the owner needs |
 | `backups/` | Default folder for owner backups, with `.partial` files only while one is being written (PLAN-21) |
+| `damaged-work/` | Private owner-only working folder used only while a damaged store is examined; empty otherwise, and any leftover is deleted at the next start (FR-045, PLAN-20) |
 
 The store key lives in the operating-system keychain, never in these files. The recovery key is never stored anywhere (FOUND-02).
 
@@ -62,7 +63,18 @@ Triggers inside the store refuse any update or delete of a row (FR-013, FR-014).
 
 ### `unverified_log_archive`
 
-Holds the old change log carried inside a rescue backup, read-only, never part of the live chain (FR-031, FOUND-03). Absent unless a rescue restore happened.
+Holds the old change log carried inside a rescue backup. It is read-only (triggers refuse updates and deletes), never part of the live chain, and any place that shows it says it is unverified (FR-031, FOUND-03). Absent unless a rescue restore happened.
+
+| Field | Meaning | Rule |
+|---|---|---|
+| `seq` | The entry number as found in the backup | Kept as found; gaps and duplicates are not corrected |
+| `ts` | The time as found | Informational only |
+| `record_id` | The record concerned, as found | May be null |
+| `kind` | The kind of event, as found | Not checked against the registry |
+| `details` | The details as found | Kept as text; never interpreted |
+| `stored_prev_hash`, `stored_hash` | The links as found | Never recomputed or trusted |
+| `source_as_of` | The as-of time of the rescue backup it came from | UTC |
+| `imported_at` | When it was imported | UTC |
 
 ## Key hierarchy
 

@@ -36,7 +36,7 @@ Technical approach, all **Proposed** until the owner confirms each decision reco
 
 **Performance Goals**: Single owner and small data (names are capped at 50). Opening the store, saving, deleting, verifying the log and making a backup complete without a perceptible delay on an ordinary computer. No throughput targets.
 
-**Constraints**: Offline only; no outside network calls (FR-027); loopback binding only; deleted records unrecoverable from anything Meep manages (FR-010); the damaged-store file never modified (FR-029); no real personal data in the repository (constitution).
+**Constraints**: Two cargo features, `plaintext-test-store` and `in-memory-key-store`, exist only for tests: never default, never in a release build, with a start-up guard and a CI check (FOUND-07). Offline only; no outside network calls (FR-027); loopback binding only; deleted records unrecoverable from anything Meep manages (FR-010); the damaged-store file never modified (FR-029); no real personal data in the repository (constitution).
 
 **Scale/Scope**: One owner, hundreds of records at most in v1.0, a change log that grows with use and is never shortened (DATA-01 is Open and is a planning matter only for size), one backup format version.
 
@@ -108,8 +108,8 @@ crates/
 docs/format/                        # published backup format description (golden copy)
 tests/
 ├── acceptance/                     # cucumber features for spec 002
-├── crash/                          # child-process kill and failpoint tests
 └── fixtures/                       # synthetic records, damaged-store samples
+(crash and fault-injection tests are one test target, `crates/meep-storage/tests/crash/`, run with `cargo test -p meep-storage --test crash`)
 docs/decisions/                     # PLAN-13 to PLAN-27 (Proposed)
 ```
 
