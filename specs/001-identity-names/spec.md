@@ -10,6 +10,15 @@
 
 **Binding rule**: only items the Meep spec marks Confirmed are binding here. Anything Proposed or Open appears as a clarification question, not a decision.
 
+## Clarifications
+
+### Session 2026-11-19
+
+- Q: Should a name marked "No longer used" still be included in outbound exports? → A: Yes. Retired names are included in outbound exports: "old" in the standard healthcare format and as a Previous Name in the US health-data form. Each name carries an outbound-sharing flag (default: share), with no control for it in v1.0. A "Don't share this name outside Meep" control must ship before any automatic outbound sharing (v2 provider exchange, HCP-X); that is a v2 entry condition. The owner's own full JSON export and backup always includes every name (owner clarification; principle 27).
+- Q: When the owner corrects the wording of a name, should the earlier wording be kept anywhere? → A: No. A correction keeps only the new wording. The history records "name edited", the date, which parts changed, and a protected, non-reversible fingerprint of the prior value, tied to the record's own key, so tampering is detectable without keeping the old text; it becomes meaningless when the record is deleted (R8). Real name changes stay separate and add a new name entry, so an in-place edit only ever discards a typo. Entry condition for the delegation feature: edits made by someone other than the owner must keep the prior wording visible to the owner (owner clarification).
+- Q: How many characters may each name box hold, and how many names may the owner keep? → A: Up to 128 characters per name box (US Web Design System name pattern, verified by the owner: https://designsystem.digital.gov/patterns/create-a-user-profile/name/), counted as characters a person sees (not bytes), minimum 1 character, so "María" with a combining accent is 5. The full-name box allows up to 384. Up to 50 names in total. Over a limit, a clear message is shown and stored text is never truncated. Shorter limits in outside systems are handled at export under the existing rule (logged as an Also known as rendering). A single character is valid as a whole name part.
+- Q: Where does the owner set a custom short form of a name? → A: Per name, in "More name options" on the Add or edit a name screen, labeled by purpose (for example "Short name: shown where space or privacy calls for it") with the computed default (R15) as the placeholder. The owner may enter anything; only the length rules apply. It is a display value only: never used for matching and never included in outbound exports. The short form displayed is the Preferred name's, or the Legal name's if there is no Preferred name (R15).
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Add my name in three familiar boxes (Priority: P1)
@@ -34,6 +43,7 @@ unchanged.
 4. **Given** First name "José Luis" entered in the First box, **When** the owner saves without changing anything in any menu, **Then** it stays one given name and is not split (AT-31).
 5. **Given** any saved name, **When** its parts are joined in order with a single space and no added punctuation, **Then** the result equals the full text exactly; if it would not, the save is refused as an integrity error (ID-04, R14, AT-28).
 6. **Given** a name typed with extra spaces such as "  Jordan   Rivera ", **When** it is saved, **Then** leading and trailing spaces are trimmed, runs of spaces collapse to one, and apostrophes and hyphens stay exactly as typed (ID-09).
+7. **Given** a name box holding 128 characters, **When** the owner types one more, **Then** a clear message appears, the text is not cut off, and the name is not saved until shortened; **And** an accented name such as "María" counts its characters as a person sees them (FR-001a).
 
 ---
 
@@ -87,6 +97,7 @@ labeled parts.
 7. **Given** "My name doesn't fit these boxes", **When** the owner types one full name and tap-labels each word, **Then** the stored labeled parts are identical to those produced by three-field entry for the same name (AT-27).
 8. **Given** a field menu, **When** the owner changes a word's type or chooses to split or keep words together, **Then** the stored parts reflect that choice and still rebuild the full text exactly (ID-04).
 9. **Given** the v1.0 conventions, **When** names are entered, **Then** only the US form and the Spanish two-surname form are supported; other conventions are not offered (ID-07).
+10. **Given** "More name options" on a name, **When** the owner views the short name box, **Then** it is labeled by purpose, shows the computed default (for example "Jordan R.") as its placeholder, and accepts any text within the length rules; **And** the short form shown elsewhere is the Preferred name's (the Legal name's if there is no Preferred name), and it is never used for matching or included in outbound exports (R15; owner clarification 2026-11-19).
 
 ---
 
@@ -109,6 +120,7 @@ re-import, and compare character by character.
 4. **Given** names with use types, **When** exported to the standard healthcare name format, **Then** Legal maps to official, Preferred to usual, Nickname to nickname, and Also known as to usual while Active and old once No longer used (ID-10).
 5. **Given** the owner's names, **When** they are exported and re-imported, **Then** the re-imported records equal the originals (spec 016 round trip, as it applies to names).
 6. **Given** two names that differ only by accents, **When** the owner searches or compares, **Then** an accent-folded key is used for matching only and never changes what is stored (ID-04).
+7. **Given** a name marked No longer used (for example "Jordan Lee Pak"), **When** the owner makes an outbound export, **Then** it is included as "old" in the standard healthcare format and as a Previous Name in the US health-data form; **And When** the owner makes their own full JSON export, **Then** every name is included (owner clarification, 2026-11-19).
 
 ---
 
@@ -142,18 +154,22 @@ enable pronouns in Settings, and confirm they then appear as configured.
 - Names containing apostrophes or hyphens (for example a double-barrelled surname): kept exactly as typed (ID-09).
 - A name that cannot be rebuilt exactly from its parts: save fails and nothing is written (ID-04, principle 26 data-integrity block).
 - Typing a stray comma before a suffix: Meep never inserts punctuation, so "Smith Jr." exports as "Smith Jr." and "Smith, Jr." appears only if the owner typed the comma (R14).
-- Correcting a typo in an existing name: allowed, and recorded as an edit in the change history (spec 002 foundation).
+- Correcting a typo in an existing name: allowed. Only the new wording is kept; the change history records "name edited", the date, which parts changed, and a protected non-reversible fingerprint of the prior value (spec 002 foundation). The earlier wording is not recoverable from the history, and the fingerprint becomes meaningless when the name is deleted (R8).
+- A real change of name (for example a legal name change) is not an in-place edit: it adds a new name entry under the existing rules (ID-01).
 - Deleting a name: the content is destroyed beyond recovery while the change history records only that a name was deleted, with the date (R8).
 - The owner marks every Also known as and Nickname No longer used: allowed; Legal and Preferred remain Active (ID-02).
 - Two surnames versus one compound surname: the default is one compound surname; the owner must choose two (ID-07, ID-08).
 - Names in a convention other than US or Spanish two-surname: not specially supported in v1.0, and the full-name box is the escape hatch (ID-07).
-- Very long names: [ASSUMPTION: accepted up to a generous limit with a clear message beyond it; the limit is a planning decision].
+- A name box over 128 characters, a full-name box over 384, or a 51st name: a clear message is shown, nothing is cut off, and nothing is saved until the owner shortens it (FR-001a).
+- A name whose whole part is a single character (for example a one-letter surname): accepted (FR-001a).
+- An accented name near the limit: "María" typed with a combining accent counts as 5 characters, not 6, so accented names do not hit the limit early (FR-001a).
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
 - **FR-001**: The system MUST let the owner add a name with First, Middle and Last fields, each accepting several words, with only one of First or Last required and Middle never required (ID-05).
+- **FR-001a**: The system MUST accept up to 128 characters in each name box, up to 384 in the full-name box, and up to 50 names in total, counting characters as a person sees them (an accented letter written with a combining mark counts as one character, not more), and MUST accept a single character as a whole name part. Beyond a limit the system MUST show a clear message and MUST NOT truncate any stored text; values longer than an outside system allows are handled at export under FR-017 (owner clarification 2026-11-19; 128 characters per field per the US Web Design System name pattern, https://designsystem.digital.gov/patterns/create-a-user-profile/name/).
 - **FR-002**: The system MUST store each name as exactly-as-entered text (with accents preserved) plus an ordered list of labeled parts, and MUST refuse to save any name whose parts do not rebuild the text exactly (ID-04, R14, AT-28).
 - **FR-003**: The system MUST rebuild full text by joining parts in order with one space and MUST NOT insert punctuation (R14).
 - **FR-004**: The system MUST trim leading and trailing spaces, collapse runs of spaces to one, and keep apostrophes and hyphens as typed (ID-09).
@@ -171,9 +187,12 @@ enable pronouns in Settings, and confirm they then appear as configured.
 - **FR-016**: The system MUST support only the US form and the Spanish two-surname form in v1.0 (ID-07).
 - **FR-017**: The system MUST export names to the US health-data name form (First, Middle, Last, with prefix and suffix) and to the standard healthcare name format, build every export from the labeled parts, and log anything a target cannot hold as an Also known as rendering (ID-04, ID-10, AT-29, AT-30).
 - **FR-018**: The system MUST map name types to the standard healthcare use values as ID-10 states (Legal to official, Preferred to usual, Nickname to nickname, Also known as to usual while Active and old when No longer used).
-- **FR-019**: The system MUST export and re-import all names as an open, documented format with equal results (principle 27 is Proposed, so this rests on the Confirmed JSON export and import in the v1.0 foundation).
+- **FR-002a**: When the owner corrects a name in place, the system MUST keep only the new wording and MUST record in the change history that the name was edited, the date, which parts changed, and a protected, non-reversible fingerprint of the prior value tied to the record's own key, so tampering is detectable without retaining the old text. The fingerprint MUST become meaningless when the name is deleted (ID-04, R8; owner clarification 2026-11-19). When delegates can edit names (a later feature), edits made by anyone other than the owner MUST keep the prior wording visible to the owner; this is an entry condition for the delegation feature.
+- **FR-018a**: Outbound exports MUST include names marked No longer used: as "old" in the standard healthcare format and as a Previous Name in the US health-data form, so older records still match (owner clarification, 2026-11-19).
+- **FR-018b**: Each name MUST carry an outbound-sharing flag, defaulting to "share", that the export step respects. v1.0 shows no control for it and every name is shared in outbound exports. A "Don't share this name outside Meep" control MUST ship before any automatic outbound sharing exists; this is recorded as an entry condition for v2 provider exchange (HCP-X) (owner clarification, 2026-11-19).
+- **FR-019**: The system MUST export and re-import all names as an open, documented format with equal results (principle 27 is Proposed, so this rests on the Confirmed JSON export and import in the v1.0 foundation). The owner's own full JSON export and backup MUST always include every name, including those marked No longer used, regardless of the outbound-sharing flag.
 - **FR-020**: The system MUST keep a separate accent-folded key for matching only and MUST NOT merge or change records based on it (ID-04).
-- **FR-021**: The system MUST compute a default short form of the owner's first given name plus the initial of the first surname and a period (for example "Jordan R."), using the Preferred name or the Legal name if none, and an owner-set override MUST always win (R15).
+- **FR-021**: The system MUST compute a default short form of the owner's first given name plus the initial of the first surname and a period (for example "Jordan R."), using the Preferred name or the Legal name if none, and an owner-set override MUST always win (R15). The owner sets the override per name in "More name options", in a box labeled by purpose with the computed default as its placeholder and no validation beyond the length rules (FR-001a). The short form is a display value only: it MUST NOT be used for matching and MUST NOT appear in outbound exports. The short form displayed is the Preferred name's, or the Legal name's if there is no Preferred name (owner clarification 2026-11-19).
 - **FR-022**: The system MUST hide pronouns everywhere until the owner enables them in Settings, MUST use the name or "you" instead, and MUST never guess (PRON-01, R4, AT-23).
 - **FR-023**: When pronouns are enabled, the system MUST offer she/her, he/him, they/them, use my name, and custom (PRON-01).
 - **FR-024**: The system MUST let the owner choose pronoun visibility from exactly two choices in v1.0, "Only me" and "Included in exports", defaulting to "Only me" when pronouns are first enabled. "Delegates" MUST NOT be shown in v1.0, but the stored setting MUST be able to hold it later without a data migration of existing records (PRON-01, owner clarification 2026-11-19).
@@ -184,7 +203,7 @@ enable pronouns in Settings, and confirm they then appear as configured.
 
 ### Key Entities
 
-- **Name**: one name the owner uses. Has full text exactly as entered, a use (Legal, Preferred, Also known as, Nickname), an Active or No longer used status, an optional period (start and end), an optional short form, and an ordered list of parts.
+- **Name**: one name the owner uses. Has full text exactly as entered, a use (Legal, Preferred, Also known as, Nickname), an Active or No longer used status, an optional period (start and end), an optional short form (display only), an outbound-sharing flag (default share; no control in v1.0), and an ordered list of parts.
 - **Name part**: one labeled piece of a name, with a role (given, additional given, family, particle, prefix, suffix), its position, and optional qualifiers (father's, mother's, birth, spouse, "the name I go by", initial).
 - **Pronoun setting**: the owner's on or off choice, the chosen pronouns, and a visibility value (Only me, Included in exports, and later Delegates). Only the first two are selectable in v1.0.
 - **Owner**: the single person whose names these are, with no sign-in in v1.0 (R5).
@@ -211,7 +230,8 @@ enable pronouns in Settings, and confirm they then appear as configured.
 - Pronouns are included in v1.0 (R4 Confirmed), hidden by default. Visibility choices and the always-included JSON export rule come from the owner's clarification of 2026-11-19; principle 27 itself is still marked Proposed in the constitution, so this rule rests on that clarification.
 - English is the only interface language in v1.0, but all text lives in a message catalog (R10); the Spanish gender-neutral copy rule is Proposed and not applied.
 - Names are US or Spanish two-surname only (ID-07); Tsalagi and other conventions are later.
-- Name length limits and any cap on the number of names are set during planning.
+- The 128-character box limit follows the US Web Design System name pattern (https://designsystem.digital.gov/patterns/create-a-user-profile/name/); the 384-character full-name limit (3 x 128) and the 50-name cap come from the owner's clarification.
+- The Previous Name element used for retired names in outbound exports is part of the USCDI Patient Demographics data class (https://isp.healthit.gov/uscdi-data-class/patient-demographicsinformation).
 - No outside record exists in v1.0, so linking names to outside records (ID-06) and warnings when retiring a linked name (AT-32) belong to v1.1.
 - Matching a document name against names on record (AT-25) and delegate visibility of the legal name (AT-24) belong to v1.1.
 
