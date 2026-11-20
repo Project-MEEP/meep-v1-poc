@@ -18,7 +18,8 @@
 - **Envelope**: the set of standard fields every record carries: its identifier, the account ID, its address, its provenance, the statement that Meep claims no authority over it, and its timestamps.
 - **Store**: the owner's encrypted local collection of all records and the change log.
 - **Change log**: the append-only history of what happened to records, which never contains a record's content.
-- **Owner backup**: the owner's own full export of everything Meep holds, in an open, documented format, made for the owner and never for anyone else.
+- **Owner backup**: the owner's own full export of everything Meep holds, made for the owner and never for anyone else. It is one zip archive holding a plain-language read-me (READ-ME-FIRST.txt), the data, and a machine-readable schema of the data format, and it carries a format version.
+- **Rescue backup**: an owner backup made from a damaged store; it holds only records that read and validate fully, is labeled as coming from a damaged store, lists what could not be read, and carries the old change log only as a separate, clearly unverified archive.
 - **Fragment**: the part of the owner backup that one feature contributes (for example the names fragment from spec 001).
 - **Recovery key**: a one-time secret shown to the owner when the store is created, which they print or keep offline, and which can reopen the store if the normal key is lost.
 
@@ -28,6 +29,10 @@
 
 - Q: Is the owner backup readable plain text or protected by a passphrase? → A: Plain, open, documented file; Meep warns the owner when making it that anyone who has it can read everything (FOUND-02).
 - Q: Should the foundation guard against other user accounts on the same computer? → A: No. v1.0 assumes the computer is used by one person and says so (FOUND-02).
+- Q: If the store is partly damaged or the change log fails its check, what should Meep do? → A: Open it read-only with a clear warning and offer only an owner backup (a rescue backup) of what can be read; refuse a store that cannot be read at all, pointing to the latest owner backup. Meep never modifies, repairs or deletes the damaged file. The rescue backup holds only records that read and validate fully, is labeled and lists what could not be read, and keeps the old log only as an unverified archive; the new store starts a fresh chain. Restoring adopts the backup's account ID and issues a new recovery key (FOUND-03).
+- Q: If Meep stops unexpectedly while the store is open, how does the next start deal with the one-copy-at-a-time rule? → A: The rule is enforced by a claim the operating system holds for the running Meep and releases automatically when it stops, including after a crash or power loss, so there is no leftover marker whose owner has to be guessed. After an unexpected stop the next start checks that the store is intact and the change log verifies before opening normally; if either fails, damaged-store handling applies (FOUND-03). If Meep cannot tell whether another copy holds the store, it does not ask the owner to confirm; it refuses with the message "Meep may already be open. If it isn't, restart your computer and try again." "Copy" means a running Meep program, not a browser tab or window; several tabs on one running Meep are allowed (FOUND-04).
+- Q: Should every owner backup carry its own description of its format? → A: Yes. An owner backup is one zip archive containing READ-ME-FIRST.txt (plain text, plain language), the data, and a machine-readable schema. The read-me is complete on its own: what Meep is, what each part holds, how fields map to the standard name formats, how to restore, that the file is not encrypted (FOUND-02), and the format version. A rescue backup's read-me also lists what could not be read and explains the unverified history archive (FOUND-03). The format carries a version; a Meep that meets a newer incompatible version refuses with a plain message and does not guess. The same full description is published in the project documentation, and a check on every change confirms the two match (FOUND-05).
+- Q: While an owner backup is being made, should changes wait or carry on? → A: Everything carries on as normal; the backup shows the store as of the moment it started and says so in the read-me and on screen. Changes made during a backup are saved to the store normally and a backup never delays or holds them. When a backup finishes, if any change was made after its "as of" moment, Meep says "Changes you made after <time> aren't in this backup" with a "Make another backup" action. A backup is written under a temporary name, fully verified (archive readable, every record and the read-me present), and only then given its final name; an interrupted or failed backup leaves no file that looks like a complete backup, and Meep says plainly that it failed. Settings shows "Last successful backup: <date and time>" (FOUND-06).
 - Q: Can the owner replace the recovery key after setup? → A: No. It is shown once and cannot be replaced in v1.0; the owner backup is the protection (FOUND-02; R7 revisit before v1.1).
 
 ## User Scenarios & Testing *(mandatory)*
@@ -48,6 +53,13 @@ The first time Meep runs on the owner's machine, it creates an encrypted store a
 4. **Given** the normal key is no longer available, **When** the owner supplies the recovery key, **Then** the store opens and the owner is told how to set up normal opening again (R7).
 5. **Given** the normal key and the recovery key are both lost, **When** the owner tries to open the store, **Then** it stays closed and Meep says plainly that the data cannot be recovered and that a backup is the only way to restore it; there is no backdoor (R7).
 6. **Given** a copy of the store file taken to another machine, **When** someone opens it without the key, **Then** it cannot be read (R2).
+7. **Given** a store that is partly damaged or whose change log fails its check but can still be read in part, **When** the owner starts Meep, **Then** it opens read-only with a clear warning, offers only an owner backup of what can be read, and does not change the store file in any way (FOUND-03).
+8. **Given** a store that cannot be read at all, **When** the owner starts Meep, **Then** it refuses to open, changes nothing, and points to the latest owner backup (FOUND-03).
+9. **Given** Meep stopped unexpectedly (a crash or power loss) while the store was open, **When** the owner starts Meep again, **Then** the earlier copy no longer holds the store, and Meep checks that the store is intact and the change log verifies before opening normally (FOUND-04).
+10. **Given** that check fails, **When** Meep starts, **Then** damaged-store handling applies: read-only with a warning, and a rescue backup is offered (FOUND-04, FOUND-03).
+11. **Given** one Meep program is running and holds the store, **When** a second Meep program is started, **Then** it is refused with a plain message and the store is untouched (FOUND-04).
+12. **Given** Meep cannot determine whether another copy holds the store, **When** it starts, **Then** it does not ask the owner to confirm anything; it refuses and says "Meep may already be open. If it isn't, restart your computer and try again." (FOUND-04)
+13. **Given** one running Meep, **When** the owner has it open in several browser tabs or windows, **Then** all of them work; a stale save from a second tab shows the stale-save warning from spec 001, never a silent overwrite (FOUND-04, NAMES-05).
 
 ---
 
@@ -104,6 +116,8 @@ Each time a feature adds, changes or deletes a record, an entry is appended to a
 4. **Given** any attempt by a feature to change or delete an earlier entry, **When** it is made, **Then** it is refused; entries can only be added at the end (spec v1.0 foundation).
 5. **Given** a feature tries to put a record's content or key into an entry, **When** it appends, **Then** the entry is refused (FOUND-01, R8).
 6. **Given** the entry format, **When** a new feature appends its own kind of event, **Then** the format is the same for every feature; each feature defines only the details of its own payload (FOUND-01).
+7. **Given** a chain check that fails, **When** Meep tells the owner, **Then** the message says the history does not verify, names the first entry that breaks the chain, and says the likely causes are a software fault or editing the store outside Meep; it never implies an intruder (FOUND-03).
+8. **Given** data that cannot be read, **When** Meep tells the owner, **Then** the message says some data could not be read, which is different from the history not verifying (FOUND-03).
 
 ---
 
@@ -124,6 +138,18 @@ The owner can export everything Meep holds as an owner backup in an open, docume
 5. **Given** a restore that fails partway for any reason, **When** it ends, **Then** the store is exactly as it was before and a clear message says so (NAMES-05, all-or-nothing).
 6. **Given** a backup, **When** a feature's fragment is present but that feature is not installed, **Then** the restore says which fragment cannot be read and does not drop it silently.
 7. **Given** the owner makes an owner backup, **When** the file is created, **Then** it is a plain, open, documented file that anyone who has it can read, and Meep warns the owner of this at that moment and suggests keeping it somewhere safe (owner decision FOUND-02).
+8. **Given** a partly damaged store opened read-only, **When** the owner makes a rescue backup, **Then** it contains only records that read and validate fully, is labeled as coming from a damaged store, lists what could not be read, and always restores cleanly (FOUND-03).
+9. **Given** a rescue backup, **When** it is imported, **Then** the warning that it came from a damaged store and the list of what could not be read are shown again (FOUND-03).
+10. **Given** a rescue backup, **When** it is restored, **Then** the old change log is not restored as live history; it is kept as a separate, clearly unverified archive, and the new store starts a fresh chain whose first entry records "restored from a rescue backup of a damaged store" with the date (FOUND-03).
+11. **Given** a backup restored into a new store, **When** the restore finishes, **Then** the new store uses the backup's account ID (R9), a new recovery key is shown, and Meep tells the owner plainly that the old recovery key does not open the new store (FOUND-03, R7).
+12. **Given** the owner makes an owner backup, **When** the file is created, **Then** it is one zip archive containing READ-ME-FIRST.txt, the data and a machine-readable schema, and it carries a format version (FOUND-05).
+13. **Given** an owner backup, **When** someone with no access to Meep or the project's website opens READ-ME-FIRST.txt, **Then** it is complete on its own: it says what Meep is, what each part holds, how fields map to the standard name formats, how to restore, that the file is not encrypted, and the format version (FOUND-05, FOUND-02).
+14. **Given** a rescue backup, **When** its read-me is opened, **Then** it also lists what could not be read and explains that the old history is an unverified archive (FOUND-05, FOUND-03).
+15. **Given** a backup whose format version is newer than and incompatible with the Meep reading it, **When** the owner tries to restore it, **Then** Meep refuses with a plain message and does not guess (FOUND-05).
+16. **Given** the owner makes an owner backup while changes are being saved, **When** the backup finishes, **Then** every change was saved to the store normally and none was delayed or held by the backup, and the backup shows the store as of the moment it started, stated in the read-me and on screen (FOUND-06, FR-015).
+17. **Given** a change was made after the backup's "as of" moment, **When** the backup finishes, **Then** Meep says "Changes you made after <time> aren't in this backup" and offers "Make another backup" (FOUND-06).
+18. **Given** a backup is interrupted or fails at any point, **When** the owner looks at the backup location, **Then** no file there looks like a complete backup, and Meep has said plainly that the backup failed (FOUND-06).
+19. **Given** at least one successful backup, **When** the owner opens Settings, **Then** it shows "Last successful backup: <date and time>" so the owner knows what an emergency restore would lose (FOUND-06).
 
 ---
 
@@ -147,15 +173,17 @@ In v1.0 there is no sign-in. Meep is therefore reachable only from the owner's o
 
 ### Edge Cases
 
-- The store file is damaged or truncated: Meep refuses to open it, says so, and points the owner to the owner backup (principle 16, R7).
+- The store file is damaged, truncated, or its change log fails its check: Meep opens it read-only with a clear warning and offers only a rescue backup of what can be read; a store that cannot be read at all is refused and the owner is pointed to the latest owner backup. Meep never modifies, repairs or deletes the damaged file, including any changes still waiting to be written (principle 16, R7, FOUND-03).
 - Disk full or the machine is interrupted during any save, delete, append or restore: nothing changes and a clear message says so (all-or-nothing; spec 001 FR-030).
 - Two features append to the log at the same moment: both entries are added in a single, consistent order and the chain stays valid.
 - The change-log entry for a deleted record is kept, but it never contains the record's content or key (R8).
 - A record's address is changed to an invalid one by a feature: the save is refused (R16).
 - The clock is wrong or goes backwards: entries keep their order in the chain regardless of the timestamp; the timestamp is informational.
-- A second copy of Meep is started on the same store: only one may open it at a time; the second is refused with a message [ASSUMPTION: one at a time, since there is a single owner and no sync in v1.0].
+- A second running Meep program is started on the same store: it is refused with a plain message; several browser tabs or windows on one running Meep are allowed (FOUND-04).
+- Meep stopped unexpectedly: the claim on the store is released by the operating system with no leftover marker; the next start checks the store and the change log before opening normally (FOUND-04).
 - A key is in use when a record is deleted: the delete still destroys that record's key and leaves other records untouched.
-- A backup is made while records are being saved: the backup is a consistent snapshot of one moment.
+- A backup is made while records are being saved: the changes are saved normally, never delayed; the backup is a consistent snapshot as of the moment it started, and Meep says so (FOUND-06).
+- A backup is interrupted by a crash or failure: it leaves either a verified backup or no file that looks like a complete backup, and changes saved during it survive (FOUND-06).
 - The recovery key is shown only once and cannot be replaced after setup in v1.0: if the owner dismisses it unread or loses the printed copy, Meep makes clear that the owner backup is the way to protect against losing the normal key as well (R7, owner decision FOUND-02; the v1.1 revisit of key custody may reopen this).
 
 ## Requirements *(mandatory)*
@@ -185,10 +213,27 @@ In v1.0 there is no sign-in. Meep is therefore reachable only from the owner's o
 - **FR-021**: The system MUST refuse requests from other web pages that would read or change data and requests that claim a name or origin that is not the owner's local one (R5).
 - **FR-022**: The system does not guard against other user accounts on the same computer in v1.0; it assumes one person uses the computer and MUST say so in its documentation (owner decision FOUND-02).
 - **FR-023**: The owner backup MUST be a plain, open, documented file, and the system MUST warn the owner when making one that anyone who has the file can read everything in it and suggest keeping it somewhere safe (owner decision FOUND-02; principle 27).
-- **FR-024**: The system MUST allow only one running copy to open a store at a time and refuse a second with a clear message (assumption, single owner, no sync in v1.0).
+- **FR-024**: The system MUST allow only one running Meep program to hold a store at a time, enforced by a claim the operating system holds for the running program and releases automatically when it stops, including after a crash or power loss, with no marker file whose owner has to be guessed. "Copy" means a running Meep program, not a browser tab or window; several tabs on one running Meep are allowed (concurrent edits follow the stale-save warning, NAMES-05). A second program MUST be refused with a plain message (FOUND-04).
 - **FR-025**: The system MUST provide to features, as capabilities and not as implementation, a record store (save, read, delete records with their envelope), a change log (append, verify) and key custody (obtain a record key, obtain a purpose-specific value, destroy a record key), so features never touch encryption or storage directly (FOUND-01).
 - **FR-026**: The system MUST NOT include names, shared UI elements, distribution and updates, login, delegates, caregivers, insurance, any AI or cloud feature, or any v1.1 or later item (spec Out of scope).
 - **FR-027**: The system MUST make no network request to any outside service of any kind (EGRESS-01, principle 12).
+- **FR-028**: When the store is partly damaged or its change log fails its check but can be read in part, the system MUST open it read-only with a clear warning and offer only a rescue backup of what can be read; when the store cannot be read at all, it MUST refuse to open and point to the latest owner backup (FOUND-03).
+- **FR-029**: The system MUST NOT modify, repair or delete a damaged store file in any way, including any changes still waiting to be written; the plan MUST specify how the store is opened without altering it (FOUND-03).
+- **FR-030**: A rescue backup MUST contain only records that read and validate fully so it always restores, MUST be labeled as coming from a damaged store and list what could not be read, and importing it MUST repeat that warning (FOUND-03).
+- **FR-031**: The old change log MUST NOT be restored as live history; it MUST be kept as a separate, clearly unverified archive inside the rescue backup, and the restored store MUST start a fresh chain whose first entry records "restored from a rescue backup of a damaged store" with the date (FOUND-03).
+- **FR-032**: Restoring into a new store MUST adopt the backup's account ID (R9) and issue a new recovery key, and the system MUST tell the owner plainly that the old recovery key does not open the new store (FOUND-03, R7).
+- **FR-033**: Messages MUST distinguish "some data could not be read" from "the history does not verify"; the second MUST name the first broken entry and give the likely causes as a software fault or editing the store outside Meep, without implying an intruder (FOUND-03).
+- **FR-034**: After an unexpected stop, the next start MUST check that the store is intact and the change log verifies before opening normally, and if either fails MUST follow damaged-store handling (FOUND-03, FOUND-04).
+- **FR-035**: If Meep cannot determine whether another copy holds the store, it MUST NOT ask the owner to confirm; it MUST refuse and say "Meep may already be open. If it isn't, restart your computer and try again." (FOUND-04).
+- **FR-036**: An owner backup MUST be one zip archive containing READ-ME-FIRST.txt (plain text, plain language), the data, and a machine-readable schema of the data format, and MUST carry a format version (FOUND-05, principle 27).
+- **FR-037**: The read-me MUST be complete on its own: what Meep is, what each part holds, how fields map to the standard name formats (each feature supplies the part for its own fragment), how to restore, that the file is not encrypted (FOUND-02), the "as of" moment of the backup, and the format version (FOUND-05, FOUND-06).
+- **FR-038**: A rescue backup's read-me MUST also list what could not be read and explain the unverified history archive (FOUND-05, FOUND-03).
+- **FR-039**: When Meep meets a backup with a newer incompatible format version it MUST refuse with a plain message and MUST NOT guess (FOUND-05).
+- **FR-040**: The same full description of the format MUST be published in the project documentation, and a check on every change MUST confirm that the description inside a backup and the published one match (FOUND-05, ENG-02).
+- **FR-041**: Making an owner backup MUST NOT delay or hold any change: saves, corrections and deletions during a backup are saved to the store normally (FR-015), and the backup shows the store as of the moment it started, stated in its read-me and on screen (FOUND-06).
+- **FR-042**: When a backup finishes, if any change was made after its "as of" moment, Meep MUST say "Changes you made after <time> aren't in this backup" and offer "Make another backup" (FOUND-06).
+- **FR-043**: A backup MUST be written under a temporary name, fully verified (archive readable, every record and the read-me present), and only then given its final name; an interrupted or failed backup MUST leave no file that looks like a complete backup, and Meep MUST say plainly that it failed (FOUND-06).
+- **FR-044**: The system MUST record the date and time of the last successful backup and make it available to be shown as "Last successful backup: <date and time>" in Settings (the Settings screen belongs to spec 010), so the owner always knows what an emergency restore would lose (FOUND-06).
 
 ### Key Entities
 
@@ -197,7 +242,8 @@ In v1.0 there is no sign-in. Meep is therefore reachable only from the owner's o
 - **Record key**: the secret that protects one record's content; destroying it destroys the record.
 - **Store key and recovery key**: the normal key kept on the owner's own computer, and the one-time recovery key the owner keeps offline.
 - **Change-log entry**: time, record concerned, kind of event, feature-defined details, and the link to the previous entry; never any content.
-- **Owner backup and fragment**: the full export for the owner, built from one fragment per feature.
+- **Rescue backup and archive**: the owner backup made from a damaged store, listing what could not be read, with the old change log kept only as a separate unverified archive.
+- **Owner backup and fragment**: the full export for the owner, one zip archive with a plain-language read-me, the data and a machine-readable schema, built from one fragment per feature, with a format version.
 - **Test fixtures (synthetic)**: two sample records at the addresses `Alpha.Meep.Personal.Identity.Names` and `Alpha.Meep.Personal.Notes.Sample` with made-up content, a made-up account ID, and invalid addresses (four segments, a segment starting with a digit, an underscore). No real personal data and no email addresses anywhere.
 
 ## Success Criteria *(mandatory)*
@@ -213,6 +259,13 @@ In v1.0 there is no sign-in. Meep is therefore reachable only from the owner's o
 - **SC-007**: A new owner can reach the point of having saved their recovery key in under five minutes from first launch [ASSUMPTION: measured with the owner as the test subject].
 - **SC-008**: In 100% of address-checker tests, every valid and invalid address in the fixtures is accepted or refused as specified, with a reason for each refusal (R16).
 - **SC-009**: No record, log entry or backup in the fixtures contains real personal data or an email address (constitution).
+- **SC-010**: A rescue backup made from a synthetic partly damaged store restores cleanly in 100% of tested cases, and the restored store verifies (FOUND-03).
+- **SC-011**: The old recovery key fails to open a store restored from a backup, and the new recovery key opens it, in 100% of tested cases (FOUND-03, R7).
+- **SC-012**: Opening a damaged store leaves its file byte-for-byte identical in 100% of tested cases, including when changes were waiting to be written (FOUND-03).
+- **SC-013**: After a simulated crash while the store is open, the next start opens the store in 100% of tested cases when it is intact, never needs a marker removed by hand, and refuses a truly second running program in 100% of tested cases (FOUND-04).
+- **SC-014**: In 100% of tested backups the archive contains the read-me, the data and the schema; the read-me includes every required topic; a newer incompatible version is refused without guessing; and the check that the in-backup and published descriptions match passes on every change (FOUND-05).
+- **SC-015**: In 100% of tested crashes at any point during a backup, the result is either a verified backup or no file that looks like a complete backup, and changes saved during the backup survive the crash (FOUND-06).
+- **SC-016**: In 100% of tested backups made while changes are saved, no change is delayed, the backup matches the store as of its start, and the "changes after <time>" message appears exactly when a later change exists (FOUND-06).
 
 ## Assumptions
 
@@ -227,6 +280,8 @@ In v1.0 there is no sign-in. Meep is therefore reachable only from the owner's o
 - A single person uses the computer; other user accounts on it are not guarded against in v1.0 (FOUND-02).
 - The recovery key is shown once and cannot be replaced after setup in v1.0 (FOUND-02, R7).
 - The owner backup is a plain, open file; the owner is warned when making it (FOUND-02).
+
+- The plan specifies how a damaged store is opened without altering it, including changes not yet written (FOUND-03).
 
 ## Out of Scope (v1.0)
 
