@@ -28,6 +28,11 @@ R5 (no sign-in in v1.0) was confirmed earlier and is recorded in the spec.
 | [PLAN-10](PLAN-10.md) | Design patterns in Rust | Proposed | 2026-11-19 |
 | [PLAN-11](PLAN-11.md) | Identifiers and addresses | Proposed | 2026-11-19 |
 | [PLAN-12](PLAN-12.md) | Test tooling | Proposed | 2026-11-19 |
+| [BUILD-01](BUILD-01.md) | v1.0 build order: spec 002, then 010, then names screens; no throwaway placeholders | Confirmed | 2026-11-19 |
+| [NAMES-05](NAMES-05.md) | Checklist resolutions (CHK001 to CHK039) | Confirmed | 2026-11-19 |
+| [NAMES-06](NAMES-06.md) | Reactivating a retired name | Confirmed | 2026-11-19 |
+| [FOUND-01](FOUND-01.md) | Spec 002 ownership of key, storage, log-format and export-envelope primitives | Confirmed | 2026-11-19 |
+| [CONST-27](CONST-27.md) | Principle 27 (no lock-in) confirmed | Confirmed | 2026-11-19 |
 | [PRON-01a](PRON-01a.md) | Pronoun visibility in v1.0 (Only me / Included in exports; JSON backup always includes) | Confirmed | 2026-11-19 |
 | [R6](R6.md) | First domain address for names (ARCH-02) | Confirmed | 2026-11-19 |
 | [R7](R7.md) | Database key custody with no login | Confirmed | 2026-11-19 |

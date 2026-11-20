@@ -16,7 +16,7 @@ One name the owner uses. Stored as one record in the owner's encrypted database.
 | `text` | The full name exactly as entered | Normalized to NFC, accents kept; leading and trailing spaces trimmed, runs of spaces collapsed to one, apostrophes and hyphens kept (ID-09) |
 | `use` | Kind of name | One of Legal, Preferred, Also known as, Nickname (ID-01) |
 | `status` | In use or not | Active or No longer used (ID-02) |
-| `period` | Optional dates | Optional start and optional end; end is offered when status becomes No longer used (ID-01) |
+| `period` | Optional dates | Optional start and optional end; end is offered when status becomes No longer used (ID-01) and is cleared when the name is marked in use again (FR-028) |
 | `short_form` | Optional owner-set short name | Display only; never used for matching; never in outbound exports (NAMES-04). Empty means "use the computed default" (R15) |
 | `share_outbound` | Include in outbound exports | Boolean, default true; no control in v1.0 (NAMES-01) |
 | `parts` | Ordered labeled parts | See Name part; must rebuild `text` exactly (ID-04, R14) |
@@ -66,8 +66,10 @@ See contracts/domain-events.md. An in-place correction stores only the new wordi
                    |
                    v
    (new) ----> ACTIVE --- retire (owner) ---> NO LONGER USED
-                     \                           |  (optional end date)
-                      \--- promote to Legal ---> (old Legal becomes ACTIVE Also known as)
+                  ^  \                           |  (optional end date)
+                  |   \--- promote to Legal ---> (old Legal becomes ACTIVE Also known as)
+                  |                              |
+                  +--- "Mark as in use again" ---+   (clears the end date)
 
    Legal and Preferred: ACTIVE only; replacing Preferred turns the old
    Preferred into an ACTIVE Also known as (R13).
@@ -75,7 +77,7 @@ See contracts/domain-events.md. An in-place correction stores only the new wordi
    "a name was deleted" + date (R8).
 ```
 
-Reactivating a retired name is not part of this feature: the spec has no requirement for it and ID-02 only defines the two statuses. It is not built until the owner decides (task T058); no screen, event or test exists for it in v1.0.
+Reactivating a retired name ("Mark as in use again") is part of this feature (NAMES-06, FR-028): it sets the status back to Active, clears the end date, and emits a NameReactivated event.
 
 ## Relationships
 

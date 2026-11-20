@@ -18,7 +18,7 @@ description: "Task list for feature 001: Identity and Names (v1.0)"
 - **[P]**: can run in parallel (different files, no dependency on an incomplete task)
 - **[Story]**: US1 to US5; none for Setup, Foundational and Polish
 - Every task names its file path and cites the spec ID (FR, ID, AT, R, NAMES, PRON) or decision (PLAN-nn) it serves
-- **[DEP-002]** = needs the foundation (spec 002) delivered before the real wiring can be done; **[DEP-010]** = needs the shared UI elements (spec 010). Until then, names uses the ports, in-memory fakes and plain semantic HTML named in Phase 2. **This plan does not design 002 or 010.**
+- **[DEP-002]** = needs the foundation (spec 002) delivered before the real wiring can be done; **[DEP-010]** = needs the shared UI elements (spec 010). Build order for v1.0 is spec 002 (foundation), then spec 010 (shared UI elements), then the names screens on the real 010 elements (BUILD-01). Until then names domain and core tasks proceed against the ports and in-memory fakes; there are no throwaway placeholders. **This plan does not design 002 or 010.**
 - Field citations: `data-model.md Entity.field` points at the canonical constraint; tasks do not repeat it
 
 ## Path Conventions
@@ -55,21 +55,21 @@ Cargo workspace from plan.md: `crates/meep-core/`, `crates/meep-storage/`, `crat
 - [ ] T011 [P] Define the ports names needs in `crates/meep-core/src/ports.rs`: `RecordStore` (save, load, delete a Name record with per-record encrypted content), `ChangeLog` (append a domain event), `KeyCustody` (obtain a record key, `derive_subkey` for a named purpose, and `destroy_record_key`), as listed in contracts/foundation-interfaces.md; names only calls these ports, the cryptographic and storage primitives behind them belong to spec 002 (FR-019, R8, R9)
 - [ ] T012 [P] Write in-memory fakes for the three ports in `crates/meep-core/src/testing.rs`, behind a `testing` cargo feature of `meep-core` (so other crates' tests can enable it; `cfg(test)` code is not visible across crates), so stories can be built and tested before spec 002 exists (ENG-02)
 - [ ] T013 [P] Write unit tests in `crates/meep-core/tests/events_no_text.rs` proving no domain event payload contains a name's words, parts, short form or pronoun text (contracts/domain-events.md rules)
-- [ ] T014 Implement the domain event types in `crates/meep-core/src/events.rs` per contracts/domain-events.md (NameAdded, NameEdited, NameRetired, NamePromoted, PreferredReplaced, NameDeleted, PronounSettingChanged; NameReactivated stays behind T058) (NAMES-02, R8, PLAN-10)
+- [ ] T014 Implement the domain event types in `crates/meep-core/src/events.rs` per contracts/domain-events.md (NameAdded, NameEdited, NameRetired, NameReactivated, NamePromoted, PreferredReplaced, NameDeleted, PronounSettingChanged) (NAMES-02, R8, PLAN-10)
 - [ ] T015 [P] **[DEP-002]** Replace the fakes with the real foundation store, change log and key custody once spec 002 is delivered, and re-run the T049 and T050 tests against it; keep the ports unchanged (R2, R7, R8, FR-019)
-- [ ] T016 [P] **[DEP-010]** Switch templates from the temporary plain semantic HTML elements in `crates/meep-web/templates/_elements/` to the shared text field, menu, button, toggle, list row, status label and Settings page once spec 010 is delivered (UI-01, AT-41, AT-42)
+- [ ] T016 [P] **[DEP-010]** Build the names screens only on the real shared elements from spec 010 (text field, menu, button, toggle, list row, status label, Settings page, theme toggle), after spec 002 and then spec 010 are delivered (BUILD-01); there are no throwaway placeholders (APPROACH: nothing is disposed), and any need 010 cannot meet is raised as a change request to 010 (UI-01, AT-41, AT-42, FR-032)
 
 **Shared rules (tests first, then code)**
 
 - [ ] T017 [P] Write tests in `crates/meep-core/tests/address.rs` for the five-segment address syntax: valid and invalid cases, case-insensitive comparison, the names address `Alpha.Meep.Personal.Identity.Names` (R6, R16) (FR citations: FR-025)
 - [ ] T018 Implement the address parser in `crates/meep-core/src/address.rs`; used for data-model.md Name.address (R6, R16, PLAN-11) (FR citations: FR-025)
-- [ ] T019 [P] Write tests in `crates/meep-core/tests/text_rules.rs` for NFC normalization, trim and collapse of spaces with apostrophes and hyphens kept (ID-09), and grapheme counting where "María" with a combining accent counts as 5 and with a precomposed accent also 5 (NAMES-03, PLAN-06) (FR citations: FR-004)
+- [ ] T019 [P] Write tests in `crates/meep-core/tests/text_rules.rs` for NFC normalization, trim and collapse of spaces with apostrophes and hyphens kept (ID-09), the processing order NFC, trim, collapse spaces, then count (FR-004), and grapheme counting (UAX #29) where "María" with a combining accent counts as 5 and with a precomposed accent also 5 (NAMES-03, PLAN-06) (FR citations: FR-004)
 - [ ] T020 Implement `crates/meep-core/src/text.rs` (normalize to NFC, trim, collapse, count user-perceived characters, enforce minimum and maximum lengths via a limits type); used for data-model.md Name.text and data-model.md Name part.value (ID-09, NAMES-03, PLAN-06) (FR citations: FR-001a, FR-004)
 - [ ] T021 [P] Write tests and implement `crates/meep-core/src/ids.rs` for the random account ID (UUID v4) carried on every record; used for data-model.md Name.account_id (R9, PLAN-11)
-- [ ] T022 [P] Write tests in `crates/meep-web/tests/security.rs`: the server binds only the loopback address; a state-changing request without the per-session anti-forgery token is rejected; a request with a non-local `Host` or `Origin` is rejected (R5, PLAN-07, quickstart scenario 18)
-- [ ] T023 Implement the loopback-only axum server and anti-forgery and Host/Origin middleware in `crates/meep-web/src/server.rs` and `crates/meep-web/src/csrf.rs` (R5, PLAN-07)
-- [ ] T024 [P] Spike: prove a template can call a Fluent `t("message-id")` helper using `askama` and `fluent-templates` in `crates/meep-web/src/i18n.rs` with a test template; if it does not fit cleanly, switch the template layer to `minijinja` and update `docs/decisions/PLAN-07.md` and `PLAN-08.md` with the outcome (R10, PLAN-07, PLAN-08, research.md open item 5) (FR citations: FR-026)
-- [ ] T025 [P] Write a test in `crates/meep-web/tests/no_literal_text.rs` that fails the build if any template under `crates/meep-web/templates/` contains literal user-facing text instead of a message ID (R10, PLAN-08) (FR citations: FR-026)
+- [ ] T022 [P] Write tests in `crates/meep-web/tests/security.rs`: the server binds only the loopback address; a state-changing request without the per-session anti-forgery token is rejected; a request with a non-local `Host` or `Origin` is rejected (R5, PLAN-07, quickstart scenario 18) **[DEP-010]**
+- [ ] T023 Implement the loopback-only axum server and anti-forgery and Host/Origin middleware in `crates/meep-web/src/server.rs` and `crates/meep-web/src/csrf.rs` (R5, PLAN-07) **[DEP-010]**
+- [ ] T024 [P] Spike: prove a template can call a Fluent `t("message-id")` helper using `askama` and `fluent-templates` in `crates/meep-web/src/i18n.rs` with a test template; if it does not fit cleanly, switch the template layer to `minijinja` and update `docs/decisions/PLAN-07.md` and `PLAN-08.md` with the outcome (R10, PLAN-07, PLAN-08, research.md open item 5) (FR citations: FR-026) **[DEP-010]**
+- [ ] T025 [P] Write a test in `crates/meep-web/tests/no_literal_text.rs` that fails the build if any template under `crates/meep-web/templates/` contains literal user-facing text instead of a message ID (R10, PLAN-08) (FR citations: FR-026) **[DEP-010]**
 - [ ] T026 [P] Coordination spike with spec 002 (which owns key custody): confirm the `keyring` backend features needed on Windows (and note macOS and Linux) and propose the one-time recovery-key format; do not implement custody in names; record the result in `docs/decisions/PLAN-03.md` and ask the owner to confirm before it is treated as Confirmed (R7, PLAN-03, research.md open item 1)
 - [ ] T027 [P] Coordination spike with spec 002 (which owns the encrypted store): confirm the bundled SQLCipher build compiles on this PC, and whether `bundled-sqlcipher-vendored-openssl` is needed; record the result in `docs/decisions/PLAN-02.md` (R2, PLAN-02)
 
@@ -90,7 +90,7 @@ Cargo workspace from plan.md: `crates/meep-core/`, `crates/meep-storage/`, `crat
 - [ ] T030 [P] [US1] Unit tests in `crates/meep-core/tests/compound_surname.rs`: several words in Last default to one family part ("Rivera Okafor"); the owner may split; cite data-model.md Name part.role (ID-08, FR-012)
 - [ ] T031 [P] [US1] Unit tests in `crates/meep-core/tests/given_names.rs`: "José Luis" in First stays one given part unless split (AT-31, ID-05)
 - [ ] T032 [P] [US1] Unit tests in `crates/meep-core/tests/spacing.rs`: leading and trailing spaces trimmed, runs of spaces collapsed, apostrophes and hyphens kept (ID-09) (FR citations: FR-004)
-- [ ] T033 [P] [US1] Unit tests in `crates/meep-core/tests/limits.rs`: 128-character box limit, 384 full-name limit, 50-name cap, a clear error and nothing truncated or saved, counting user-perceived characters; cite data-model.md Name.text and Name part.value (NAMES-03, FR-001a)
+- [ ] T033 [P] [US1] Unit tests in `crates/meep-core/tests/limits.rs`: 128-character box limit, 384 full-name limit, 50-name cap, the whole save refused with the message on the offending field and everything typed kept, no separate combined limit for the three boxes, retired names counting toward the 50, and a stale-save warning ("Keep mine" or "Reload") tested in `crates/meep-core/tests/stale_save.rs`, counting user-perceived characters; cite data-model.md Name.text and Name part.value (NAMES-03, FR-001a) (FR citations: FR-031)
 - [ ] T034 [P] [US1] Property test in `tests/acceptance/tests/rebuild_property.rs` using `proptest`: for any valid assembly the parts always rebuild the text exactly (AT-28, PLAN-12)
 - [ ] T035 [P] [US1] Acceptance feature `tests/acceptance/features/add_name.feature` with step definitions in `tests/acceptance/tests/acceptance.rs`: Given/When/Then for AT-28, AT-30, AT-31 using the fixtures (PLAN-12)
 
@@ -98,13 +98,13 @@ Cargo workspace from plan.md: `crates/meep-core/`, `crates/meep-storage/`, `crat
 
 - [ ] T036 [US1] Implement the Name and NamePart model in `crates/meep-core/src/name/model.rs`; cite data-model.md Name.text, Name.use, Name.status, Name.parts, Name part.seq, Name part.value, Name part.role, Name part.qualifier, and include data-model.md Name.share_outbound (default share, no control in v1.0) and Name.short_form as plain fields (ID-04, ID-01, ID-02, NAMES-01, NAMES-04) (FR citations: FR-002, FR-005, FR-018b)
 - [ ] T037 [US1] Implement `NameBuilder` with the rebuild-equals-text check at `build()` in `crates/meep-core/src/name/builder.rs` (Builder pattern, ID-04, R14, PLAN-10) (FR citations: FR-002, FR-003)
-- [ ] T038 [US1] Implement entry validation in `crates/meep-core/src/name/validation.rs`: required parts, rebuild check, limits via `text.rs`; blocking only for integrity and limits (ID-05, NAMES-03, principle 26) (FR citations: FR-001a)
+- [ ] T038 [US1] Implement entry validation in `crates/meep-core/src/name/validation.rs`: required parts, rebuild check against the normalized text, limits via `text.rs`; the whole save is refused with the message on the offending field and each save is all-or-nothing (FR-030); blocking only for integrity and limits (ID-05, NAMES-03, principle 26) (FR citations: FR-001a)
 - [ ] T039 [US1] Implement the names repository against the `RecordStore` port in `crates/meep-core/src/name/repository.rs`; the encrypted per-record storage behind the port is spec 002's **[DEP-002]**, so this runs on the fakes until T015; cite data-model.md Name.address, Name.account_id (R2, R8, R9, PLAN-04)
-- [ ] T040 [US1] Implement the add-name application service in `crates/meep-core/src/name/service.rs` emitting `NameAdded`, and enforcing the 50-name cap with the NAMES-03 message before saving (FR-001, FR-001a, ID-05, NAMES-03)
-- [ ] T041 [US1] Build the Add or edit a name screen (three boxes, Use selector) in `crates/meep-web/templates/name_form.html` and `crates/meep-web/src/routes/name_form.rs`, with message IDs added to `crates/meep-web/locales/en/main.ftl` (contracts/ui-screens.md Screen 2, R10) (FR citations: FR-001)
-- [ ] T042 [US1] Build the Names list screen with its empty state in `crates/meep-web/templates/names_list.html` and `crates/meep-web/src/routes/names_list.rs` (contracts/ui-screens.md Screen 1)
-- [ ] T043 [US1] Add plain-language limit and integrity error messages to `crates/meep-web/locales/en/main.ftl` and map them in `crates/meep-web/src/routes/name_form.rs` (NAMES-03, ID-04) (FR citations: FR-001a)
-- [ ] T044 [US1] Run the acceptance suite and quickstart scenarios 1 to 3, 13 and 14; fix until green (ENG-02)
+- [ ] T040 [US1] Implement the add-name application service in `crates/meep-core/src/name/service.rs` emitting `NameAdded`, enforcing the 50-name cap (all non-deleted names count, retired included) with the NAMES-03 message before saving, detecting a name that changed since it was opened (FR-031), and keeping the save all-or-nothing (FR-030) (FR-001, FR-001a, ID-05, NAMES-03)
+- [ ] T041 [US1] Build the Add or edit a name screen (three boxes, Use selector) in `crates/meep-web/templates/name_form.html` and `crates/meep-web/src/routes/name_form.rs`, with errors tied to their field, announced to screen readers, focus moved to the first error, the "Fix a typo" or "Add a new name" choice on edit, and the "Keep mine" or "Reload" stale-save warning, and message IDs added to `crates/meep-web/locales/en/main.ftl` (contracts/ui-screens.md Screen 2, R10) (FR citations: FR-001) (FR citations: FR-031) **[DEP-010]**
+- [ ] T042 [US1] Build the Names list screen with its empty state in `crates/meep-web/templates/names_list.html` and `crates/meep-web/src/routes/names_list.rs` (contracts/ui-screens.md Screen 1) **[DEP-010]**
+- [ ] T043 [US1] Add plain-language limit and integrity error messages (short sentences, no jargon, each saying what to do next, FR-034) to `crates/meep-web/locales/en/main.ftl` and map them in `crates/meep-web/src/routes/name_form.rs` (NAMES-03, ID-04) (FR citations: FR-001a) (FR citations: FR-032) **[DEP-010]**
+- [ ] T044 [US1] Run the acceptance suite and quickstart scenarios 1 to 3, 13 and 14; fix until green (ENG-02) Scenarios that need a screen wait for the screens (BUILD-01); domain-level acceptance runs now against the fakes
 
 **Checkpoint**: a name can be added and listed; US1 works on its own.
 
@@ -120,22 +120,22 @@ Cargo workspace from plan.md: `crates/meep-core/`, `crates/meep-storage/`, `crat
 
 - [ ] T045 [P] [US2] Unit tests in `crates/meep-core/tests/uniqueness.rs`: exactly one Legal, at most one Preferred, any number of Also known as and Nickname, a second Legal refused with an explanation; cite data-model.md Name.use (R12) (FR citations: FR-007)
 - [ ] T046 [P] [US2] Unit tests in `crates/meep-core/tests/preferred_fallback.rs`: a blank Preferred falls back to Legal in lists and exports (ID-01) (FR citations: FR-008)
-- [ ] T047 [P] [US2] Unit tests in `crates/meep-core/tests/status_rules.rs`: Legal and Preferred cannot be retired; several names may be Active; retiring keeps the name listed and greyed; an optional end date is accepted; cite data-model.md Name.status and Name.period (ID-01, ID-02) (FR citations: FR-006, FR-011)
+- [ ] T047 [P] [US2] Unit tests in `crates/meep-core/tests/status_rules.rs`: Legal and Preferred cannot be retired; several names may be Active; retiring keeps the name listed and greyed; an optional end date is accepted; "Mark as in use again" returns the name to Active, clears the end date and emits `NameReactivated` (FR-028); cite data-model.md Name.status and Name.period (ID-01, ID-02) (FR citations: FR-006, FR-011)
 - [ ] T048 [P] [US2] Unit tests in `crates/meep-core/tests/replace_and_promote.rs`: replacing Preferred turns the old one into an Active Also known as (R13); "Make this my legal name" promotes and turns the old Legal into an Active Also known as (ID-01) (FR citations: FR-009, FR-010)
-- [ ] T049 [P] [US2] Tests in `crates/meep-storage/tests/edit_fingerprint.rs` (against the ports and fakes now; against the real store once T015 lands, **[DEP-002]**): an in-place correction keeps only the new wording; the log entry has the date, parts changed and a keyed fingerprint of the prior value, and never the old text; the fingerprint cannot be matched by guessing without the record key (NAMES-02, PLAN-05, quickstart scenario 15) (FR citations: FR-002a)
-- [ ] T050 [P] [US2] Tests in `crates/meep-storage/tests/delete_unrecoverable.rs` (fake-level check now; the database-file and log check runs once T015 lands, **[DEP-002]**): after deleting a name its content, wrapped key and fingerprint cannot be found in the database file or its log after `secure_delete`, key-row overwrite and a log checkpoint; the log shows only "a name was deleted" and the date (R8, PLAN-04, quickstart scenario 16, research.md open item 6)
+- [ ] T049 [P] [US2] Tests in `crates/meep-storage/tests/edit_fingerprint.rs` (against the ports and fakes now; against the real store once T015 lands, **[DEP-002]**): an in-place correction keeps only the new wording; the log entry has the date, the role and position of each changed part, and a keyed fingerprint of the prior value, and never the old text; the fingerprint cannot be matched by guessing without the record key (NAMES-02, PLAN-05, quickstart scenario 15) (FR citations: FR-002a)
+- [ ] T050 [P] [US2] Tests in `crates/meep-storage/tests/delete_unrecoverable.rs` (fake-level check now; the check scans the raw bytes of the database file, its write-ahead log and freed space for the name and its key, and runs once T015 lands, with backups made before deletion documented as still containing the name, **[DEP-002]**): after deleting a name its content, wrapped key and fingerprint cannot be found in the database file or its log after `secure_delete`, key-row overwrite and a log checkpoint; the log shows only "a name was deleted" and the date (R8, PLAN-04, quickstart scenario 16, research.md open item 6) (FR citations: FR-033)
 - [ ] T051 [P] [US2] Acceptance feature `tests/acceptance/features/names_lifecycle.feature`: Given/When/Then for R12, R13, ID-01, ID-02 and promotion (PLAN-12)
 
 ### Implementation for User Story 2
 
-- [ ] T052 [US2] Implement name status as an enum with guarded transitions in `crates/meep-core/src/name/status.rs`; cite data-model.md Name.status and Name.period (State pattern, ID-02, PLAN-10) (FR citations: FR-006, FR-011)
-- [ ] T053 [US2] Implement uniqueness, fallback, replace and promote rules in `crates/meep-core/src/name/rules.rs`, emitting `PreferredReplaced`, `NamePromoted` and `NameRetired` (R12, R13, ID-01, PLAN-10) (FR citations: FR-007, FR-008, FR-009, FR-010)
-- [ ] T054 [US2] Implement the names side of the correction in `crates/meep-core/src/name/fingerprint.rs` and the correction path: ask the `KeyCustody` port for an edit subkey (`derive_subkey`), compute HMAC-SHA-256 of the prior value, keep only the new wording, and emit `NameEdited`; key derivation itself is spec 002's **[DEP-002]** (NAMES-02, PLAN-05) (FR citations: FR-002a)
-- [ ] T055 [US2] Implement the names side of deletion in `crates/meep-core/src/name/service.rs`: call `KeyCustody::destroy_record_key` then `RecordStore::delete`, and emit `NameDeleted` with only the date; the shredding primitives (key destruction, overwriting the wrapped-key row, `secure_delete`, log checkpoint) are spec 002's **[DEP-002]**, and the T050 test proves they leave nothing recoverable once T015 lands (R8, PLAN-04)
-- [ ] T056 [US2] Add the list actions (retire, make legal, replace Preferred, edit, delete with confirmation), greyed retired rows and text status labels (never colour alone) to `crates/meep-web/templates/names_list.html` and routes (contracts/ui-screens.md Screen 1, ID-01) (FR citations: FR-006, FR-010)
+- [ ] T052 [US2] Implement name status as an enum with guarded transitions, including reactivation that clears the end date, in `crates/meep-core/src/name/status.rs`; cite data-model.md Name.status and Name.period (State pattern, ID-02, PLAN-10) (FR citations: FR-006, FR-011) (FR citations: FR-028)
+- [ ] T053 [US2] Implement uniqueness, fallback, replace and promote rules in `crates/meep-core/src/name/rules.rs`, emitting `PreferredReplaced`, `NamePromoted`, `NameRetired` and `NameReactivated` (R12, R13, ID-01, PLAN-10) (FR citations: FR-007, FR-008, FR-009, FR-010) (FR citations: FR-028)
+- [ ] T054 [US2] Implement the names side of the correction in `crates/meep-core/src/name/fingerprint.rs` and the correction path: ask the `KeyCustody` port for an edit subkey (`derive_subkey`), compute HMAC-SHA-256 of the prior value, keep only the new wording, and emit `NameEdited`; key derivation itself is spec 002's **[DEP-002]** (NAMES-02, PLAN-05) (FR citations: FR-002a) (FR citations: FR-030)
+- [ ] T055 [US2] Implement the names side of deletion in `crates/meep-core/src/name/service.rs`: call `KeyCustody::destroy_record_key` then `RecordStore::delete`, and emit `NameDeleted` with only the date; the shredding primitives (key destruction, overwriting the wrapped-key row, `secure_delete`, log checkpoint) are spec 002's **[DEP-002]**, and the T050 test proves they leave nothing recoverable once T015 lands (R8, PLAN-04) (FR citations: FR-030, FR-033)
+- [ ] T056 [US2] Add the list actions (retire, make legal, replace Preferred, edit, delete with confirmation), "Mark as in use again" on a retired name's menu, greyed retired rows showing the text "No longer used" with muted styling that meets 4.5:1 contrast to `crates/meep-web/templates/names_list.html` and routes (contracts/ui-screens.md Screen 1, ID-01) (FR citations: FR-006, FR-010) (FR citations: FR-028, FR-032) **[DEP-010]**
 - [ ] T057 [US2] Wire all names events to the `ChangeLog` port in `crates/meep-core/src/name/service.rs` (contracts/domain-events.md); the real log arrives with T015 **[DEP-002]**
-- [ ] T058 [US2] Ask the owner whether reactivating a retired name is a feature (data-model.md notes it as unspecified); do not build `NameReactivated` until confirmed, and record the answer in `docs/decisions/` (ID-02, data-model.md State transitions)
-- [ ] T059 [US2] Run the acceptance suite and quickstart scenarios 10 to 12, 15 and 16; fix until green (ENG-02)
+- [ ] T058 [US2] Reactivation is a feature (owner decision, `docs/decisions/NAMES-06.md`): confirm T047, T052, T053 and T056 cover "Mark as in use again", the cleared end date and the `NameReactivated` event, and that no other path reactivates a name (ID-02, data-model.md State transitions) (FR citations: FR-028)
+- [ ] T059 [US2] Run the acceptance suite and quickstart scenarios 10 to 12, 15 and 16; fix until green (ENG-02) Scenarios that need a screen wait for the screens (BUILD-01); domain-level acceptance runs now against the fakes
 
 **Checkpoint**: US1 and US2 together give a usable names list. Recommended first demonstrable increment.
 
@@ -161,9 +161,9 @@ Cargo workspace from plan.md: `crates/meep-core/`, `crates/meep-storage/`, `crat
 - [ ] T066 [US3] Extend roles and qualifiers in `crates/meep-core/src/name/model.rs`; cite data-model.md Name part.role and Name part.qualifier (ID-04, ID-05, ID-07) (FR citations: FR-012)
 - [ ] T067 [US3] Implement the tap-to-label full-name parser in `crates/meep-core/src/name/labeler.rs` (AT-27, FR-014)
 - [ ] T068 [US3] Implement the default and override short form in `crates/meep-core/src/name/short_form.rs`; cite data-model.md Name.short_form (R15, NAMES-04) (FR citations: FR-021)
-- [ ] T069 [US3] Build the per-field ⋯ menus (labeled for screen readers, at least 24 x 24 px) and "More name options" in `crates/meep-web/templates/name_form.html`, offering only the US and Spanish two-surname conventions; use the shared menu element once **[DEP-010]** is delivered (FR-016, ID-05, ID-07, WCAG 2.2 SC 2.5.8) (FR citations: FR-013)
-- [ ] T070 [US3] Add the Short name box labeled by purpose with the computed default as placeholder, and the full-name box (384 limit), to `crates/meep-web/templates/name_form.html`; cite data-model.md Name.short_form (NAMES-04, NAMES-03) (FR citations: FR-001a, FR-014)
-- [ ] T071 [US3] Run the acceptance suite and quickstart scenarios 4 and 17; fix until green (ENG-02)
+- [ ] T069 [US3] Build the per-field ⋯ menus (labeled for screen readers) labeled "More options for <field name>" with targets of at least 44 by 44 px, and "More name options" in `crates/meep-web/templates/name_form.html`, offering only the US and Spanish two-surname conventions; use the shared menu element once **[DEP-010]** is delivered (FR-016, ID-05, ID-07, WCAG 2.2 SC 2.5.8) (FR citations: FR-013) (FR citations: FR-032)
+- [ ] T070 [US3] Make tap-to-label keyboard-operable (each word a button reached with Tab, toggled with Space or Enter, FR-014); add the Short name box labeled by purpose with the computed default as placeholder, and the full-name box (384 limit), to `crates/meep-web/templates/name_form.html`; cite data-model.md Name.short_form (NAMES-04, NAMES-03) (FR citations: FR-001a, FR-014) (FR citations: FR-032) **[DEP-010]**
+- [ ] T071 [US3] Run the acceptance suite and quickstart scenarios 4 and 17; fix until green (ENG-02) Scenarios that need a screen wait for the screens (BUILD-01); domain-level acceptance runs now against the fakes
 
 **Checkpoint**: unusual names can be recorded without forcing a wrong shape.
 
@@ -171,7 +171,7 @@ Cargo workspace from plan.md: `crates/meep-core/`, `crates/meep-storage/`, `crat
 
 ## Phase 6: User Story 4 - Names survive accents, saving and export (Priority: P2)
 
-**Goal**: accents preserved, matching key, FHIR and USCDI outbound exports, and the owner's own JSON backup.
+**Goal**: accents preserved, matching key, FHIR and USCDI outbound exports, and the owner backup.
 
 **Independent Test**: save "María José García López", export in each format, re-import, and compare character by character (quickstart scenarios 5, 6, 9, 10).
 
@@ -180,10 +180,10 @@ Cargo workspace from plan.md: `crates/meep-core/`, `crates/meep-storage/`, `crat
 - [ ] T072 [P] [US4] Unit tests in `crates/meep-core/tests/accents_roundtrip.rs`: a name with accents survives save, display, export and re-import unchanged (AT-26)
 - [ ] T073 [P] [US4] Unit tests in `crates/meep-core/tests/match_key.rs`: accent-folded key cases (precomposed and combining forms, mixed case), matching only and never altering stored text; cite data-model.md Name.match_key (ID-04, research.md open item 2) (FR citations: FR-020)
 - [ ] T074 [P] [US4] Unit tests in `crates/meep-core/tests/export_from_parts.rs`: every export is built from parts; anything a target cannot hold is logged as an Also known as rendering (AT-29, FR-017)
-- [ ] T075 [P] [US4] Unit tests in `crates/meep-core/tests/export_uscdi.rs`: three-field names with no menu changes export First, Middle, Last unchanged; prefix and suffix in their own elements (AT-30, FR-017)
+- [ ] T075 [P] [US4] Unit tests in `crates/meep-core/tests/export_uscdi.rs`: three-field names with no menu changes export First, Middle, Last unchanged; prefix and suffix in their own elements; a retired name's end date goes into the FHIR period and is omitted and logged where the format cannot hold it (AT-30, FR-017, FR-018a)
 - [ ] T076 [P] [US4] Unit tests in `crates/meep-core/tests/export_fhir.rs`: use mapping Legal official, Preferred usual, Nickname nickname, Also known as usual while Active and old when No longer used (ID-10, FR-018)
-- [ ] T077 [P] [US4] Unit tests in `crates/meep-core/tests/outbound_rules.rs`: retired names are included in outbound exports ("old" and Previous Name); the outbound-sharing flag defaults to share and is respected; short forms are omitted; cite data-model.md Name.share_outbound and Name.short_form (NAMES-01, NAMES-04) (FR citations: FR-018a, FR-018b)
-- [ ] T078 [P] [US4] Unit tests in `crates/meep-core/tests/json_backup.rs`: the JSON backup always includes every name (including No longer used) and pronouns; export then import produces equal records (FR-019, FR-024a, principle 27)
+- [ ] T077 [P] [US4] Unit tests in `crates/meep-core/tests/outbound_rules.rs`: retired names are included in outbound exports ("old" and Previous Name); the outbound-sharing flag defaults to share and is respected; short forms are omitted; deleted names never appear in later exports; exports are snapshots; cite data-model.md Name.share_outbound and Name.short_form (NAMES-01, NAMES-04) (FR citations: FR-018a, FR-018b) (FR citations: FR-033)
+- [ ] T078 [P] [US4] Unit tests in `crates/meep-core/tests/json_backup.rs`: the owner backup always includes every name (including No longer used), short forms, sharing flags and pronoun settings; export then import produces equal records; import restores only into an empty store, a non-empty store warns and needs "Replace everything", an import breaking a limit or the one-Legal rule is refused whole with every problem listed, and an imported sharing flag keeps its value (FR-019, FR-024a, principle 27) (FR citations: FR-029)
 - [ ] T079 [P] [US4] Acceptance feature `tests/acceptance/features/export.feature` for AT-26, AT-29 and AT-30 (PLAN-12)
 
 ### Open items to settle (decisions, not code)
@@ -193,13 +193,13 @@ Cargo workspace from plan.md: `crates/meep-core/`, `crates/meep-storage/`, `crat
 
 ### Implementation for User Story 4
 
-- [ ] T082 [US4] Implement the `NameExporter` trait (Strategy) in `crates/meep-core/src/export/mod.rs` with an outbound entry point that skips names whose data-model.md Name.share_outbound is false and omits data-model.md Name.short_form, and a backup entry point that includes everything (FR-017, FR-018b, NAMES-01, NAMES-04, PLAN-09, PLAN-10)
+- [ ] T082 [US4] Implement the `NameExporter` trait (Strategy) in `crates/meep-core/src/export/mod.rs` with an outbound entry point that skips names whose data-model.md Name.share_outbound is false and omits data-model.md Name.short_form, and a backup entry point that includes everything (FR-017, FR-018b, NAMES-01, NAMES-04, PLAN-09, PLAN-10) (FR citations: FR-033)
 - [ ] T083 [P] [US4] Implement the FHIR R4 HumanName exporter in `crates/meep-core/src/export/fhir.rs` (ID-10, FR-018)
 - [ ] T084 [P] [US4] Implement the US health-data exporter with Previous Name for retired names in `crates/meep-core/src/export/uscdi.rs` once T080 settles the layout, honoring data-model.md Name.share_outbound through the trait's outbound entry point (NAMES-01, FR-017, FR-018b) (FR citations: FR-018a)
-- [ ] T085 [P] [US4] Implement the JSON backup exporter and importer for names in `crates/meep-core/src/export/json_backup.rs`; integrates with the foundation's export and import **[DEP-002]** (FR-019) (FR citations: FR-024a)
+- [ ] T085 [P] [US4] Implement the owner backup exporter and the all-or-nothing importer for names (empty-store restore, "Replace everything" confirmation, whole-import refusal listing every problem) in `crates/meep-core/src/export/json_backup.rs`; integrates with the foundation's export and import **[DEP-002]** (FR-019) (FR citations: FR-024a) (FR citations: FR-029)
 - [ ] T086 [US4] Implement the accent-folded match key in `crates/meep-core/src/name/match_key.rs`; cite data-model.md Name.match_key (ID-04) (FR citations: FR-020)
-- [ ] T087 [US4] Add the outbound export and backup actions to `crates/meep-web/src/routes/export.rs` and the Names screen (downloads only; nothing is sent anywhere) (R5, EGRESS-01)
-- [ ] T088 [US4] Run the acceptance suite and quickstart scenarios 5, 6, 9 and 10; fix until green (ENG-02)
+- [ ] T087 [US4] Add the outbound export and backup actions to `crates/meep-web/src/routes/export.rs` and the Names screen (downloads only; nothing is sent anywhere) (R5, EGRESS-01) **[DEP-010]**
+- [ ] T088 [US4] Run the acceptance suite and quickstart scenarios 5, 6, 9 and 10; fix until green (ENG-02) Scenarios that need a screen wait for the screens (BUILD-01); domain-level acceptance runs now against the fakes
 
 **Checkpoint**: names export correctly and the owner's own backup is always complete.
 
@@ -207,22 +207,22 @@ Cargo workspace from plan.md: `crates/meep-core/`, `crates/meep-storage/`, `crat
 
 ## Phase 7: User Story 5 - Pronouns stay hidden until I opt in (Priority: P3)
 
-**Goal**: pronouns appear nowhere until enabled; visibility "Only me" or "Included in exports"; the JSON backup always includes them.
+**Goal**: pronouns appear nowhere until enabled; visibility "Only me" or "Included in exports"; the owner backup always includes them.
 
 **Independent Test**: on a fresh install no pronoun appears anywhere; enable them and check visibility, exports and the backup (quickstart scenarios 7 to 9).
 
 ### Tests for User Story 5 (write first)
 
 - [ ] T089 [P] [US5] Acceptance feature `tests/acceptance/features/pronouns.feature` for AT-23: a fresh install shows no pronoun on any screen or export (PRON-01, R4) (FR citations: FR-022)
-- [ ] T090 [P] [US5] Unit tests in `crates/meep-core/tests/pronoun_setting.rs`: default off; visibility defaults to `only_me` on first enable; only two choices offered; the stored value can hold `delegates` but v1.0 never offers or writes it; cite data-model.md Pronoun setting.enabled, Pronoun setting.choice and Pronoun setting.visibility (PRON-01a) (FR citations: FR-024)
-- [ ] T091 [P] [US5] Unit tests in `crates/meep-core/tests/pronoun_exports.rs`: outbound exports include pronouns only if enabled and visibility is `in_exports`; the JSON backup always includes them; turning pronouns off hides them everywhere again (PRON-01a, FR-024a)
+- [ ] T090 [P] [US5] Unit tests in `crates/meep-core/tests/pronoun_setting.rs`: default off; visibility defaults to `only_me` on first enable; only two choices offered; the stored value can hold `delegates` but v1.0 never offers or writes it, and adding a `delegates` value changes no existing stored record (tested); cite data-model.md Pronoun setting.enabled, Pronoun setting.choice and Pronoun setting.visibility (PRON-01a) (FR citations: FR-024)
+- [ ] T091 [P] [US5] Unit tests in `crates/meep-core/tests/pronoun_exports.rs`: outbound exports include pronouns only if enabled and visibility is `in_exports`; the owner backup always includes them; turning pronouns off hides them everywhere again (PRON-01a, FR-024a)
 
 ### Implementation for User Story 5
 
 - [ ] T092 [US5] Implement the pronoun setting in `crates/meep-core/src/pronouns.rs`; cite data-model.md Pronoun setting.enabled, Pronoun setting.choice and Pronoun setting.visibility; emit `PronounSettingChanged` with no pronoun text (PRON-01, PRON-01a) (FR citations: FR-022, FR-023, FR-024)
 - [ ] T093 [US5] Add the pronouns section to Settings in `crates/meep-web/templates/settings_pronouns.html` and `crates/meep-web/src/routes/settings.rs` (contracts/ui-screens.md Screen 3); use the shared Settings page once **[DEP-010]** is delivered (FR citations: FR-023, FR-024)
-- [ ] T094 [US5] Add a template guard so no template prints a pronoun unless the setting is enabled, using the name or "you" otherwise (PRON-01, AT-23) (FR citations: FR-022)
-- [ ] T095 [US5] Run the acceptance suite and quickstart scenarios 7 to 9; fix until green (ENG-02)
+- [ ] T094 [US5] Add a template guard so no template prints a pronoun unless the setting is enabled, using the name or "you" otherwise (PRON-01, AT-23) (FR citations: FR-022) **[DEP-010]**
+- [ ] T095 [US5] Run the acceptance suite and quickstart scenarios 7 to 9; fix until green (ENG-02) Scenarios that need a screen wait for the screens (BUILD-01); domain-level acceptance runs now against the fakes
 
 **Checkpoint**: all five stories work independently.
 
@@ -231,7 +231,7 @@ Cargo workspace from plan.md: `crates/meep-core/`, `crates/meep-storage/`, `crat
 ## Phase 8: Polish & Cross-Cutting Concerns
 
 - [ ] T096 Run all 18 quickstart scenarios in `specs/001-identity-names/quickstart.md` and record the results in that file; also time how long adding a Legal name takes (SC-001) and ask the owner to run the first-time-user check for SC-008, or to reword it, since it needs ten people (spec Verification)
-- [ ] T097 [P] Run the spec 010 accessibility checks (AT-41, AT-42, WCAG 2.2 AA, both themes) against the names screens once spec 010 delivers them **[DEP-010]**
+- [ ] T097 [P] Run the accessibility checks (AT-41, AT-42, WCAG 2.2 AA) on every v1.0 names screen in both themes using axe-core through Playwright, plus a manual keyboard-only pass, focus order and visible focus, and reflow at 320 CSS px width and 400% zoom, once spec 010 delivers the shared elements **[DEP-010]** (SC-009, FR-032)
 - [ ] T098 [P] Run `cargo deny check` and review the license report against principle 18 (PLAN-12, constitution)
 - [ ] T099 [P] Run `.github/scripts/guard.sh` and a manual scan to confirm no personal data, email address or real record exists in code, fixtures, tests or docs (constitution, ENG-02)
 - [ ] T100 Update `docs/decisions/PLAN-01.md` to `PLAN-12.md` for any choice that changed during implementation (for example `minijinja` or AES-GCM) and ask the owner to promote the ones they accept to Confirmed (principle 23)
@@ -245,7 +245,7 @@ Cargo workspace from plan.md: `crates/meep-core/`, `crates/meep-storage/`, `crat
 ### Phase dependencies
 
 - **Phase 1 (Setup)**: no dependencies; start immediately.
-- **Phase 2 (Foundational)**: needs Phase 1; **blocks all user stories**. Tasks T015 and T016 and T057's real wiring wait for specs 002 and 010; everything else proceeds with the ports and fakes.
+- **Phase 2 (Foundational)**: needs Phase 1; **blocks all user stories**. Build order (BUILD-01): spec 002, then spec 010, then the names screens. Domain and core tasks (ports, fakes, events, address, text rules, ids, the story logic) proceed now against the fakes. Every **[DEP-010]** task (all screens, the web server skeleton T022 and T023, the Fluent helper and no-literal-text checks T024 and T025) waits for specs 002 and 010; T015 and T057's real wiring wait for spec 002.
 - **Phases 3 to 7 (stories)**: each needs Phase 2. Stories can then proceed in priority order or in parallel by different people.
 - **Phase 8 (Polish)**: needs the stories you intend to ship.
 
@@ -278,11 +278,11 @@ T034 rebuild_property.rs  T035 add_name.feature
 
 ## Implementation Strategy
 
-1. **MVP**: Phase 1, Phase 2, then US1. Stop and validate with quickstart scenarios 1 to 3, 13, 14.
+1. **MVP**: Phase 1, Phase 2, then US1. The domain-level MVP (model, builder, validation, service, acceptance tests against the fakes) can be built now; the screen part of US1 follows specs 002 and 010 (BUILD-01). Validate with quickstart scenarios 1 to 3, 13, 14 once the screens exist.
 2. **First useful increment**: add US2 (several names, corrections, deletion). This is where R8 and NAMES-02 are proven.
 3. Add US3, then US4 (resolve T080 and T081 first), then US5.
 4. After each story: run the full suite, open a pull request, and merge only when `all-green` passes (ENG-03).
-5. Specs 002 and 010 deliver in parallel with this work; the **[DEP-002]** and **[DEP-010]** tasks are done as each lands. Until then the ports and fakes keep names testable and nothing in this list designs those specs.
+5. Build order (BUILD-01): spec 002, then spec 010, then the names screens. While those are built, the names domain and core work proceeds against the ports and fakes; the **[DEP-002]** and **[DEP-010]** tasks are done as each lands. Nothing in this list designs those specs, and no throwaway placeholders are built.
 
 ## Notes
 

@@ -6,9 +6,9 @@
 
 ## Summary
 
-The owner can record names in three familiar boxes, keep several names with Active or No longer used status, and keep pronouns hidden until opted in. Every name is stored as labeled parts that must rebuild its text exactly (ID-04), exported from those parts to the US health-data name form (USCDI) and to FHIR R4 HumanName, and always included in the owner's own JSON backup.
+The owner can record names in three familiar boxes, keep several names with Active or No longer used status, and keep pronouns hidden until opted in. Every name is stored as labeled parts that must rebuild its text exactly (ID-04), exported from those parts to the US health-data name form (USCDI) and to FHIR R4 HumanName, and always included in the owner backup.
 
-Technical approach, all drawn from Confirmed decisions (R1 to R17, NAMES-01 to NAMES-04, PRON-01a) and marked **Proposed** where this plan picks a specific library or design: a Rust workspace of three crates (core domain, encrypted storage, web UI); an encrypted SQLCipher database reached through `rusqlite`; per-record keys wrapped by a master key held in the operating-system keychain, so that deleting a name destroys its key (R8); a keyed fingerprint of the prior value for tamper-evidence of corrections (NAMES-02); server-rendered HTML with minimal JavaScript, bound to the owner's own machine only (R3, R5); and Fluent message files for all text (R10). Names depends on the foundation (spec 002) and shared UI elements (spec 010); this plan defines only the names parts and the interfaces they need from those.
+Technical approach, all drawn from Confirmed decisions (R1 to R17, NAMES-01 to NAMES-04, PRON-01a) and marked **Proposed** where this plan picks a specific library or design: a Rust workspace of three crates (core domain, encrypted storage, web UI); an encrypted SQLCipher database reached through `rusqlite`; per-record keys wrapped by a master key held in the operating-system keychain, so that deleting a name destroys its key (R8); a keyed fingerprint of the prior value for tamper-evidence of corrections (NAMES-02); server-rendered HTML with minimal JavaScript, bound to the owner's own machine only (R3, R5); and Fluent message files for all text (R10). Names depends on the foundation (spec 002) and shared UI elements (spec 010); this plan defines only the names parts and the interfaces they need from those. Build order (BUILD-01): spec 002, then spec 010, then the names screens on the real 010 elements; the names domain and core can proceed now against port fakes.
 
 ## Technical Context
 
@@ -49,7 +49,7 @@ Technical approach, all drawn from Confirmed decisions (R1 to R17, NAMES-01 to N
 | 24 (verbatim) | Not applicable | Pass |
 | 25 (Spec Kit order) | constitution, specify, clarify done; plan now; checklist, tasks, analyze, implement, converge follow | Pass |
 | 26 (warn, never adjudicate) | Names never blocked on legal or factual grounds; blocks only for integrity (rebuild must equal text; limits) and authorization (none in v1.0) | Pass |
-| 27 (no lock-in, Proposed) | JSON backup always complete (FR-019); not binding | Pass |
+| 27 (no lock-in, Confirmed) | Owner backup always complete (FR-019, FR-024a) | Pass |
 | Engineering (ENG-01 to ENG-03, LANG-01, EGRESS-01) | Rust; clean code and Gang of Four patterns mapped in research; unit and acceptance tests; PRs only; no egress | Pass |
 | No personal data in repo | Synthetic fixtures only | Pass |
 
