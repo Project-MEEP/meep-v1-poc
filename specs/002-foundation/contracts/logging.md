@@ -8,7 +8,7 @@ The change log of contracts/change-log-entry.md. Fixed fields: `ts`, `kind`, `re
 
 ## Diagnostic log
 
-Levelled (`error`, `warn`, `info`, `debug`), size-capped with rotation (oldest entries dropped first), kept on this computer only, never sent anywhere (FR-027). It is stored at the same protection level as the record store: encrypted under a subkey of the store key (PLAN-28). Before the store key is available (a start-up failure), diagnostics are held in memory for that run only and are not written.
+Levelled (`error`, `warn`, `info`, `debug`), size-capped with rotation (oldest entries dropped first), kept on this computer only, never sent anywhere (FR-027). It is stored at the same protection level as the record store: encrypted under a subkey of the store key (PLAN-28). Before the store is unlocked, diagnostics go to the **boot log**: a plaintext file that holds only a fixed error code and a timestamp per line (no paths, no user names, no free text; the code type is a closed enum), size-capped (oldest lines dropped first). After unlock its entries are moved into the encrypted Diagnostic log and the boot log is cleared. If the store never unlocks, the boot log stays, and it is the only place a start-up failure is recorded (LOG-01 item 3).
 
 ## What an entry may contain
 

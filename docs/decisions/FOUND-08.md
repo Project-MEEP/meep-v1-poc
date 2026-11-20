@@ -11,7 +11,7 @@
 
 ## Known limit
 
-Each call concerns one record. A feature operation that changes two records (names' "Make this my legal name" and "Replace the Preferred name") is two calls and is not atomic across both. Until the owner decides otherwise, the feature orders its calls so a crash leaves a state it can detect and repair at the next start. **Suggested later extension, not decided:** a batch call that applies several record changes and their events together.
+Each call concerns one record. A feature operation that changes two records (names' "Make this my legal name" and "Replace the Preferred name") is two calls and is not atomic across both. Until the owner decides otherwise, the feature orders its calls so a crash leaves a state it can detect and repair at the next start. **Superseded by FOUND-09 (Confirmed 2026-11-20):** multi-part changes are applied as one atomic batch operation.
 
 ## Notes
 
