@@ -66,10 +66,8 @@ See contracts/domain-events.md. An in-place correction stores only the new wordi
                    |
                    v
    (new) ----> ACTIVE --- retire (owner) ---> NO LONGER USED
-                  ^  \                           |  (optional end date)
-                  |   \--- promote to Legal ---> (old Legal becomes ACTIVE Also known as)
-                  |                              |
-                  +------- (reactivate allowed) -+
+                     \                           |  (optional end date)
+                      \--- promote to Legal ---> (old Legal becomes ACTIVE Also known as)
 
    Legal and Preferred: ACTIVE only; replacing Preferred turns the old
    Preferred into an ACTIVE Also known as (R13).
@@ -77,7 +75,7 @@ See contracts/domain-events.md. An in-place correction stores only the new wordi
    "a name was deleted" + date (R8).
 ```
 
-Reactivating a retired name is allowed by the spec's wording (several names may be Active, ID-02) but is not specified as a feature; it is listed as a question for `/speckit-tasks` review, not built unless confirmed.
+Reactivating a retired name is not part of this feature: the spec has no requirement for it and ID-02 only defines the two statuses. It is not built until the owner decides (task T058); no screen, event or test exists for it in v1.0.
 
 ## Relationships
 

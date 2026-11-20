@@ -16,3 +16,5 @@ Store the old text encrypted (rejected by NAMES-02); a plain hash (guessable for
 ## Notes
 
 Non-reversible, and meaningless once the record key is destroyed (R8).
+
+Ownership: subkey derivation belongs to spec 002 (`derive_subkey`); names computes the HMAC fingerprint of the prior value from that subkey.

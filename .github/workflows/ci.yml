@@ -75,7 +75,7 @@ jobs:
           toolchain: stable
       # Given/When/Then tests from the AT list; wired up once the first feature lands.
       - if: hashFiles('Cargo.toml') != ''
-        run: cargo test --workspace --test acceptance --no-fail-fast
+        run: cargo test -p meep-acceptance --test acceptance --no-fail-fast
       - if: hashFiles('Cargo.toml') == ''
         run: echo "No Cargo.toml yet; domain acceptance skipped."
 

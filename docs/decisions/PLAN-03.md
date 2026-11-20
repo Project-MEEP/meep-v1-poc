@@ -16,3 +16,5 @@ Direct Windows credential APIs (platform-locked); a passphrase-derived key (need
 ## Notes
 
 Cross-platform keychain access implementing R7. Open for scaffolding: per-platform backend features and the recovery-key format.
+
+Ownership: key custody belongs to spec 002; names consumes it through the `KeyCustody` port. The T026 spike is a coordination step with spec 002.
