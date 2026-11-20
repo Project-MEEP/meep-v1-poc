@@ -123,6 +123,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
       - name: Plan
         id: plan
         run: bash .github/scripts/ai-review-plan.sh
@@ -189,6 +190,8 @@ jobs:
         language: [actions, rust]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - id: gate
         run: |
           if [ "${{ matrix.language }}" = "rust" ] && [ ! -f Cargo.toml ]; then echo "run=false" >> "$GITHUB_OUTPUT"; else echo "run=true" >> "$GITHUB_OUTPUT"; fi
