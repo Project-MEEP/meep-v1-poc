@@ -10,7 +10,7 @@
 
 1. **Two logs.** The **History log** is owner-facing, append-only and hash-chained, with concise fixed-field entries (timestamp, event type, record alias, actor, outcome); it also serves as the transaction tail for debugging. The **Diagnostic log** is levelled, size-capped with rotation, local only, with no telemetry.
 2. No log ever contains credentials, keys, the recovery key, tokens or record content. This is stricter than "no PII": logs are content-free.
-3. Both logs are stored at the same protection level as the record store.
+3. Both logs are stored at the same protection level as the record store. **Boot log:** before the store is unlocked, diagnostics go to a plaintext boot log that holds only fixed error codes and timestamps (no paths, no usernames, no free text) and is size-capped. Its entries move into the encrypted Diagnostic log after unlock, and it is then cleared.
 4. Data is identified only by FieldRef (a typed enum of schema paths, for example `name.part[i].family`), record alias and rule ID. Allowed value metadata: grapheme count, byte count, script class, NFC-changed flag.
 5. **Record alias:** random, assigned at creation, stored in the encrypted store, never derived from content; a curated character set so aliases never look like names. A deleted record's alias cannot be resolved (R8).
 6. The log API accepts only FieldRef, alias, rule ID, shape and enum types, never `&str` or `String` for data. Entries are structured fields, never free text (no log injection).
@@ -21,6 +21,10 @@
 ## Placement
 
 Spec 002 (foundation) owns all of this and the record alias. Amended: FR-014, new FR-046 to FR-050, data-model (`records.alias`, `change_log` columns), contracts/change-log-entry.md, new contracts/logging.md, and a new task phase (T124 onward). The name validation rule IDs (NAMEVAL-nn) that the logs cite belong to spec 001 (SEC-05).
+
+## Update 2026-11-20
+
+Item 3 gained the boot log (owner). It replaces the earlier in-memory-only handling before the key exists (PLAN-28).
 
 ## Notes
 
