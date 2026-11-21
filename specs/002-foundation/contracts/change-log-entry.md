@@ -26,10 +26,11 @@ An entry's body is a JSON object with these members, serialized in a canonical f
 | `store_created` | Genesis entry when a store is created | `format_version` |
 | `record_created` | After a save | `address` |
 | `record_updated` | After an update | `address`, `changed_parts` (role and position only, supplied by the feature) |
-| `record_deleted` | After a delete | none (only the date and record id, R8) |
+| `record_deleted` | After a delete | none (only the date and the record alias, R8, FR-048) |
 | `backup_made` | After a verified backup | `as_of`, `record_count` |
 | `restored_from_rescue_backup` | First normal entry of a store restored from a rescue backup | `date` (FOUND-03) |
 | `restored_from_backup` | First entry after a normal restore | `date` |
+| `notice_dismissed` | When the owner dismisses a notification-tray entry (UI-03, FR-049) | `notice_id` (an enum) |
 
 Features add their own kinds through `register_kind` and append entries by passing events to `save`, `update` and `delete` (FOUND-08); names adds its own (added, edited, retired, reactivated, promoted, replaced) and the log never holds a name's words, parts, short form or pronoun text (spec 001 domain-events contract).
 
