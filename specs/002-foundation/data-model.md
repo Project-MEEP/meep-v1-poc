@@ -92,13 +92,14 @@ Holds the old change log carried inside a rescue backup. It is read-only (trigge
 ## Key hierarchy
 
 ```text
-store_key (32 random bytes)  --- kept in the OS keychain, entry named by store_id
+data_key (32 random bytes)  --- one per store (FOUND-12); only wrapped copies are stored, one per unlock method in key_slots
    |-- HKDF "meep/db-key/v1"          -> the SQLCipher database key
-   |-- HKDF "meep/record-wrap/v1"     -> wraps each record key (AAD = record id)
-   `-- (wrapped copy in the header under the recovery wrap key)
+   `-- HKDF "meep/record-wrap/v1"     -> wraps each record key (AAD = record id)
 
-recovery_key (32 random bytes)  --- shown once, never stored (FOUND-02)
-   `-- HKDF(salt = store_id, "meep/recovery-wrap/v1") -> recovery wrap key
+keychain slot wrapping key (32 random bytes)  --- kept in the OS keychain, entry named by store_id; unwraps the data key
+
+recovery_key (digits, PLAN-29)  --- shown once, never stored (FOUND-02)
+   `-- HKDF(salt = store_id, "meep/recovery-wrap/v1") -> recovery wrap key; unwraps the data key in the recovery slot
 
 record_key (32 random bytes, one per record)  --- wrapped in record_keys
    `-- HKDF "meep/purpose/<purpose>"  -> purpose subkey (for example an edit fingerprint, NAMES-02)

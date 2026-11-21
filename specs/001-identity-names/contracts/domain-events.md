@@ -1,6 +1,6 @@
 # Contract: Domain events (names)
 
-Names emits these events; the foundation's change log (spec 002) subscribes and appends each as an entry in its append-only, hash-chained log. Event payloads carry no name text unless stated; the log keeps only what is listed here. Observer pattern (PLAN-10).
+Names passes these events as the `events` argument of the foundation's `save`, `update` and `delete`, and, for a change to more than one record, with each change of `apply` (FOUND-08, FOUND-09); the foundation validates them and appends each to its append-only, hash-chained log in the same transaction as the record change. Event payloads carry no name text unless stated; the log keeps only what is listed here. The log stores a record's alias, never its id (FR-048, LOG-01), so where a row below says "record id" the registered detail is that record's alias, including the second record of NamePromoted and PreferredReplaced. The foundation also writes its own `record_created`, `record_updated` and `record_deleted` entries; these events add the names meaning on top of them (PLAN-10).
 
 | Event | When | Payload (log keeps) | Notes |
 |---|---|---|---|

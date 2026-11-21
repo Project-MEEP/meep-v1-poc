@@ -19,7 +19,7 @@ A request is accepted only if all of these hold; otherwise it is refused with st
 | Session token | State-changing requests carry the per-session anti-forgery token (below). |
 | Session cookie | Every request carries the cookie issued by the launch-token exchange; without it the request is refused (FR-052). |
 
-**One narrow exemption (SEC-05, FR-052):** the exchange route accepts a request whose `Origin` is `null` (a page opened from a file). It is GET only, changes no data, accepts only a valid, unused, unexpired token, and redirects to a clean URL. No other route has this exemption.
+**One narrow exemption (SEC-05, FR-052):** the exchange route accepts a request whose `Origin` is `null` (a page opened from a file). It is GET only, changes no data, accepts only a valid, unused, unexpired token, and redirects to a clean URL. No other route has this exemption. A page opened from a file is cross-site, so this route is also exempt from the cookie check and from the `Sec-Fetch-Site: cross-site` refusal; the `Host` check still applies (inferred from FR-052, to be confirmed by the owner).
 
 ## Session token
 
@@ -40,9 +40,9 @@ A request is accepted only if all of these hold; otherwise it is refused with st
 
 All responses, in particular every response that contains record data (FR-057), send `Cache-Control: no-store`, `X-Content-Type-Options: nosniff` and the content security policy `default-src 'self'` with no inline script and no inline style needing `unsafe-inline`, so other sites cannot embed or load Meep content. The server sends **no CORS headers** at all (SEC-05). Templates escape output by default; `|safe` is forbidden by CI.
 
-## Not covered in v1.0 (FOUND-02)
+## Not covered in v1.0 (FOUND-02, FOUND-11)
 
-Other user accounts on the same computer are not guarded against: a different operating-system account could reach the loopback port. The documentation says v1.0 assumes one person uses the computer.
+Other operating-system accounts are blocked at the port by the launch-token exchange above. The same account, and administrator or root access, are out of scope. The documentation says anyone using the owner's operating-system account can see everything.
 
 ## Tests (FR-020, FR-021, SC-006)
 

@@ -49,7 +49,7 @@ Phase 0 output. Every technology choice is **Proposed** until the owner confirms
 
 ### D3. Key hierarchy (PLAN-15, refines PLAN-03, PLAN-04, PLAN-05)
 
-- **Decision**: a random 256-bit store key in the operating-system keychain through `keyring` 4.2.0; a random 256-bit recovery key shown once, encoded as base32 groups with `data-encoding`, never stored; an HKDF-SHA-256 (`hkdf` 0.13.0, `sha2` 0.11.1) derivation from the recovery key and the store id to a wrap key that encrypts a copy of the store key in the header; the database key, the record-wrapping key and the recovery wrap key are separate HKDF subkeys with distinct labels; each record has a random 256-bit record key encrypted under the record-wrapping key with XChaCha20-Poly1305 (`chacha20poly1305` 0.11.0, record id as associated data); purpose subkeys are HKDF outputs of a record key with the label `meep/purpose/<purpose>`; secrets live in `zeroize`-wrapped memory; comparisons use `subtle`. No recovery-key replacement in v1.0 (FOUND-02); a restored store gets a new store key and a new recovery key (FOUND-03).
+- **Decision**: a random 256-bit store key in the operating-system keychain through `keyring` 4.2.0; a random 256-bit recovery key shown once, presented as digits per PLAN-29 (Confirmed; the plan first proposed base32 groups with `data-encoding`), never stored; an HKDF-SHA-256 (`hkdf` 0.13.0, `sha2` 0.11.1) derivation from the recovery key and the store id to a wrap key that encrypts a copy of the data key in the `recovery` slot (FOUND-12); the database key, the record-wrapping key and the recovery wrap key are separate HKDF subkeys with distinct labels; each record has a random 256-bit record key encrypted under the record-wrapping key with XChaCha20-Poly1305 (`chacha20poly1305` 0.11.0, record id as associated data); purpose subkeys are HKDF outputs of a record key with the label `meep/purpose/<purpose>`; secrets live in `zeroize`-wrapped memory; comparisons use `subtle`. No recovery-key replacement in v1.0 (FOUND-02); a restored store gets a new store key and a new recovery key (FOUND-03).
 - **Rationale**: both keys are full-strength random values, so no slow password-stretching function is needed; separate labels mean one derived key cannot stand in for another; per-record keys give R8 its guarantee.
 - **Alternatives**: a passphrase-derived recovery key (needs a stretching function and invites weak secrets); a 24-word phrase encoding (friendlier to write down; a close call, left to the owner as a presentation choice); a single key for everything (cannot destroy one record).
 - **Open**: exact recovery-key encoding and length as shown to the owner; per-platform `keyring` backend features.
@@ -136,7 +136,7 @@ Ports and adapters (the three ports, with the store and fakes as adapters); Stra
 ## Remaining open items (none block planning)
 
 1. The macOS and Linux SQLCipher builds. (Windows long paths were enabled on this PC but do not help the OpenSSL build; the working rule is a short build-folder path, see Spike status.)
-2. `keyring` per-platform backend features, and the owner's preference for the recovery-key presentation (base32 groups or words).
+2. `keyring` per-platform backend features, (the recovery-key presentation is settled by PLAN-29).
 3. `cargo-deny` configuration for BSD-3-Clause, blessing and WTFPL.
 4. Whether `sqlcipher-src`'s libtomcrypt option can avoid OpenSSL on Windows (not exposed by `libsqlite3-sys` today).
 5. The exact text of the fixed READ-ME template, which the owner should review.
