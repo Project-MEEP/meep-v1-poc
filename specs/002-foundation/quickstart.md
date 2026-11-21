@@ -63,10 +63,18 @@ Run each against a fresh store directory unless stated.
 | 27 | Kill Meep during a rescue of a damaged store, start again | No working copy remains; the original is byte-identical | FR-045, SC-017, SC-012 |
 | 28 | Set the clock backwards between two log entries | The chain still verifies; entries stay in order | FR-013 |
 | 29 | Build a release artifact with a test-only feature; start a non-test binary with one compiled in | CI fails the build; the program aborts before opening any store | FOUND-07 |
+| 30 | Exchange a valid unused launch token; then reuse it, use an expired one (over 60 seconds), and send a request with no cookie | First exchange sets the cookie and redirects to a clean URL; the rest are refused; the launch file is owner-only and is deleted after the exchange, on expiry and, if stale, at start-up | FR-052, SC-006 |
+| 31 | Search the command line, URLs, logs and the diagnostic log after a launch | The token appears in none of them | FR-052 |
+| 32 | Store a value that decrypts but fails a current rule | Shown normally with a warning naming the rule ID; kept as stored; nothing hidden or blocked | FR-053 |
+| 33 | Open the store through the recovery key with the keychain unavailable and the network off | Opens; no outside provider is on the path | FR-054 |
+| 34 | Add or replace an unlock method on a store holding records | Only the data key is rewrapped; no record is re-encrypted | FR-055 |
+| 35 | Enter a recovery key with one mistyped group | The group is flagged; the key ID shows at every recovery prompt | FR-056 |
+| 36 | Request record data, including an error and a redirect on such a route | Every response carries `Cache-Control: no-store` | FR-057 |
+| 37 | Apply a batch of changes with one stale update, then one that is valid | The first leaves every record and the log unchanged and names the failing position; the second lands together with log entries in the order given | FR-058 |
 
 ## Done when
 
 - The master spec's foundation unit-test list passes (envelope on every record, address parser, database will not open without its key, append-only hash-chained log, export and re-import equal).
-- Scenarios 1 to 29 behave as stated.
+- Scenarios 1 to 37 behave as stated.
 - The crash, lock and destruction tests (scenarios 8, 16, 19, 20) are in CI and pass.
 - `all-green` passes.
