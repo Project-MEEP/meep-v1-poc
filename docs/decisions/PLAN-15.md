@@ -11,7 +11,7 @@ A random 256-bit store key in the OS keychain (`keyring` 4.2.0); a random 256-bi
 
 ## Amended 2026-11-20
 
-FOUND-12: the keychain now holds a wrapping key for a `keychain` slot instead of the data key itself, and every unlock method has a wrapped copy in `key_slots`. PLAN-29 (Proposed) replaces the base32 recovery-key encoding with digits, check digits and a key ID if confirmed.
+FOUND-12: the keychain now holds a wrapping key for a `keychain` slot instead of the data key itself, and every unlock method has a wrapped copy in `key_slots`. PLAN-29 (Confirmed 2026-11-20) replaces the base32 recovery-key encoding with digits, check digits and a key ID.
 
 ## Alternatives considered
 

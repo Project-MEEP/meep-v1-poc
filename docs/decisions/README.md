@@ -50,7 +50,7 @@ R5 (no sign-in in v1.0) was confirmed earlier and is recorded in the spec.
 | [ACCESS-02](ACCESS-02.md) | Access layers are separate; emergency access is never a backdoor | Confirmed | 2026-11-20 |
 | [CONST-28](CONST-28.md) | Proposed principle 28: separate access layers | Proposed | 2026-11-20 |
 | [FOUND-12](FOUND-12.md) | Key wrapping: one data key, one wrapped copy per unlock method | Confirmed | 2026-11-20 |
-| [PLAN-29](PLAN-29.md) | Recovery key format: digits, groups, check digits, key ID | Proposed | 2026-11-20 |
+| [PLAN-29](PLAN-29.md) | Recovery key format: digits, groups, check digits, key ID | Confirmed | 2026-11-20 |
 | [AUTH-01](AUTH-01.md) | vNext sign-in: SSO enrollment, passkey unlock, 2FA | Confirmed (vNext) | 2026-11-20 |
 | [USER-01](USER-01.md) | vNext user model, close-out, persisted session | Confirmed (vNext) | 2026-11-20 |
 | [LOCK-01](LOCK-01.md) | vNext app auto-lock and idle | Confirmed (vNext) | 2026-11-20 |
