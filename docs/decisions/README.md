@@ -22,14 +22,14 @@ R5 (no sign-in in v1.0) was confirmed earlier and is recorded in the spec.
 | [PLAN-16](PLAN-16.md) | Crypto-shredding and proof of destruction (foundation plan) | Confirmed | 2026-11-19 |
 | [PLAN-17](PLAN-17.md) | Change-log entry and hash chain (foundation plan) | Confirmed | 2026-11-19 |
 | [PLAN-18](PLAN-18.md) | All-or-nothing writes and crash safety (foundation plan) | Confirmed | 2026-11-19 |
-| [PLAN-19](PLAN-19.md) | One running copy (foundation plan) | Proposed | 2026-11-19 |
-| [PLAN-20](PLAN-20.md) | Damaged-store handling (foundation plan) | Proposed | 2026-11-19 |
+| [PLAN-19](PLAN-19.md) | One running copy (foundation plan) | Confirmed | 2026-11-19 |
+| [PLAN-20](PLAN-20.md) | Damaged-store handling (foundation plan) | Confirmed | 2026-11-19 |
 | [PLAN-21](PLAN-21.md) | Owner backup archive (foundation plan) | Confirmed | 2026-11-19 |
 | [PLAN-22](PLAN-22.md) | Published format description and CI check (foundation plan) | Confirmed | 2026-11-19 |
-| [PLAN-23](PLAN-23.md) | Restore rules (foundation plan) | Proposed | 2026-11-19 |
+| [PLAN-23](PLAN-23.md) | Restore rules (foundation plan) | Confirmed | 2026-11-19 |
 | [PLAN-24](PLAN-24.md) | Address checker, identifiers and time (foundation plan) | Confirmed | 2026-11-19 |
 | [PLAN-25](PLAN-25.md) | Loopback server and anti-forgery (foundation plan) | Confirmed | 2026-11-19 |
-| [PLAN-26](PLAN-26.md) | Owner-facing messages and Fluent (foundation plan) | Proposed | 2026-11-19 |
+| [PLAN-26](PLAN-26.md) | Owner-facing messages and Fluent (foundation plan) | Confirmed | 2026-11-19 |
 | [PLAN-27](PLAN-27.md) | Test strategy (foundation plan) | Confirmed | 2026-11-19 |
 | [PLAN-01](PLAN-01.md) | Workspace layout | Proposed | 2026-11-19 |
 | [PLAN-02](PLAN-02.md) | Encrypted database access | Proposed | 2026-11-19 |
@@ -64,7 +64,7 @@ R5 (no sign-in in v1.0) was confirmed earlier and is recorded in the spec.
 | [FOUND-02](FOUND-02.md) | Foundation: plain open backup with a warning; one-person computer; recovery key not replaceable in v1.0 | Confirmed | 2026-11-19 |
 | [VZ-02](VZ-02.md) | AI review of every pull request: Claude Code Action then Codex; CodeQL; grouped Dependabot | Confirmed | 2026-11-20 |
 | [VZ-01](VZ-01.md) | Release gate "vulns at zero" for the first stable long-term release | Proposed | 2026-11-19 |
-| [PLAN-28](PLAN-28.md) | Logging design: change log fields, encrypted diagnostic file, alias alphabet, typed log API | Proposed | 2026-11-20 |
+| [PLAN-28](PLAN-28.md) | Logging design: change log fields, encrypted diagnostic file, alias alphabet, typed log API | Confirmed | 2026-11-20 |
 | [LOG-01](LOG-01.md) | Logging: History log and Diagnostic log, content-free, FieldRef and record alias | Confirmed | 2026-11-20 |
 | [SEC-05](SEC-05.md) | Input validation and injection: static SQL, autoescape, localhost hardening, name input rules, hostile-input tests | Confirmed | 2026-11-20 |
 | [BUILD-01](BUILD-01.md) | v1.0 build order: spec 002, then 010, then names screens; no throwaway placeholders | Confirmed | 2026-11-19 |
