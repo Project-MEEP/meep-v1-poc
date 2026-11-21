@@ -12,11 +12,11 @@ workspace = true
 [dependencies]
 meep-core = { path = "../meep-core", version = "0.0.0" }
 keyring = "4.2.0"
-chacha20poly1305 = "0.10"
-hkdf = "0.12"
-sha2 = "0.10"
+chacha20poly1305 = "0.11.0"
+hkdf = "0.13.0"
+sha2 = "0.11.1"
 zeroize = "1"
-rand = "0.9"
+rand = "0.10.4"
 subtle = "2"
 data-encoding = "2"
 tempfile = "3"
