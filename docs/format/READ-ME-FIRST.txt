@@ -1,0 +1,28 @@
+READ ME FIRST: your Meep backup
+
+[Draft skeleton, spec 002 T010. The exact wording is for the owner to review before the first release; the writer renders it and the format-docs check compares it with this file (FR-037, FR-040).]
+
+1. What Meep is
+{{what_meep_is}}
+
+2. What is in this file
+{{archive_contents}}
+
+3. How your information maps to the standard formats
+{{feature_sections}}
+
+4. How to put this backup back into Meep
+{{restore_steps}}
+
+5. This file is not encrypted
+Anyone who has this file can read everything in it. Keep it somewhere private.
+
+6. Which version and which moment this backup covers
+Format version: {{format_version}}
+Covers changes up to: {{as_of}}
+Changes you made after that moment are not in this backup.
+{{#rescue}}
+7. What could not be read
+{{unread_items}}
+Your old history is kept only as an unverified archive, because it could not be checked: {{unverified_history_explanation}}
+{{/rescue}}

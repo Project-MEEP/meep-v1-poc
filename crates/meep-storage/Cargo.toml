@@ -1,0 +1,34 @@
+[package]
+name = "meep-storage"
+version = "0.0.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+meep-core = { path = "../meep-core" }
+keyring = "4.2.0"
+chacha20poly1305 = "0.10"
+hkdf = "0.12"
+sha2 = "0.10"
+zeroize = "1"
+rand = "0.9"
+subtle = "2"
+data-encoding = "2"
+tempfile = "3"
+
+# SQLCipher: vendored OpenSSL on Windows, bundled elsewhere pending the macOS and Linux check (T034).
+[target.'cfg(windows)'.dependencies]
+rusqlite = { version = "0.43.0", features = ["bundled-sqlcipher-vendored-openssl"] }
+
+[target.'cfg(not(windows))'.dependencies]
+rusqlite = { version = "0.43.0", features = ["bundled-sqlcipher"] }
+
+[features]
+# Test-only features: never default, never in a release build or artifact (FOUND-07).
+plaintext-test-store = []
+in-memory-key-store = []
