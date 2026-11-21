@@ -26,4 +26,4 @@ The typed confirmation shows an explicit warning that the loss cannot be undone 
 
 ## Notes
 
-Spec 001 and its tasks are not yet amended to this list; the foundation's "Replace everything" uses the typed confirmation (spec 002 FR-017). That alignment is a follow-up.
+Reflected 2026-11-20 in spec 001 FR-035 and task T111; the foundation's "Replace everything" uses the typed confirmation (spec 002 FR-017). The toast and tray components belong to spec 010 (UI-02, UI-03), which does not exist yet; T111 depends on it.

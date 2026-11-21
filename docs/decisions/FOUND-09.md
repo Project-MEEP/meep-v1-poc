@@ -11,4 +11,4 @@ Changes that must stay consistent across more than one record (for example R12, 
 
 ## Notes
 
-This decides the "suggested later extension" left open in FOUND-08 (known limit: one record per call). Not yet reflected in contracts/ports.md, spec 002 or its tasks, or spec 001 T057; that alignment is a follow-up.
+This decides the "suggested later extension" left open in FOUND-08 (known limit: one record per call). Reflected 2026-11-20 in contracts/ports.md (`apply`), spec 002 FR-058 and tasks T019, T020, T057, T062, and spec 001 T048, T053, T057. The exact signature of `apply` is a contract-level design choice, not an owner decision.

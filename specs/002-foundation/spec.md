@@ -248,6 +248,7 @@ In v1.0 there is no sign-in. Meep is therefore reachable only from the owner's o
 - **FR-055** (FOUND-12): The store MUST have one random data key, and each unlock method MUST hold its own wrapped copy of it; adding or replacing a method MUST rewrap the data key only and MUST NOT re-encrypt any record. v1.0 has two methods, the keychain and the recovery key; v1.0 offers no way to replace the recovery key (FOUND-02).
 - **FR-056** (D5, PLAN-29): Each recovery key MUST have a short key ID that is printed with the key and shown at every recovery prompt, and the key MUST be digits only in fixed groups with a check digit per group, so a mistyped group is flagged. The exact length and check scheme are PLAN-29 (Proposed).
 - **FR-057** (D2): Every response that contains record data MUST send `Cache-Control: no-store`.
+- **FR-058** (FOUND-09): The foundation MUST offer an atomic batch operation that applies several record changes (save, update, delete), with their feature events, in one transaction: all land together, with the log entries in the order given, or none do, and no intermediate state is ever stored. A feature operation that changes more than one record at once (for example exactly one Legal name, R12) MUST use it.
 
 ### Key Entities
 
