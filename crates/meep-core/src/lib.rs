@@ -2,5 +2,7 @@
 #![forbid(unsafe_code)]
 
 pub mod clock;
+pub mod errors;
 pub mod failpoint;
 pub mod ids;
+pub mod messages;
