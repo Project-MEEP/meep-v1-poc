@@ -1,0 +1,7 @@
+# Rules and CI changes need the owner's review (CLAUDE.md rule 5, ENG-03).
+/CLAUDE.md          @Tal-Kiraifayi
+/AGENTS.md          @Tal-Kiraifayi
+/.claude/           @Tal-Kiraifayi
+/.github/           @Tal-Kiraifayi
+/deny.toml          @Tal-Kiraifayi
+/SECURITY.md        @Tal-Kiraifayi

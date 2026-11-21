@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(./data/**)",
+      "Edit(./data/**)",
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./secrets/**)",
+      "Read(./**/*.pem)",
+      "Read(./**/*.key)",
+      "Read(./**/*.p12)",
+      "Bash(git push origin main*)",
+      "Bash(git push * main*)",
+      "Bash(git push --force*)",
+      "Bash(git push -f*)",
+      "Bash(git commit --no-verify*)"
+    ]
+  }
+}
