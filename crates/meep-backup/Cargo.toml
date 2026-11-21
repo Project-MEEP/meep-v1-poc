@@ -10,7 +10,7 @@ publish.workspace = true
 workspace = true
 
 [dependencies]
-meep-core = { path = "../meep-core" }
+meep-core = { path = "../meep-core", version = "0.0.0" }
 zip = { version = "9.8.0", default-features = false, features = ["deflate"] }
 schemars = "1.2.3"
 serde_json = "1"
