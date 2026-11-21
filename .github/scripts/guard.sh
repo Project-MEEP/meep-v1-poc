@@ -19,14 +19,14 @@ fi
 
 # 3. Secrets and key material (this script and the workflow are excluded: they name the patterns)
 scan=$(printf '%s\n' "$files" | grep -Ev '^\.github/(scripts/guard\.sh|workflows/ci\.yml)$' || true)
-secrets=$(printf '%s\n' "$scan" | xargs -r grep -InE \
+secrets=$(printf '%s\n' "$scan" | xargs -r -d '\n' grep -InE \
   '(gh[pousr]_[A-Za-z0-9]{20,}|sk-[A-Za-z0-9_-]{20,}|AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----)' 2>/dev/null || true)
 if [ -n "$secrets" ]; then
   echo "FAIL: possible secret:"; echo "$secrets"; fail=1
 fi
 
 # 4. Personal email addresses (example.* and GitHub noreply are allowed)
-emails=$(printf '%s\n' "$scan" | xargs -r grep -InEo \
+emails=$(printf '%s\n' "$scan" | xargs -r -d '\n' grep -InEo \
   '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}' 2>/dev/null \
   | grep -Eiv '@(example\.(com|org|net)|users\.noreply\.github\.com)$' || true)
 if [ -n "$emails" ]; then

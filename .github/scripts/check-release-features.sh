@@ -30,11 +30,11 @@ done
 
 # 3. Not in any built artifact: build in release mode and look for the marker strings.
 cargo build --release --workspace --locked || { echo "FAIL: release build failed"; exit 1; }
-for a in $(find target/release -maxdepth 1 -type f \( -perm -u+x -o -name '*.rlib' -o -name '*.so' -o -name '*.dll' -o -name '*.dylib' \) 2>/dev/null); do
+while IFS= read -r a; do
   for m in $MARKERS; do
     if grep -aq "$m" "$a"; then echo "FAIL: marker $m found in $a"; fail=1; fi
   done
-done
+done < <(find target/release -maxdepth 1 -type f \( -perm -u+x -o -name '*.rlib' -o -name '*.so' -o -name '*.dll' -o -name '*.dylib' \) 2>/dev/null)
 
 [ "$fail" -eq 0 ] && echo "release-features: clean"
 exit "$fail"

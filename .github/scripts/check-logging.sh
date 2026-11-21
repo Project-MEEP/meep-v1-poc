@@ -5,6 +5,6 @@
 set -u
 rs=$(git ls-files '*.rs' | grep -v '/tests/\|^tests/\|/benches/\|/fuzz/\|^crates/meep-core/src/log/' || true)
 [ -z "$rs" ] && { echo "check-logging: no Rust yet"; exit 0; }
-hits=$(printf '%s\n' "$rs" | xargs grep -nE '\b(println|eprintln|print|eprint|dbg)!|\b(tracing|log)::(trace|debug|info|warn|error)!|use (tracing|log)\b' 2>/dev/null || true)
+hits=$(printf '%s\n' "$rs" | xargs -d '\n' grep -nE '\b(println|eprintln|print|eprint|dbg)!|\b(tracing|log)::(trace|debug|info|warn|error)!|use (tracing|log)\b' 2>/dev/null || true)
 if [ -n "$hits" ]; then echo "FAIL: logging outside the typed log module (LOG-01 item 6):"; echo "$hits"; exit 1; fi
 echo "check-logging: clean"

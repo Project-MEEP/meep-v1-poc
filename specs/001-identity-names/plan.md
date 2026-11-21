@@ -8,7 +8,7 @@
 
 The owner can record names in three familiar boxes, keep several names with Active or No longer used status, and keep pronouns hidden until opted in. Every name is stored as labeled parts that must rebuild its text exactly (ID-04), exported from those parts to the US health-data name form (USCDI) and to FHIR R4 HumanName, and always included in the owner backup.
 
-Technical approach, all drawn from Confirmed decisions (R1 to R17, NAMES-01 to NAMES-04, PRON-01a) and marked **Proposed** where this plan picks a specific library or design: a Rust workspace of three crates (core domain, encrypted storage, web UI); an encrypted SQLCipher database reached through `rusqlite`; per-record keys wrapped by a master key held in the operating-system keychain, so that deleting a name destroys its key (R8); a keyed fingerprint of the prior value for tamper-evidence of corrections (NAMES-02); server-rendered HTML with minimal JavaScript, bound to the owner's own machine only (R3, R5); and Fluent message files for all text (R10). Names depends on the foundation (spec 002) and shared UI elements (spec 010); this plan defines only the names parts and the interfaces they need from those. Build order (BUILD-01): spec 002, then spec 010, then the names screens on the real 010 elements; the names domain and core can proceed now against port fakes.
+Technical approach, all drawn from Confirmed decisions (R1 to R17, NAMES-01 to NAMES-04, PRON-01a) and marked **Proposed** where this plan picks a specific library or design: a Rust workspace that uses the foundation's four crates (core, storage, backup, web; spec 002, BUILD-01) and adds only names code to them; an encrypted SQLCipher database reached through `rusqlite`; per-record keys wrapped under the store's one data key, which the foundation holds through its key slots and the operating-system keychain (FOUND-12), so that deleting a name destroys its key (R8); a keyed fingerprint of the prior value for tamper-evidence of corrections (NAMES-02); server-rendered HTML with minimal JavaScript, bound to the owner's own machine only (R3, R5); and Fluent message files for all text (R10). Names depends on the foundation (spec 002) and shared UI elements (spec 010); this plan defines only the names parts and the interfaces they need from those. Build order (BUILD-01): spec 002, then spec 010, then the names screens on the real 010 elements; the names domain and core can proceed now against port fakes.
 
 ## Technical Context
 
@@ -88,12 +88,13 @@ crates/
 │       ├── export/           #   fhir.rs, uscdi.rs, json_backup.rs
 │       ├── address.rs        #   R6 / R16 segment syntax
 │       └── events.rs         #   domain events (Observer subject)
-├── meep-storage/             # encrypted database, record envelope, change log, key custody
-│   └── src/                  #   (shared with spec 002; names adds a names repository)
-└── meep-web/                 # axum server, askama templates, Fluent catalogs
-    ├── src/
+├── meep-storage/             # owned by the foundation (spec 002): encrypted database, envelope,
+│   └── src/                  #   change log, key custody; names adds no storage code of its own
+├── meep-backup/              # owned by the foundation (spec 002); names adds its backup fragment only
+└── meep-web/                 # the foundation's server (launch-token exchange, FR-052); names adds
+    ├── src/                  #   askama templates, routes and its Fluent catalog
     ├── templates/
-    └── locales/en/           # main.ftl (all interface text, R10)
+    └── locales/en/           # names.ftl (names text, R10); the foundation's loader is reused
 tests/
 ├── acceptance/               # cucumber features: AT-23, AT-26 to AT-31
 │   └── features/
