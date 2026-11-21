@@ -11,7 +11,7 @@ workspace = true
 
 [dependencies]
 meep-core = { path = "../meep-core" }
-zip = "9.8.0"
+zip = { version = "9.8.0", default-features = false, features = ["deflate"] }
 schemars = "1.2.3"
 serde_json = "1"
 sha2 = "0.10"
