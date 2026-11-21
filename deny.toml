@@ -16,10 +16,13 @@ ignore = []
 
 [licenses]
 version = 2
-allow = ["MIT", "Apache-2.0", "Unicode-3.0", "BSD-3-Clause"]
+allow = ["MIT", "Apache-2.0", "Unicode-3.0", "BSD-3-Clause", "Zlib"]
 confidence-threshold = 0.8
-# The SQLite "blessing" notice and WTFPL (carried by sqlcipher-src) are not allowed yet: they
-# show up as findings until the owner approves reviewed exceptions (foundation task T029).
+# PLAN-30 (Confirmed): Zlib is allowed everywhere; the SQLite "blessing" notice and WTFPL are
+# allowed only for sqlcipher-src, as a per-crate exception. Any other exception needs the owner.
+exceptions = [
+  { crate = "sqlcipher-src", allow = ["blessing", "WTFPL"] },
+]
 
 [bans]
 multiple-versions = "warn"

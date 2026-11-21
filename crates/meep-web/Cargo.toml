@@ -1,0 +1,18 @@
+[package]
+name = "meep-web"
+version = "0.0.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+meep-core = { path = "../meep-core", version = "0.0.0" }
+meep-storage = { path = "../meep-storage", version = "0.0.0" }
+axum = "0.8.9"
+tokio = { version = "1.54.1", features = ["rt-multi-thread", "macros", "net"] }
+tower-http = "0.7.1"
+cookie = "0.18.2"
