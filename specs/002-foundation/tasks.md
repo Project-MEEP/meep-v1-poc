@@ -258,6 +258,7 @@ Cargo workspace from plan.md: `crates/meep-core/`, `crates/meep-storage/`, `crat
 - [x] T150 Closed: the owner confirmed PLAN-29 on 2026-11-20 as proposed. Was: review PLAN-29 (length 91 printed digits, Damm check digit per group, 8-digit key ID) (FR-056); T151 and T152 are unblocked
 - [ ] T151 [P] [US1] Write failing tests in `crates/meep-storage/tests/recovery_format.rs` for data-model.md key_slots.key_id: the printed key has fixed digit groups each with a check digit; a mistyped group is flagged and named; a key that passes every check digit but is wrong fails to unwrap and is refused; the key ID is printed with the key and listed at every recovery prompt, including when the store has several recovery keys (FR-056, FR-032, PLAN-29)
 - [ ] T152 [US1] Implement the recovery-key format and key ID in `crates/meep-storage/src/recovery.rs` per PLAN-29 (Confirmed), and show the key ID at every recovery prompt through the foundation messages (FR-056, FR-032, PLAN-29)
+- [ ] T153 **[OWNER QUESTION]** A page opened from a file is cross-site, so the launch-token exchange request may arrive with `Sec-Fetch-Site: cross-site` and without a cookie. FR-052 confirms only the `Origin: null` exemption. Ask the owner whether the exchange route is also exempt from the cookie check and from the `Sec-Fetch-Site: cross-site` refusal (the `Host` check would still apply), or whether the launch file should start the browser differently; T138 and T139 wait for the answer (FR-052, FOUND-11, SEC-05)
 
 ---
 
