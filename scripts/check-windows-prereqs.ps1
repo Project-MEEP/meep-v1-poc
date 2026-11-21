@@ -1,6 +1,7 @@
 # Reports whether this Windows machine can build the encrypted store (PLAN-14, research.md).
 # Needs: Strawberry Perl on PATH (vendored OpenSSL build), the C++ build tools, and a target
 # folder path of 121 characters or fewer (research.md counts Cargo's inner folders separately).
+$ErrorActionPreference = 'Stop'
 $ok = $true
 
 $perl = Get-Command perl -ErrorAction SilentlyContinue
@@ -22,7 +23,14 @@ if (-not $cl -and -not $cppTools) {
 }
 
 # Measure the target folder itself, not the folders Cargo adds inside it.
-if ($env:CARGO_TARGET_DIR) { $target = $env:CARGO_TARGET_DIR } else { $target = Join-Path (Get-Location).Path 'target' }
+if ($env:CARGO_TARGET_DIR) {
+    # A relative value is relative to the current directory (Cargo docs); resolve it first.
+    $given = $env:CARGO_TARGET_DIR
+    if (-not [System.IO.Path]::IsPathRooted($given)) { $given = Join-Path (Get-Location).Path $given }
+    $target = [System.IO.Path]::GetFullPath($given)
+} else {
+    $target = Join-Path (Get-Location).Path 'target'
+}
 $length = $target.Length
 if ($length -gt 121) {
     Write-Output "FAIL: the target folder path is $length characters; keep it at 121 or fewer (use a shorter repository path or CARGO_TARGET_DIR)."
