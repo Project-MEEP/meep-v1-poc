@@ -1,0 +1,28 @@
+[package]
+name = "meep-core"
+version = "0.0.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+# Domain and ports: no I/O, web or database crates (PLAN-13).
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_json_canonicalizer = "0.3"
+sha2 = "0.10"
+thiserror = "2"
+uuid = { version = "1", features = ["v4"] }
+rand = "0.9"
+time = "0.3"
+zeroize = "1"
+
+[features]
+# In-memory fakes for specs 001 and 010 (BUILD-01); never in a release build (FOUND-07).
+testing = []
+# Crash hooks for the failpoint tests (PLAN-18).
+failpoints = []

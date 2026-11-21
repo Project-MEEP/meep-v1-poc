@@ -16,21 +16,21 @@ R5 (no sign-in in v1.0) was confirmed earlier and is recorded in the spec.
 | [NAMES-02](NAMES-02.md) | Corrections keep only the new wording; real changes add a new name | Confirmed | 2026-11-19 |
 | [NAMES-03](NAMES-03.md) | Limits: 128 characters per box, 384 full-name box, 50 names | Confirmed | 2026-11-19 |
 | [NAMES-04](NAMES-04.md) | Short form: per name, display only, not exported | Confirmed | 2026-11-19 |
-| [PLAN-13](PLAN-13.md) | Foundation workspace layout (foundation plan) | Proposed | 2026-11-19 |
-| [PLAN-14](PLAN-14.md) | Encrypted store access (foundation plan) | Proposed | 2026-11-19 |
-| [PLAN-15](PLAN-15.md) | Key hierarchy (foundation plan) | Proposed | 2026-11-19 |
-| [PLAN-16](PLAN-16.md) | Crypto-shredding and proof of destruction (foundation plan) | Proposed | 2026-11-19 |
-| [PLAN-17](PLAN-17.md) | Change-log entry and hash chain (foundation plan) | Proposed | 2026-11-19 |
-| [PLAN-18](PLAN-18.md) | All-or-nothing writes and crash safety (foundation plan) | Proposed | 2026-11-19 |
+| [PLAN-13](PLAN-13.md) | Foundation workspace layout (foundation plan) | Confirmed | 2026-11-19 |
+| [PLAN-14](PLAN-14.md) | Encrypted store access (foundation plan) | Confirmed | 2026-11-19 |
+| [PLAN-15](PLAN-15.md) | Key hierarchy (foundation plan) | Confirmed | 2026-11-19 |
+| [PLAN-16](PLAN-16.md) | Crypto-shredding and proof of destruction (foundation plan) | Confirmed | 2026-11-19 |
+| [PLAN-17](PLAN-17.md) | Change-log entry and hash chain (foundation plan) | Confirmed | 2026-11-19 |
+| [PLAN-18](PLAN-18.md) | All-or-nothing writes and crash safety (foundation plan) | Confirmed | 2026-11-19 |
 | [PLAN-19](PLAN-19.md) | One running copy (foundation plan) | Proposed | 2026-11-19 |
 | [PLAN-20](PLAN-20.md) | Damaged-store handling (foundation plan) | Proposed | 2026-11-19 |
-| [PLAN-21](PLAN-21.md) | Owner backup archive (foundation plan) | Proposed | 2026-11-19 |
-| [PLAN-22](PLAN-22.md) | Published format description and CI check (foundation plan) | Proposed | 2026-11-19 |
+| [PLAN-21](PLAN-21.md) | Owner backup archive (foundation plan) | Confirmed | 2026-11-19 |
+| [PLAN-22](PLAN-22.md) | Published format description and CI check (foundation plan) | Confirmed | 2026-11-19 |
 | [PLAN-23](PLAN-23.md) | Restore rules (foundation plan) | Proposed | 2026-11-19 |
-| [PLAN-24](PLAN-24.md) | Address checker, identifiers and time (foundation plan) | Proposed | 2026-11-19 |
-| [PLAN-25](PLAN-25.md) | Loopback server and anti-forgery (foundation plan) | Proposed | 2026-11-19 |
+| [PLAN-24](PLAN-24.md) | Address checker, identifiers and time (foundation plan) | Confirmed | 2026-11-19 |
+| [PLAN-25](PLAN-25.md) | Loopback server and anti-forgery (foundation plan) | Confirmed | 2026-11-19 |
 | [PLAN-26](PLAN-26.md) | Owner-facing messages and Fluent (foundation plan) | Proposed | 2026-11-19 |
-| [PLAN-27](PLAN-27.md) | Test strategy (foundation plan) | Proposed | 2026-11-19 |
+| [PLAN-27](PLAN-27.md) | Test strategy (foundation plan) | Confirmed | 2026-11-19 |
 | [PLAN-01](PLAN-01.md) | Workspace layout | Proposed | 2026-11-19 |
 | [PLAN-02](PLAN-02.md) | Encrypted database access | Proposed | 2026-11-19 |
 | [PLAN-03](PLAN-03.md) | Key custody | Proposed | 2026-11-19 |
@@ -51,6 +51,7 @@ R5 (no sign-in in v1.0) was confirmed earlier and is recorded in the spec.
 | [CONST-28](CONST-28.md) | Proposed principle 28: separate access layers | Proposed | 2026-11-20 |
 | [FOUND-12](FOUND-12.md) | Key wrapping: one data key, one wrapped copy per unlock method | Confirmed | 2026-11-20 |
 | [PLAN-29](PLAN-29.md) | Recovery key format: digits, groups, check digits, key ID | Confirmed | 2026-11-20 |
+| [PLAN-30](PLAN-30.md) | Dependency license allow-list: Zlib; blessing and WTFPL for sqlcipher-src only | Confirmed | 2026-11-20 |
 | [AUTH-01](AUTH-01.md) | vNext sign-in: SSO enrollment, passkey unlock, 2FA | Confirmed (vNext) | 2026-11-20 |
 | [USER-01](USER-01.md) | vNext user model, close-out, persisted session | Confirmed (vNext) | 2026-11-20 |
 | [LOCK-01](LOCK-01.md) | vNext app auto-lock and idle | Confirmed (vNext) | 2026-11-20 |

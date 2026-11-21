@@ -1,0 +1,21 @@
+{
+  "_note": "Synthetic addresses for the shared checker (R16, FR-008): five dot-separated segments, each starting with a letter and holding only letters, digits and hyphens; comparison ignores case.",
+  "valid": [
+    "Alpha.Meep.Personal.Identity.Names",
+    "Alpha.Meep.Personal.Notes.Sample",
+    "alpha.meep.personal.notes.sample",
+    "Alpha.Meep2.Personal-Data.Notes.Sample-1",
+    "A.B.C.D.E"
+  ],
+  "invalid": [
+    { "address": "Alpha.Meep.Personal.Identity", "reason": "address-invalid-segments", "why": "four segments" },
+    { "address": "Alpha.Meep.Personal.Identity.Names.Extra", "reason": "address-invalid-segments", "why": "six segments" },
+    { "address": "Alpha.Meep.Personal.1Notes.Sample", "reason": "address-invalid-segment", "why": "segment starts with a digit" },
+    { "address": "Alpha.Meep.Personal.Notes_Extra.Sample", "reason": "address-invalid-segment", "why": "underscore" },
+    { "address": "Alpha.Meep.Personal.Notes Extra.Sample", "reason": "address-invalid-segment", "why": "space" },
+    { "address": "Alpha.Meep..Notes.Sample", "reason": "address-invalid-segment", "why": "empty segment" }
+  ],
+  "case_insensitive_pairs": [
+    ["Alpha.Meep.Personal.Identity.Names", "ALPHA.MEEP.PERSONAL.IDENTITY.NAMES"]
+  ]
+}

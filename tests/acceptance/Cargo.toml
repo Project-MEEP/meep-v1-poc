@@ -1,0 +1,21 @@
+[package]
+name = "meep-acceptance"
+version = "0.0.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dev-dependencies]
+meep-core = { path = "../../crates/meep-core", version = "0.0.0" }
+meep-storage = { path = "../../crates/meep-storage", version = "0.0.0" }
+meep-backup = { path = "../../crates/meep-backup", version = "0.0.0" }
+cucumber = "0.23.0"
+proptest = "1.12.0"
+
+[[test]]
+name = "acceptance"
+harness = false

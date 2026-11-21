@@ -8,7 +8,7 @@
 
 The foundation gives every other feature a safe place to keep the owner's records: an encrypted local store that opens with a key held on the owner's own computer, a one-time recovery key, per-record keys so a deleted record is destroyed for good, a tamper-evident change history that never holds content, an owner backup and restore, and a local server reachable only from the owner's own machine (R2, R5, R7, R8, R9, R16, principle 27, FOUND-01 to FOUND-06).
 
-Technical approach, all **Proposed** until the owner confirms each decision record (PLAN-13 to PLAN-27), drawn from Confirmed decisions at product level:
+Technical approach, PLAN-13 to PLAN-18, PLAN-21, PLAN-22, PLAN-24, PLAN-25 and PLAN-27 **Confirmed by the owner on 2026-11-20 as proposed**; PLAN-19, PLAN-20, PLAN-23, PLAN-26 and PLAN-28 stay Proposed. Drawn from Confirmed decisions at product level:
 
 - A Rust workspace of four crates (core, storage, backup, web) with the store reached through three ports, `RecordStore`, `ChangeLog` and `KeyCustody` (FOUND-01), which names and the shared UI use.
 - SQLCipher through `rusqlite` for the encrypted file (R2). A throwaway build on this PC verified the route on Windows: `bundled-sqlcipher-vendored-openssl` with Strawberry Perl and a short build-folder path (Windows long paths do not help); plain `bundled-sqlcipher` needs an OpenSSL the machine does not have (see research.md). CI gets a `windows-latest` build job so Windows-only failures are caught.

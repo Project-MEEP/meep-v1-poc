@@ -1,0 +1,7 @@
+{
+  "_note": "Synthetic fixtures only. No real personal data (R16, FR-008).",
+  "records": [
+    { "name": "A", "address": "Alpha.Meep.Personal.Identity.Names", "content": "synthetic sample A" },
+    { "name": "B", "address": "Alpha.Meep.Personal.Notes.Sample", "content": "synthetic sample B" }
+  ]
+}

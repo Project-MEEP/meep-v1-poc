@@ -1,7 +1,7 @@
 # PLAN-27: Test strategy
 
 - **ID:** PLAN-27
-- **Status:** Proposed (planning choice for spec 002, the foundation; the owner promotes it to Confirmed)
+- **Status:** Confirmed (owner, 2026-11-20, as proposed in the plan for spec 002)
 - **Date:** 2026-11-19
 - **Owner:** Owner (proposed in the plan for spec 002)
 
