@@ -19,7 +19,7 @@ A request is accepted only if all of these hold; otherwise it is refused with st
 | Session token | State-changing requests carry the per-session anti-forgery token (below). |
 | Session cookie | Every request carries the cookie issued by the launch-token exchange; without it the request is refused (FR-052). |
 
-**One narrow exemption (SEC-05, FR-052):** the exchange route accepts a request whose `Origin` is `null` (a page opened from a file). It is GET only, changes no data, accepts only a valid, unused, unexpired token, and redirects to a clean URL. No other route has this exemption.
+**One narrow exemption (SEC-05, FR-052, owner decision T153, 2026-11-20):** the exchange route accepts a request that carries no cookie yet, may carry `Origin: null` (a page opened from a file) and may carry `Sec-Fetch-Site: cross-site`, because the launch file is a page opened from disk; for this route only, the cookie check, the `Origin: null` refusal and the `Sec-Fetch-Site: cross-site` refusal do not apply, while the `Host` check still does. It is GET only, changes no data, accepts only a valid, unused, unexpired token, and redirects to a clean URL. No other route has this exemption.
 
 ## Session token
 
