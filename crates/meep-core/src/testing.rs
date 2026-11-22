@@ -8,7 +8,7 @@
 
 use crate::address::Address;
 use crate::clock::Clock;
-use crate::detail::{DetailKey, value_is_allowed};
+use crate::detail::DetailKey;
 use crate::errors::Error;
 use crate::fragment::Snapshot;
 use crate::ids::{AccountId, RecordId};
@@ -173,7 +173,7 @@ impl State {
     ) -> Result<(), Error> {
         let allowed = self.kinds.get(kind.as_str()).ok_or(Error::UnknownKind)?;
         for (key, value) in details {
-            if !allowed.contains(key) || !value_is_allowed(value) {
+            if !allowed.contains(key) || !key.accepts(value) {
                 return Err(Error::DetailRefused { key: *key });
             }
         }
