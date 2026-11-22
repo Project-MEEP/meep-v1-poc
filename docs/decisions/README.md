@@ -68,6 +68,7 @@ Naming rules for IDs, files and statuses: [STD-01](STD-01.md) (Proposed) and [NA
 | [LOG-01](LOG-01.md) | Logging: History log and Diagnostic log, content-free, FieldRef and record alias | Confirmed | 2026-11-20 |
 | [SEC-05](SEC-05.md) | Input validation and injection: static SQL, autoescape, localhost hardening, name input rules, hostile-input tests | Confirmed | 2026-11-20 |
 | [STD-01](STD-01.md) | Meep naming standards (docs/standards/NAMING.md) | Proposed | 2026-11-21 |
+| [LANG-01](LANG-01.md) | Implementation language is Rust | Confirmed | not stated in the master spec |
 | [ENG-03](ENG-03.md) | Pull requests only, enforced by branch protection on main | Confirmed | 2026-11-19 |
 | [ARCH-02](ARCH-02.md) | Domain list and namespace boundaries (open question in the master spec) | Proposed | 2026-11-21 |
 | [BUILD-01](BUILD-01.md) | v1.0 build order: spec 002, then 010, then names screens; no throwaway placeholders | Confirmed | 2026-11-19 |
@@ -114,7 +115,7 @@ New prefixes need owner approval and are added here in the same PR. `R` (R1 to R
 | ENG | Engineering process rules |
 | ERR | Error and panic handling |
 | FOUND | Foundation (spec 002) |
-| LANG | UI language and localization |
+| LANG | Language: implementation language (LANG-01) and UI language and localization (LANG-02+) |
 | LOCK | App auto-lock (vNext) |
 | LOG | Logging |
 | NAMES | Names feature (spec 001) |

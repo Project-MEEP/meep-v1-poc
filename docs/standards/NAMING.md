@@ -34,7 +34,7 @@ Status: Proposed (record as STD-01). Drafted 2026-11-21 21:10 CT.
 | ENG | Engineering process rules |
 | ERR | Error and panic handling |
 | FOUND | Foundation (spec 002) |
-| LANG | UI language and localization |
+| LANG | Language: implementation language (LANG-01) and UI language and localization (LANG-02+) |
 | LOCK | App auto-lock (vNext) |
 | LOG | Logging |
 | NAMES | Names feature (spec 001) |
