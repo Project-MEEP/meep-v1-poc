@@ -1,5 +1,5 @@
-//! Typed failures of the ports (contracts/ports.md, FR-025). Each one that has an owner-facing
-//! message maps to its Fluent ID (PLAN-26); the rest are worded by the calling feature.
+//! Typed failures of the ports (contracts/ports.md, FR-025). Each one maps to a
+//! Fluent message ID (PLAN-26); the programmer errors share one generic message.
 
 use crate::ids::RecordId;
 use crate::messages::{MessageId, OwnerMessage};
@@ -40,8 +40,9 @@ pub enum Error {
 }
 
 impl Error {
-    /// The owner-facing message for this failure, or `None` when the foundation has no message
-    /// for it and the calling feature words it (for example the stale-save message).
+    /// The owner-facing message for this failure. Programmer errors (`KindExists`, `UnknownKind`,
+    /// `DetailRefused`) share the generic `internal-error` message and carry a diagnostic code.
+    /// Always `Some` today; the `Option` leaves room for a failure that is never shown.
     pub fn message(&self) -> Option<OwnerMessage> {
         let (id, args) = match self {
             Error::AddressInvalid {
@@ -56,14 +57,32 @@ impl Error {
                 MessageId::HistoryDoesNotVerify,
                 vec![("seq", first_seq.to_string())],
             ),
-            Error::Stale
-            | Error::NotFound
-            | Error::Unreadable { .. }
-            | Error::KindExists
-            | Error::UnknownKind
-            | Error::DetailRefused { .. }
-            | Error::RecordKeyDestroyed => return None,
+            Error::Stale => (MessageId::RecordChanged, Vec::new()),
+            Error::NotFound => (MessageId::RecordNotFound, Vec::new()),
+            Error::Unreadable { .. } => (MessageId::RecordUnreadable, Vec::new()),
+            Error::RecordKeyDestroyed => (MessageId::RecordDeleted, Vec::new()),
+            Error::KindExists | Error::UnknownKind | Error::DetailRefused { .. } => (
+                MessageId::InternalError,
+                vec![("code", self.diagnostic_code().to_string())],
+            ),
         };
         Some(OwnerMessage { id, args })
+    }
+
+    /// A short, stable code for developers and support. It never holds record content or a key.
+    pub fn diagnostic_code(&self) -> &'static str {
+        match self {
+            Error::AddressInvalid { .. } => "address-invalid",
+            Error::StoreReadOnly => "store-read-only",
+            Error::StoreFailed => "store-failed",
+            Error::Stale => "stale",
+            Error::NotFound => "not-found",
+            Error::Unreadable { .. } => "unreadable",
+            Error::KindExists => "kind-exists",
+            Error::UnknownKind => "unknown-kind",
+            Error::DetailRefused { .. } => "detail-refused",
+            Error::ChainBroken { .. } => "chain-broken",
+            Error::RecordKeyDestroyed => "record-key-destroyed",
+        }
     }
 }

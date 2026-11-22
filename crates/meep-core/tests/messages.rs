@@ -44,7 +44,7 @@ fn message_ids_are_lowercase_hyphenated_and_unique() {
         );
         assert!(seen.insert(id), "duplicate {id}");
     }
-    assert_eq!(MessageId::ALL.len(), 25);
+    assert_eq!(MessageId::ALL.len(), 30);
 }
 
 #[test]

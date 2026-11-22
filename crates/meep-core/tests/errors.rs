@@ -34,21 +34,37 @@ fn a_broken_chain_names_the_first_broken_entry() {
 }
 
 #[test]
-fn failures_the_calling_feature_words_have_no_foundation_message() {
-    for e in [
-        Error::Stale,
-        Error::NotFound,
-        Error::Unreadable {
-            id: RecordId::new(),
-        },
-        Error::KindExists,
-        Error::UnknownKind,
-        Error::DetailRefused {
-            key: "x".to_string(),
-        },
-        Error::RecordKeyDestroyed,
-    ] {
-        assert_eq!(id_of(&e), None, "{e}");
+fn record_failures_map_to_their_own_messages() {
+    assert_eq!(id_of(&Error::Stale), Some(MessageId::RecordChanged));
+    assert_eq!(id_of(&Error::NotFound), Some(MessageId::RecordNotFound));
+    assert_eq!(
+        id_of(&Error::Unreadable {
+            id: RecordId::new()
+        }),
+        Some(MessageId::RecordUnreadable)
+    );
+    assert_eq!(
+        id_of(&Error::RecordKeyDestroyed),
+        Some(MessageId::RecordDeleted)
+    );
+}
+
+#[test]
+fn programmer_errors_share_one_generic_message_with_a_diagnostic_code() {
+    let cases = [
+        (Error::KindExists, "kind-exists"),
+        (Error::UnknownKind, "unknown-kind"),
+        (
+            Error::DetailRefused {
+                key: "x".to_string(),
+            },
+            "detail-refused",
+        ),
+    ];
+    for (e, code) in cases {
+        let m = e.message().expect("generic message");
+        assert_eq!(m.id, MessageId::InternalError, "{e}");
+        assert_eq!(m.args, vec![("code", code.to_string())], "{e}");
     }
 }
 

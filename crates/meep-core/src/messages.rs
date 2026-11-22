@@ -48,6 +48,11 @@ messages! {
     SaveFailed => "save-failed",
     StoreReadOnly => "store-read-only",
     RequestRefused => "request-refused",
+    RecordChanged => "record-changed",
+    RecordNotFound => "record-not-found",
+    RecordUnreadable => "record-unreadable",
+    RecordDeleted => "record-deleted",
+    InternalError => "internal-error",
 }
 
 /// A message to show the owner: its ID and the named values the catalog text uses.
