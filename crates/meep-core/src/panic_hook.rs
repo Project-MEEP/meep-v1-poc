@@ -2,7 +2,7 @@
 //! nothing from the panic itself: the payload and message may hold owner content, so they are
 //! never read. The sink is where the line goes (the boot log, LOG-01 item 3, once it exists).
 //!
-//! Only a repository path (`crates/...` or `tests/...`) is ever shown. A panic inside a
+//! Only a relative path that starts with `crates/` or `tests/` is ever shown. A panic inside a
 //! dependency or the standard library has a path under the cargo registry or the toolchain,
 //! which holds the operating-system user name, so it is reported as `<dep>` with no path or line.
 
@@ -25,7 +25,7 @@ pub fn install(sink: fn(&str)) {
     }));
 }
 
-/// The log line for a panic at `file:line`: the repository path with forward slashes, or
+/// The log line for a panic at `file:line`: a relative repository path with forward slashes, or
 /// `<dep>` alone when the path has no repository prefix.
 pub fn describe(file: &str, line: u32) -> String {
     let path = file.replace('\\', "/");
@@ -35,17 +35,12 @@ pub fn describe(file: &str, line: u32) -> String {
     }
 }
 
-/// The part of `path` starting at a `crates/` or `tests/` directory, if it has one.
+/// `path` itself when it is relative and starts with a `crates/` or `tests/` directory.
+/// Anything else (an absolute path, a registry path, a toolchain path) has an unknown prefix
+/// that may hold the user name, and an ancestor named `crates` or `tests` proves nothing.
 fn repository_part(path: &str) -> Option<&str> {
     ["crates/", "tests/"]
         .iter()
-        .filter_map(|marker| {
-            if path.starts_with(marker) {
-                Some(0)
-            } else {
-                path.find(&format!("/{marker}")).map(|i| i + 1)
-            }
-        })
-        .min()
-        .map(|start| &path[start..])
+        .any(|marker| path.starts_with(marker))
+        .then_some(path)
 }

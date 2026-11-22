@@ -43,12 +43,12 @@ fn a_workspace_path_is_kept_with_either_slash() {
 }
 
 #[test]
-fn an_absolute_workspace_path_drops_everything_before_the_repository_part() {
+fn an_absolute_path_is_never_shown_even_inside_the_workspace() {
     let line = describe(
         r"C:\Users\bob\Project-MEEP\crates\meep-core\src\clock.rs",
         9,
     );
-    assert_eq!(line, "E-PANIC crates/meep-core/src/clock.rs:9");
+    assert_eq!(line, "E-PANIC <dep>");
     assert!(!line.contains("bob"));
 }
 
@@ -62,5 +62,20 @@ fn a_dependency_path_is_never_shown() {
         let line = describe(file, 77);
         assert_eq!(line, "E-PANIC <dep>", "{file}");
         assert!(!line.contains("bob") && !line.contains("77"), "{line}");
+    }
+}
+
+/// Codex finding (P1): only a path that STARTS with the repository directory is kept; an
+/// ancestor named `tests` or `crates` higher up an absolute path must not count.
+#[test]
+fn an_ancestor_named_tests_or_crates_does_not_make_a_path_repository_relative() {
+    for file in [
+        "/srv/tests/alice/.cargo/registry/src/index.crates.io-1234/serde-1.0.0/src/lib.rs",
+        "/home/alice/crates/mine/.cargo/registry/src/x/serde-1.0.0/src/lib.rs",
+        r"C:\Users\alice\tests\proj\crates\meep-core\src\clock.rs",
+    ] {
+        let line = describe(file, 5);
+        assert_eq!(line, "E-PANIC <dep>", "{file}");
+        assert!(!line.contains("alice"), "{line}");
     }
 }
