@@ -1,0 +1,4 @@
+# ERR-01 item 1: unwrap, expect and panic are denied in product code and allowed in tests.
+allow-unwrap-in-tests = true
+allow-expect-in-tests = true
+allow-panic-in-tests = true

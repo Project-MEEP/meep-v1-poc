@@ -71,6 +71,7 @@ Naming rules for IDs, files and statuses: [STD-01](STD-01.md) (Proposed) and [NA
 | [LANG-01](LANG-01.md) | Implementation language is Rust | Confirmed | not stated in the master spec |
 | [ENG-03](ENG-03.md) | Pull requests only, enforced by branch protection on main | Confirmed | 2026-11-19 |
 | [ARCH-02](ARCH-02.md) | Domain list and namespace boundaries (open question in the master spec) | Proposed | 2026-11-21 |
+| [ERR-01](ERR-01.md) | Error and panic handling: no panics, Display is a diagnostic code, content-free cause | Confirmed | 2026-11-21 |
 | [BUILD-01](BUILD-01.md) | v1.0 build order: spec 002, then 010, then names screens; no throwaway placeholders | Confirmed | 2026-11-19 |
 | [NAMES-05](NAMES-05.md) | Checklist resolutions (CHK001 to CHK039) | Confirmed | 2026-11-19 |
 | [NAMES-07](NAMES-07.md) | Keystone changes: plain or typed confirmation, a toast and a tray entry | Confirmed | 2026-11-20 |

@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-# FOUND-07: fail if a test-only cargo feature is enabled in a release build or shipped in an artifact.
+# FOUND-07, ERR-01: fail if a test-only cargo feature is enabled in a release build or shipped in an artifact.
 # Run from the repository root. Spec 015's release and signed artifacts must run this too.
 set -u
-FEATURES="plaintext-test-store in-memory-key-store"
+# ERR-01 item 9: the fault-injection (failpoints) and fake-store (testing) features are test-only too.
+FEATURES="plaintext-test-store in-memory-key-store failpoints testing"
 MARKERS="MEEP_TEST_FEATURE_PLAINTEXT_STORE MEEP_TEST_FEATURE_IN_MEMORY_KEY_STORE"
 
 if [ ! -f Cargo.toml ]; then
@@ -21,7 +22,7 @@ for f in $FEATURES; do
 done
 
 # 2. Not in the resolved feature tree of a normal release build.
-tree=$(cargo tree --workspace --edges normal,build -e features --prefix none 2>/dev/null)
+tree=$(cargo tree --workspace --exclude meep-acceptance --edges normal,build -e features --prefix none 2>/dev/null)
 for f in $FEATURES; do
   if printf '%s\n' "$tree" | grep -q "feature \"$f\""; then
     echo "FAIL: $f is enabled in the release feature tree"; fail=1

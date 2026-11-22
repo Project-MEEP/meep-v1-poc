@@ -1,5 +1,8 @@
 //! Message catalog tests (R10, FR-035, FR-042, PLAN-26).
 
+// ERR-01: helpers outside #[test] functions may unwrap and expect in test code.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use meep_core::messages::MessageId;
 use std::collections::{BTreeMap, BTreeSet};
 use std::fs;
@@ -44,7 +47,7 @@ fn message_ids_are_lowercase_hyphenated_and_unique() {
         );
         assert!(seen.insert(id), "duplicate {id}");
     }
-    assert_eq!(MessageId::ALL.len(), 25);
+    assert_eq!(MessageId::ALL.len(), 30);
 }
 
 #[test]
@@ -111,4 +114,26 @@ fn foundation_code_does_not_repeat_catalog_wording() {
             );
         }
     }
+}
+
+/// Owner-approved wording (2026-11-22). Exact; do not reword.
+#[test]
+fn the_owner_approved_record_texts_are_exact() {
+    let c = catalog();
+    assert_eq!(
+        c["record-changed"],
+        "This item was changed in another window after you opened it, so your change wasn't saved. Copy anything you typed that you want to keep, then reload to see the latest version and try again."
+    );
+    assert_eq!(
+        c["record-not-found"],
+        "That item no longer exists. It may have been deleted."
+    );
+    assert_eq!(
+        c["record-deleted"],
+        "This item was deleted, and Meep can no longer open it. If you made a backup before it was deleted, it is still in that backup."
+    );
+    assert_eq!(
+        c["internal-error"],
+        "Something went wrong inside Meep. If this keeps happening, report this code: { $code }"
+    );
 }
