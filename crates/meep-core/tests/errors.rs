@@ -1,11 +1,39 @@
-//! Error to message mapping (FR-025, PLAN-26).
+//! Error to message mapping and the stable diagnostic code (FR-025, PLAN-26, ERR-01).
 
-use meep_core::errors::{AddressReason, Error};
+use meep_core::detail::DetailKey;
+use meep_core::errors::{AddressReason, Cause, Error};
 use meep_core::ids::RecordId;
 use meep_core::messages::MessageId;
+use std::collections::BTreeSet;
+use std::io::ErrorKind;
 
 fn id_of(e: &Error) -> Option<MessageId> {
     e.message().map(|m| m.id)
+}
+
+fn every_error() -> Vec<Error> {
+    vec![
+        Error::AddressInvalid {
+            reason: AddressReason::WrongSegmentCount,
+        },
+        Error::AddressInvalid {
+            reason: AddressReason::BadSegment,
+        },
+        Error::StoreReadOnly,
+        Error::StoreFailed { cause: Cause::None },
+        Error::Stale,
+        Error::NotFound,
+        Error::Unreadable {
+            id: RecordId::new(),
+        },
+        Error::KindExists,
+        Error::UnknownKind,
+        Error::DetailRefused {
+            key: DetailKey::Address,
+        },
+        Error::ChainBroken { first_seq: 17 },
+        Error::RecordKeyDestroyed,
+    ]
 }
 
 #[test]
@@ -23,7 +51,12 @@ fn address_failures_map_to_their_own_messages() {
 #[test]
 fn write_failures_map_to_their_messages() {
     assert_eq!(id_of(&Error::StoreReadOnly), Some(MessageId::StoreReadOnly));
-    assert_eq!(id_of(&Error::StoreFailed), Some(MessageId::SaveFailed));
+    assert_eq!(
+        id_of(&Error::StoreFailed {
+            cause: Cause::Sqlite(10)
+        }),
+        Some(MessageId::SaveFailed)
+    );
 }
 
 #[test]
@@ -34,28 +67,163 @@ fn a_broken_chain_names_the_first_broken_entry() {
 }
 
 #[test]
-fn failures_the_calling_feature_words_have_no_foundation_message() {
-    for e in [
-        Error::Stale,
-        Error::NotFound,
-        Error::Unreadable {
-            id: RecordId::new(),
-        },
-        Error::KindExists,
-        Error::UnknownKind,
-        Error::DetailRefused {
-            key: "x".to_string(),
-        },
-        Error::RecordKeyDestroyed,
-    ] {
-        assert_eq!(id_of(&e), None, "{e}");
+fn record_failures_map_to_their_own_messages() {
+    assert_eq!(id_of(&Error::Stale), Some(MessageId::RecordChanged));
+    assert_eq!(id_of(&Error::NotFound), Some(MessageId::RecordNotFound));
+    assert_eq!(
+        id_of(&Error::Unreadable {
+            id: RecordId::new()
+        }),
+        Some(MessageId::RecordUnreadable)
+    );
+    assert_eq!(
+        id_of(&Error::RecordKeyDestroyed),
+        Some(MessageId::RecordDeleted)
+    );
+}
+
+#[test]
+fn programmer_errors_share_one_generic_message_with_a_diagnostic_code() {
+    let cases = [
+        (Error::KindExists, "E-KIND-EXISTS"),
+        (Error::UnknownKind, "E-KIND-UNKNOWN"),
+        (
+            Error::DetailRefused {
+                key: DetailKey::NoticeId,
+            },
+            "E-DETAIL-REFUSED",
+        ),
+    ];
+    for (e, code) in cases {
+        let m = e.message().expect("generic message");
+        assert_eq!(m.id, MessageId::InternalError, "{e}");
+        assert_eq!(m.args, vec![("code", code.to_string())], "{e}");
+    }
+}
+
+/// ERR-01 item 2: Display is the stable diagnostic code, never prose.
+#[test]
+fn display_is_the_diagnostic_code_for_every_variant() {
+    for e in every_error() {
+        assert_eq!(e.to_string(), e.diagnostic_code());
     }
 }
 
 #[test]
-fn developer_error_text_names_the_record_but_never_a_key() {
+fn diagnostic_codes_are_uppercase_area_condition_and_unique() {
+    let mut seen = BTreeSet::new();
+    for e in every_error() {
+        let code = e.diagnostic_code();
+        assert!(code.starts_with("E-"), "{code}");
+        assert!(
+            code.chars()
+                .all(|c| c.is_ascii_uppercase() || c == '-' || c.is_ascii_digit()),
+            "{code}"
+        );
+        assert!(code.split('-').count() >= 3, "{code}");
+        // Address reasons share one code by design; everything else is unique.
+        seen.insert(code);
+    }
+    assert_eq!(seen.len(), 12);
+}
+
+#[test]
+fn display_never_carries_a_record_id_or_a_key_name() {
     let id = RecordId::new();
     let text = Error::Unreadable { id }.to_string();
-    assert!(text.contains(&id.to_string()));
-    assert!(!text.to_lowercase().contains("key"));
+    assert!(!text.contains(&id.to_string()));
+    let text = Error::DetailRefused {
+        key: DetailKey::Address,
+    }
+    .to_string();
+    assert!(!text.contains("address"));
+}
+
+/// ERR-01 item 3: the cause is content-free, Copy, and never shown in Display.
+#[test]
+fn a_storage_failure_carries_a_content_free_cause() {
+    let cause = Cause::Io(ErrorKind::PermissionDenied);
+    let copy = cause;
+    let e = Error::StoreFailed { cause };
+    assert_eq!(e.cause(), copy);
+    assert_eq!(
+        e.to_string(),
+        Error::StoreFailed { cause: Cause::None }.to_string()
+    );
+    assert_eq!(Error::Stale.cause(), Cause::None);
+    assert_eq!(
+        Error::StoreFailed {
+            cause: Cause::Sqlite(10)
+        }
+        .cause(),
+        Cause::Sqlite(10)
+    );
+}
+
+/// ERR-01 / NAMING.md section 2: the exact registered codes, hyphenated multi-word conditions.
+#[test]
+fn the_registered_codes_are_exactly_these() {
+    let table: Vec<(Error, &str)> = vec![
+        (
+            Error::AddressInvalid {
+                reason: AddressReason::WrongSegmentCount,
+            },
+            "E-ADDRESS-SEGMENT-COUNT",
+        ),
+        (
+            Error::AddressInvalid {
+                reason: AddressReason::BadSegment,
+            },
+            "E-ADDRESS-SEGMENT-CHARS",
+        ),
+        (Error::StoreReadOnly, "E-STORE-READ-ONLY"),
+        (
+            Error::StoreFailed { cause: Cause::None },
+            "E-STORE-WRITE-FAILED",
+        ),
+        (Error::Stale, "E-RECORD-STALE"),
+        (Error::NotFound, "E-RECORD-NOT-FOUND"),
+        (
+            Error::Unreadable {
+                id: RecordId::new(),
+            },
+            "E-RECORD-UNREADABLE",
+        ),
+        (Error::KindExists, "E-KIND-EXISTS"),
+        (Error::UnknownKind, "E-KIND-UNKNOWN"),
+        (
+            Error::DetailRefused {
+                key: DetailKey::Address,
+            },
+            "E-DETAIL-REFUSED",
+        ),
+        (Error::ChainBroken { first_seq: 1 }, "E-HISTORY-UNVERIFIED"),
+        (Error::RecordKeyDestroyed, "E-RECORD-DELETED"),
+    ];
+    for (e, code) in table {
+        assert_eq!(e.diagnostic_code(), code);
+    }
+}
+
+/// The registry in contracts/diagnostic-codes.md lists every code exactly once.
+#[test]
+fn the_code_registry_lists_every_code() {
+    let registry = std::fs::read_to_string(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../specs/002-foundation/contracts/diagnostic-codes.md"
+    ))
+    .expect("registry file");
+    let mut codes = BTreeSet::new();
+    for e in every_error() {
+        codes.insert(e.diagnostic_code());
+    }
+    codes.insert("E-ADDRESS-SEGMENT-COUNT");
+    codes.insert("E-ADDRESS-SEGMENT-CHARS");
+    for code in codes {
+        assert_eq!(
+            registry.matches(&format!("`{code}`")).count(),
+            1,
+            "{code} must appear once in the registry"
+        );
+    }
 }

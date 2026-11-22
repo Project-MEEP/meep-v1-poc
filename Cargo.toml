@@ -22,3 +22,13 @@ unsafe_code = "forbid"
 
 [workspace.lints.clippy]
 all = { level = "warn", priority = -1 }
+# ERR-01 item 1: no panics in product code. Tests may (clippy.toml).
+unwrap_used = "deny"
+expect_used = "deny"
+panic = "deny"
+todo = "deny"
+unimplemented = "deny"
+
+# ERR-01 item 1: a panic in a release build ends the process; the panic hook writes only a fixed code.
+[profile.release]
+panic = "abort"
