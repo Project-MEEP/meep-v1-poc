@@ -190,6 +190,14 @@ When a field fails a validation rule, the same pattern appears on every form: a 
 - **FR-032**: Each failure appears on the surface that fits it: validation failures inline per field, all at once, with their rule IDs; a transient save or backup failure as a toast plus a tray entry; a store-level failure (wrong key, damaged store, read-only store) as a blocking screen.
 - **FR-033**: Every catalog message carries a severity: info, warning, error or blocking. The severity decides the surface, the announcement to assistive technology (blocking and error are announced assertively) and the styling, and is never shown by color alone (FR-004).
 
+**Language (LANG-02, Confirmed)**
+
+- **FR-034**: Settings MUST offer a Language choice from v1.0. Only English ships until the first stable long-term release is accepted; more languages come after that (Tsalagi, English, Spanish, DOD-16) (LANG-02 item 1).
+- **FR-035**: The UI language MUST NOT change how names are entered, split, stored or displayed. Format locale (dates, numbers) is a separate future setting, and neither implies the other (LANG-02 item 2).
+- **FR-036**: If a message is missing in the chosen language, the English text MUST show, never a raw message ID. A build check MUST fail if any English ID is missing (LANG-02 item 3, R10).
+- **FR-037**: A test-only pseudo-locale (code `en-XA`; accented characters and about 40 percent longer text) MUST exist, MUST NOT be offered in release builds, and the browser accessibility suite MUST run once under it to catch hard-coded text and broken layout (LANG-02 item 4).
+- **FR-038**: The language choice is stored per owner and logged only as a fixed code (LANG-02 item 5, LOG-01).
+
 ### Key Entities
 
 - **Theme setting**: the owner's choice (Light, Dark, Match my device), kept per owner.
@@ -238,5 +246,5 @@ When a field fails a validation rule, the same pattern appears on every form: a 
 
 ## Pending from the ORC directive of 2026-11-21 (not applied)
 
-- **Language setting and pseudo-locale (directive Part D):** held. The directive's decision ID `LANG-01` collides with the existing `LANG-01` (implementation language is Rust, master spec). Needs a new ID from the owner.
+- **Language setting and pseudo-locale:** applied as FR-034 to FR-038 under LANG-02 (the owner chose the ID on 2026-11-22; the directive's `LANG-01` was already the implementation language).
 - **Toast time and typed word (directive Part F item 4, Q1 and Q2):** the directive's defaults differ from the values the owner confirmed on 2026-11-21 above (Q1: 8 seconds; Q2: "DELETE"). The directive gives: error toasts never auto-dismiss, other toasts at least 6 seconds and paused on hover or focus; the typed word is the action's own verb from the Fluent catalog, matched ignoring case with leading and trailing spaces trimmed. Q3 (tray in the encrypted store) is the same in both. Held until the owner says which applies.
