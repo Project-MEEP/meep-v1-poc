@@ -166,6 +166,11 @@ pub trait RecordStore {
 /// The tamper-evident history (FR-013, FR-014). There is no operation to change or remove an
 /// entry. Features add entries only by passing `events` to the record operations.
 pub trait ChangeLog {
+    /// Declare an address a feature owns. A record can be saved, and an address detail logged,
+    /// only at a registered address (FOUND-13). Comparison ignores ASCII case; registering the
+    /// same address twice is refused.
+    fn register_address(&self, address: Address) -> Result<(), Error>;
+
     /// Declare an event kind and the only detail keys it may carry.
     fn register_kind(&self, kind: EventKind, allowed_details: &[DetailKey]) -> Result<(), Error>;
 

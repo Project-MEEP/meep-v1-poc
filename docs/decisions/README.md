@@ -50,6 +50,7 @@ Naming rules for IDs, files and statuses: [STD-01](STD-01.md) (Proposed) and [NA
 | [ACCESS-02](ACCESS-02.md) | Access layers are separate; emergency access is never a backdoor | Confirmed | 2026-11-20 |
 | [CONST-28](CONST-28.md) | Proposed principle 28: separate access layers | Proposed | 2026-11-20 |
 | [FOUND-12](FOUND-12.md) | Key wrapping: one data key, one wrapped copy per unlock method | Confirmed | 2026-11-20 |
+| [FOUND-13](FOUND-13.md) | Registered addresses | Confirmed | 2026-11-22 |
 | [PLAN-29](PLAN-29.md) | Recovery key format: digits, groups, check digits, key ID | Confirmed | 2026-11-20 |
 | [PLAN-30](PLAN-30.md) | Dependency license allow-list: Zlib; blessing and WTFPL for sqlcipher-src only | Confirmed | 2026-11-20 |
 | [AUTH-01](AUTH-01.md) | vNext sign-in: SSO enrollment, passkey unlock, 2FA | Confirmed (vNext) | 2026-11-20 |

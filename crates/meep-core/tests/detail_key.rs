@@ -214,12 +214,3 @@ fn synthetic_surnames_are_refused_under_every_detail_key() {
         }
     }
 }
-
-/// Documents the open gap (owner item 4): today any syntactically valid address is accepted, so a
-/// surname in a segment passes. It will pass once addresses are checked against registered
-/// address spaces with closed segment vocabularies. Ignored until the owner confirms that rule.
-#[test]
-#[ignore = "pending the owner's rule on registered address spaces"]
-fn a_surname_in_an_address_segment_is_refused() {
-    assert!(!DetailKey::Address.accepts("Alpha.Meep.Personal.Okafor.Names"));
-}

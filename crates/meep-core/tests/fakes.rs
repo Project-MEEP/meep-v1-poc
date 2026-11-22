@@ -4,6 +4,7 @@
 #![cfg(feature = "testing")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
+use meep_core::address::Address;
 use meep_core::clock::{Clock, FixedClock};
 use meep_core::detail::{DetailKey, DetailValue, PartRole};
 use meep_core::errors::{AddressReason, Error};
@@ -20,7 +21,11 @@ const ADDR: &str = "Alpha.Meep.Personal.Notes.Sample";
 
 fn store() -> (FakeStore, Arc<FixedClock>) {
     let clock = Arc::new(FixedClock::new(datetime!(2026-11-22 08:00:00 UTC)));
-    (FakeStore::new(clock.clone()), clock)
+    let s = FakeStore::new(clock.clone());
+    for a in [ADDR, "Alpha.Meep.Personal.Other.Thing"] {
+        s.register_address(Address::parse(a).unwrap()).unwrap();
+    }
+    (s, clock)
 }
 
 fn kind(s: &str) -> EventKind {

@@ -9,7 +9,7 @@
 use crate::address::Address;
 use crate::clock::Clock;
 use crate::detail::{DetailKey, DetailValue};
-use crate::errors::Error;
+use crate::errors::{AddressReason, Error};
 use crate::fragment::Snapshot;
 use crate::ids::{AccountId, RecordId};
 use crate::ports::{
@@ -55,6 +55,8 @@ struct State {
     keys: BTreeMap<RecordId, [u8; 32]>,
     destroyed: BTreeSet<RecordId>,
     kinds: BTreeMap<String, BTreeSet<DetailKey>>,
+    /// Registered addresses, lowercased for the ASCII case-insensitive comparison (R16).
+    addresses: BTreeSet<String>,
     log: Vec<LogEntryView>,
     read_only: bool,
 }
@@ -80,6 +82,7 @@ impl FakeStore {
                 keys: BTreeMap::new(),
                 destroyed: BTreeSet::new(),
                 kinds,
+                addresses: BTreeSet::new(),
                 log: Vec::new(),
                 read_only: false,
             }),
@@ -159,6 +162,19 @@ impl FakeStore {
 }
 
 impl State {
+    fn check_registered(&self, address: &Address) -> Result<(), Error> {
+        if self
+            .addresses
+            .contains(&address.as_str().to_ascii_lowercase())
+        {
+            Ok(())
+        } else {
+            Err(Error::AddressInvalid {
+                reason: AddressReason::Unregistered,
+            })
+        }
+    }
+
     fn validate_events(&self, events: &[Event]) -> Result<(), Error> {
         for event in events {
             self.validate_details(&event.kind, &event.details)?;
@@ -169,6 +185,9 @@ impl State {
     fn validate_details(&self, kind: &EventKind, details: &[DetailValue]) -> Result<(), Error> {
         let allowed = self.kinds.get(kind.as_str()).ok_or(Error::UnknownKind)?;
         for value in details {
+            if let DetailValue::Address(address) = value {
+                self.check_registered(address)?;
+            }
             let key = value.key();
             if !allowed.contains(&key) {
                 return Err(Error::DetailRefused { key });
@@ -211,6 +230,7 @@ impl State {
                 events,
             } => {
                 let address = Address::parse(&address)?;
+                self.check_registered(&address)?;
                 self.validate_events(&events)?;
                 let id = RecordId::new();
                 let alias = new_alias();
@@ -357,6 +377,19 @@ impl RecordStore for FakeStore {
 }
 
 impl ChangeLog for FakeStore {
+    fn register_address(&self, address: Address) -> Result<(), Error> {
+        let mut state = self.lock();
+        if !state
+            .addresses
+            .insert(address.as_str().to_ascii_lowercase())
+        {
+            return Err(Error::AddressInvalid {
+                reason: AddressReason::AlreadyRegistered,
+            });
+        }
+        Ok(())
+    }
+
     fn register_kind(&self, kind: EventKind, allowed_details: &[DetailKey]) -> Result<(), Error> {
         let mut state = self.lock();
         if state.kinds.contains_key(kind.as_str()) {

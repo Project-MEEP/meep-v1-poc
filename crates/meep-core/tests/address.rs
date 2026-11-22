@@ -59,3 +59,10 @@ fn a_prefix_matches_whole_segments_ignoring_case() {
     assert!(!a.has_prefix("Alpha.Mee"));
     assert!(!a.has_prefix("Alpha.Meep.Personal.Identity.Names.Extra"));
 }
+
+/// FOUND-13 (registered addresses): `parse` is a syntax check only; whether an address is
+/// registered is decided at the port boundary.
+#[test]
+fn parse_accepts_syntactically_valid_unregistered_address() {
+    assert!(Address::parse("Alpha.Meep.Personal.Okafor.Names").is_ok());
+}
