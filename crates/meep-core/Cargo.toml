@@ -21,6 +21,11 @@ rand = "0.10.4"
 time = { version = "0.3", features = ["formatting", "parsing"] }
 zeroize = "1"
 
+[dev-dependencies]
+# The fakes tests need the `testing` feature; a dev-only edge, so a release build never sees it (FOUND-07).
+meep-core = { path = ".", version = "0.0.0", features = ["testing"] }
+time = { version = "0.3", features = ["macros"] }
+
 [features]
 # In-memory fakes for specs 001 and 010 (BUILD-01); never in a release build (FOUND-07).
 testing = []

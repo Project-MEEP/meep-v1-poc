@@ -1657,6 +1657,7 @@ dependencies = [
 name = "meep-core"
 version = "0.0.0"
 dependencies = [
+ "meep-core",
  "rand",
  "serde",
  "serde_json",
