@@ -67,6 +67,8 @@ Naming rules for IDs, files and statuses: [STD-01](STD-01.md) (Proposed) and [NA
 | [PLAN-28](PLAN-28.md) | Logging design: change log fields, encrypted diagnostic file, alias alphabet, typed log API | Confirmed | 2026-11-20 |
 | [LOG-01](LOG-01.md) | Logging: History log and Diagnostic log, content-free, FieldRef and record alias | Confirmed | 2026-11-20 |
 | [SEC-05](SEC-05.md) | Input validation and injection: static SQL, autoescape, localhost hardening, name input rules, hostile-input tests | Confirmed | 2026-11-20 |
+| [LANG-02](LANG-02.md) | UI language: Language setting from v1.0, English only until LTS; never affects names; English fallback; test-only pseudo-locale | Confirmed | 2026-11-21 |
+| [VAL-01](VAL-01.md) | Shared field validation: server is the authority, all failures at once, input kept | Confirmed | 2026-11-21 |
 | [STD-01](STD-01.md) | Meep naming standards (docs/standards/NAMING.md) | Proposed | 2026-11-21 |
 | [LANG-01](LANG-01.md) | Implementation language is Rust | Confirmed | not stated in the master spec |
 | [ENG-03](ENG-03.md) | Pull requests only, enforced by branch protection on main | Confirmed | 2026-11-19 |
