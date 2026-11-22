@@ -222,7 +222,7 @@ When a field fails a validation rule, the same pattern appears on every form: a 
 
 ## Out of scope
 
-- **App auto-lock warning** (the WCAG 2.2.1 "extend" option, 30-second default) and the **resume/discard draft diff**: both vNext by owner decision (2026-11-20). See `docs/reviews/Meep-Access-Review_2026-11-20_0848-CT.md` (D3 and the auto-lock and unsaved-changes follow-ons). Nothing here may assume them.
+- **App auto-lock warning** (the WCAG 2.2.1 "extend" option, 30-second default) and the **resume/discard draft diff**: both vNext by owner decision (2026-11-20). See `docs/reviews/Meep-Review-Access_2026-11-20_0848-CT.md` (D3 and the auto-lock and unsaved-changes follow-ons). Nothing here may assume them.
 - Login, sign-in screens, users and delegates (R5; AUTH-01 is vNext).
 - AI and cloud features.
 - Languages other than English; font size, menu size, text reader and haptics settings; Android (the DOD-16 items beyond v1.0).
