@@ -5,7 +5,7 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use meep_core::address::Address;
-use meep_core::detail::{DetailKey, DetailValue, NoticeId, PartRole};
+use meep_core::detail::{DetailKey, DetailValue, NoticeId, PartRole, StoredValueError};
 use meep_core::errors::Error;
 use std::collections::BTreeSet;
 use time::macros::{date, datetime};
@@ -101,7 +101,7 @@ fn a_typed_value_knows_its_key_and_stores_as_canonical_text() {
         assert_eq!(value.key(), key);
         assert_eq!(value.to_stored(), text);
         // Defensive read path: the stored text parses back to the same typed value.
-        assert_eq!(DetailValue::from_stored(key, text), Some(value));
+        assert_eq!(DetailValue::from_stored(key, text), Ok(value));
         assert!(key.accepts(text));
     }
 }
@@ -212,5 +212,86 @@ fn synthetic_surnames_are_refused_under_every_detail_key() {
                 assert!(!key.accepts(text), "{key} accepted {text:?}");
             }
         }
+    }
+}
+
+/// S4: an unknown but well-formed code is newer data; anything else is malformed. The caller
+/// (history reading) never treats the first as tampering.
+#[test]
+fn from_stored_unknown_notice_code_is_unknown() {
+    assert_eq!(
+        DetailValue::from_stored(DetailKey::NoticeId, "backup-restored"),
+        Err(StoredValueError::UnknownCode)
+    );
+    assert_eq!(
+        NoticeId::from_code("backup-restored"),
+        Err(StoredValueError::UnknownCode)
+    );
+    assert_eq!(NoticeId::from_code("save-failed"), Ok(NoticeId::SaveFailed));
+}
+
+#[test]
+fn from_stored_garbage_is_malformed() {
+    for text in [
+        "",
+        "Backup Failed",
+        "9lives",
+        "backup_made",
+        "backup-made ",
+        "-x",
+    ] {
+        assert_eq!(
+            DetailValue::from_stored(DetailKey::NoticeId, text),
+            Err(StoredValueError::Malformed),
+            "{text:?}"
+        );
+    }
+    assert_eq!(
+        DetailValue::from_stored(DetailKey::RecordCount, "x"),
+        Err(StoredValueError::Malformed)
+    );
+}
+
+#[test]
+fn detail_key_unknown_code_is_unknown() {
+    assert_eq!(
+        DetailKey::from_code("retry_count"),
+        Err(StoredValueError::UnknownCode)
+    );
+    assert_eq!(DetailKey::from_code("as_of"), Ok(DetailKey::AsOf));
+}
+
+#[test]
+fn detail_key_garbage_is_malformed() {
+    for text in ["", "As_Of", "as-of", "1st", "as_of ", "_x"] {
+        assert_eq!(
+            DetailKey::from_code(text),
+            Err(StoredValueError::Malformed),
+            "{text:?}"
+        );
+    }
+}
+
+/// S5: every tray notice's code is a message ID in the English catalog, so a notice can always be
+/// shown. Test-only file access; product code does no I/O (PLAN-13).
+#[test]
+fn every_notice_id_has_fluent_message() {
+    let dir = concat!(env!("CARGO_MANIFEST_DIR"), "/../meep-web/locales/en");
+    let mut ids = BTreeSet::new();
+    for entry in std::fs::read_dir(dir).unwrap() {
+        let path = entry.unwrap().path();
+        if path.extension().and_then(|e| e.to_str()) != Some("ftl") {
+            continue;
+        }
+        for line in std::fs::read_to_string(&path).unwrap().lines() {
+            if let Some((id, _)) = line.split_once('=') {
+                if !line.starts_with(char::is_whitespace) && !line.starts_with('#') {
+                    ids.insert(id.trim().to_string());
+                }
+            }
+        }
+    }
+    for notice in NoticeId::ALL {
+        assert!(ids.contains(notice.as_str()), "no message for {notice}");
     }
 }

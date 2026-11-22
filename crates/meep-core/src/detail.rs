@@ -16,7 +16,7 @@ use time::{Date, Month, OffsetDateTime};
 
 /// A closed set with stable codes: the variants, `ALL`, `as_str`, `from_code` and `Display`.
 macro_rules! closed_set {
-    ($(#[$meta:meta])* $name:ident { $($variant:ident => $code:literal),+ $(,)? }) => {
+    ($(#[$meta:meta])* $name:ident [$sep:literal] { $($variant:ident => $code:literal),+ $(,)? }) => {
         $(#[$meta])*
         #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
         pub enum $name {
@@ -34,11 +34,13 @@ macro_rules! closed_set {
                 }
             }
 
-            /// The member with this exact code, if any.
-            pub fn from_code(code: &str) -> Option<Self> {
+            /// The member with this exact code. A code that fits the grammar but names no member is
+            /// `UnknownCode` (newer data); anything else is `Malformed`.
+            pub fn from_code(code: &str) -> Result<Self, StoredValueError> {
                 match code {
-                    $($code => Some($name::$variant),)+
-                    _ => None,
+                    $($code => Ok($name::$variant),)+
+                    _ if code_grammar(code, $sep) => Err(StoredValueError::UnknownCode),
+                    _ => Err(StoredValueError::Malformed),
                 }
             }
         }
@@ -51,9 +53,25 @@ macro_rules! closed_set {
     };
 }
 
+/// Why stored text was not accepted as a detail.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum StoredValueError {
+    /// Text in the code grammar that names no known member: written by a newer Meep, not damage.
+    UnknownCode,
+    /// Anything else.
+    Malformed,
+}
+
+/// `^[a-z][a-z0-9<sep>]*$`: the shape of every stable code.
+fn code_grammar(text: &str, sep: char) -> bool {
+    let mut chars = text.chars();
+    matches!(chars.next(), Some('a'..='z'))
+        && chars.all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == sep)
+}
+
 closed_set! {
     /// Which kind of value a detail carries. Features add a variant with the kind they register.
-    DetailKey {
+    DetailKey ['_'] {
         FormatVersion => "format_version",
         Address => "address",
         ChangedParts => "changed_parts",
@@ -66,7 +84,7 @@ closed_set! {
 
 closed_set! {
     /// What a name part is (spec 001 data-model.md part `role`, ID-04); exactly these six.
-    PartRole {
+    PartRole ['_'] {
         Given => "given",
         GivenAdditional => "given_additional",
         Family => "family",
@@ -79,7 +97,7 @@ closed_set! {
 closed_set! {
     /// A notification-tray notice, one member per notice kind, its code the notice's Fluent
     /// message ID. The foundation lists its own; a feature adds the notices it raises.
-    NoticeId {
+    NoticeId ['-'] {
         BackupMade => "backup-made",
         BackupFailed => "backup-failed",
         SaveFailed => "save-failed",
@@ -140,20 +158,34 @@ impl DetailValue {
         }
     }
 
-    /// Read stored text back as a typed value, or `None` unless the text is exactly the
-    /// canonical text of a value of this key's type.
-    pub fn from_stored(key: DetailKey, text: &str) -> Option<DetailValue> {
+    /// Read stored text back as a typed value, or say why not: `UnknownCode` for a well-formed
+    /// code this version does not know (newer data), `Malformed` for anything else. Only the
+    /// canonical text of a value of this key's type is accepted.
+    pub fn from_stored(key: DetailKey, text: &str) -> Result<DetailValue, StoredValueError> {
+        let malformed = StoredValueError::Malformed;
         let value = match key {
-            DetailKey::FormatVersion => DetailValue::FormatVersion(text.parse().ok()?),
-            DetailKey::RecordCount => DetailValue::RecordCount(text.parse().ok()?),
-            DetailKey::Address => DetailValue::Address(Address::parse(text).ok()?),
-            DetailKey::ChangedParts => DetailValue::ChangedParts(parse_parts(text)?),
-            DetailKey::AsOf => DetailValue::AsOf(parse_rfc3339(text).ok()?),
-            DetailKey::Date => DetailValue::Date(parse_date(text)?),
+            DetailKey::FormatVersion => {
+                DetailValue::FormatVersion(text.parse().map_err(|_| malformed)?)
+            }
+            DetailKey::RecordCount => {
+                DetailValue::RecordCount(text.parse().map_err(|_| malformed)?)
+            }
+            DetailKey::Address => {
+                DetailValue::Address(Address::parse(text).map_err(|_| malformed)?)
+            }
+            DetailKey::ChangedParts => {
+                DetailValue::ChangedParts(parse_parts(text).ok_or(malformed)?)
+            }
+            DetailKey::AsOf => DetailValue::AsOf(parse_rfc3339(text).map_err(|_| malformed)?),
+            DetailKey::Date => DetailValue::Date(parse_date(text).ok_or(malformed)?),
             DetailKey::NoticeId => DetailValue::NoticeId(NoticeId::from_code(text)?),
         };
         // Only the canonical spelling is accepted: no leading zeros, no offset, no stray text.
-        (value.to_stored() == text).then_some(value)
+        if value.to_stored() == text {
+            Ok(value)
+        } else {
+            Err(malformed)
+        }
     }
 }
 
@@ -161,7 +193,7 @@ impl DetailKey {
     /// The defensive check for stored entries and imported backups: is `text` exactly the
     /// canonical text of a value of this key's type? Typed construction never needs it.
     pub fn accepts(self, text: &str) -> bool {
-        DetailValue::from_stored(self, text).is_some()
+        DetailValue::from_stored(self, text).is_ok()
     }
 }
 
@@ -176,7 +208,7 @@ fn parse_parts(text: &str) -> Option<Vec<(PartRole, u16)>> {
 fn parse_part(pair: &str) -> Option<(PartRole, u16)> {
     let (role, rest) = pair.split_once('[')?;
     let position = rest.strip_suffix(']')?;
-    Some((PartRole::from_code(role)?, position.parse().ok()?))
+    Some((PartRole::from_code(role).ok()?, position.parse().ok()?))
 }
 
 /// `YYYY-MM-DD`, a real calendar date.
