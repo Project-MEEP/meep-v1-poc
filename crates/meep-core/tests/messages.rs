@@ -115,3 +115,25 @@ fn foundation_code_does_not_repeat_catalog_wording() {
         }
     }
 }
+
+/// Owner-approved wording (2026-11-22). Exact; do not reword.
+#[test]
+fn the_owner_approved_record_texts_are_exact() {
+    let c = catalog();
+    assert_eq!(
+        c["record-changed"],
+        "This item was changed in another window after you opened it, so your change wasn't saved. Copy anything you typed that you want to keep, then reload to see the latest version and try again."
+    );
+    assert_eq!(
+        c["record-not-found"],
+        "That item no longer exists. It may have been deleted."
+    );
+    assert_eq!(
+        c["record-deleted"],
+        "This item was deleted, and Meep can no longer open it. If you made a backup before it was deleted, it is still in that backup."
+    );
+    assert_eq!(
+        c["internal-error"],
+        "Something went wrong inside Meep. If this keeps happening, report this code: { $code }"
+    );
+}
