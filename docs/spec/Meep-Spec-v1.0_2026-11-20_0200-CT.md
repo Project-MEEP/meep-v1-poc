@@ -550,7 +550,7 @@ v1.0 (names) is clear to start: all Readiness decisions were confirmed by the ow
 | P2P-01 | Peer discovery, transport, keys, revocation, sync and offline behavior |
 | PERF-01 | Performance, recovery and device-count targets |
 | PRON-02 | Can a caregiver hide a patient's shared pronouns? |
-| REG-01 | FTC Health Breach Notification Rule vs HIPAA business-associate obligations (research, not legal advice) |
+| REG-01 | FTC Health Breach Notification Rule vs HIPAA business-associate obligations (research, not legal advice). Design note (LOG-02): v1.0 makes no outbound network requests (FR-027). Every future outbound request (updates, SSO, sync, AI) must be designed against the FTC position that using a health app can itself be health information: minimal identifiers, documented, opt-in where it reveals use. |
 | ROLE-04 | Beyond revoking, what may the "Complete" delegation level do (other delegates, security, recovery, keys)? |
 | ROLE-05 | Can a delegate widen their own access? |
 | ROLE-06 | What v1 does if an owner loses capacity mid-use: nothing, freeze, or notify? |
@@ -558,7 +558,7 @@ v1.0 (names) is clear to start: all Readiness decisions were confirmed by the ow
 | ROLE-08 | Relabel the POA access role; record financial POA and healthcare proxy separately? |
 | SCOPE-SM | Boundary between DOD-04 social media and Exec Mgmt social media management |
 | SEC-01 | May the persona ever see plaintext secrets? |
-| SEC-02 | Vault and encryption formats, and provider API feasibility |
+| SEC-02 | Vault and encryption formats, and provider API feasibility. Revisit owner-backup encryption before v1.1 insurance intake (FOUND-02, SEC-02). |
 | SEC-03 | SSO and 2FA vs passkeys; recovery without a master backdoor |
 | SEC-04 | What hidden Admin may see or do, given owner-held keys |
 | UX-02 | What "American" means as a language option; quality floor for Tsalagi and Spanish |

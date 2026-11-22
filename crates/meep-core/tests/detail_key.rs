@@ -284,10 +284,9 @@ fn every_notice_id_has_fluent_message() {
             continue;
         }
         for line in std::fs::read_to_string(&path).unwrap().lines() {
-            if let Some((id, _)) = line.split_once('=') {
-                if !line.starts_with(char::is_whitespace) && !line.starts_with('#') {
-                    ids.insert(id.trim().to_string());
-                }
+            let top_level = !line.starts_with(char::is_whitespace) && !line.starts_with('#');
+            if let (true, Some((id, _))) = (top_level, line.split_once('=')) {
+                ids.insert(id.trim().to_string());
             }
         }
     }

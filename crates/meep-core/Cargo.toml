@@ -24,6 +24,7 @@ zeroize = "1"
 [dev-dependencies]
 # The fakes tests need the `testing` feature; a dev-only edge, so a release build never sees it (FOUND-07).
 meep-core = { path = ".", version = "0.0.0", features = ["testing"] }
+proptest = "1.12.0"
 time = { version = "0.3", features = ["macros"] }
 
 [features]
