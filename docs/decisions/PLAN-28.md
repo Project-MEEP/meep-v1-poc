@@ -1,7 +1,7 @@
 # PLAN-28: Logging design (foundation)
 
 - **ID:** PLAN-28
-- **Status:** Proposed
+- **Status:** Confirmed (owner, 2026-11-20, as proposed)
 - **Date:** 2026-11-20
 - **Owner:** Owner (confirmation pending); implements LOG-01 (Confirmed)
 
