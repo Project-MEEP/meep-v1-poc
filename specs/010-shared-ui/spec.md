@@ -178,12 +178,25 @@ When a field fails a validation rule, the same pattern appears on every form: a 
 - **FR-026**: Typed text MUST never be interpreted as markup or as a message placeholder when it is displayed.
 - **FR-027**: A build check MUST fail when a rule ID or a notice has no catalog message (R10).
 
+**Shared form-error pattern (VAL-01, Confirmed)**
+
+- **FR-028**: Validation on the server is the authority; any check in the browser is a hint only (VAL-01 item 1).
+- **FR-029**: Every failure of a form MUST come back at once: an error summary at the top that links to each field, plus an inline message per field linked to it with `aria-describedby` (WCAG 3.3.1, 3.3.3) (VAL-01 item 3). FR-023 and FR-024 are this pattern.
+- **FR-030**: The owner's input MUST be kept on error and never cleared (VAL-01 item 4); this includes the stale-save case, where the message `record-changed` is shown with the typed input still on screen so the owner can copy it before reloading (spec 002 contracts/owner-messages.md).
+- **FR-031**: Validation runs on save, not on a draft. Future field types (dates, phone numbers, member IDs, v1.1) register their rules in this pattern; no feature invents its own error display (VAL-01 items 5 and 6).
+
+**Error surfaces and severity (ERR-01 item 7, Confirmed)**
+
+- **FR-032**: Each failure appears on the surface that fits it: validation failures inline per field, all at once, with their rule IDs; a transient save or backup failure as a toast plus a tray entry; a store-level failure (wrong key, damaged store, read-only store) as a blocking screen.
+- **FR-033**: Every catalog message carries a severity: info, warning, error or blocking. The severity decides the surface, the announcement to assistive technology (blocking and error are announced assertively) and the styling, and is never shown by color alone (FR-004).
+
 ### Key Entities
 
 - **Theme setting**: the owner's choice (Light, Dark, Match my device), kept per owner.
 - **Notice**: an enumerated ID, a catalog message, the time it was raised, and a dismissed state. Notice IDs are enumerations, never free text (spec 002 FR-049).
 - **Confirmation request**: the action name, its level (plain or typed) and its effect text, supplied by the calling feature.
 - **Field error**: the rule ID, the field reference and the catalog message.
+- **Message severity**: info, warning, error or blocking, a property of each catalog message (FR-033).
 
 ## Success Criteria *(mandatory)*
 
@@ -222,3 +235,8 @@ When a field fails a validation rule, the same pattern appears on every form: a 
 - **Q1 (toast time)**: How long does a toast stay before it goes away? **Confirmed**: 8 seconds, never shorter than 5, and it stays while the pointer or keyboard focus is on it (FR-011). Why it matters: too short and a message is missed; WCAG 2.2.1 timing applies.
 - **Q2 (typed word)**: What word does the owner type to confirm an irreversible action, and is it case-sensitive? **Confirmed**: the English word "DELETE" shown in the dialog, compared without regard to capitalization and surrounding spaces, so a mistyped capital never blocks someone who clearly meant it. Why it matters: it is the last guard before data loss, and it must be easy for someone with limited dexterity.
 - **Q3 (tray storage)**: Do tray entries live in the foundation's store (so they are encrypted and travel with a backup) or only on this computer's browser? **Confirmed**: the foundation's store, so nothing about the owner's activity sits outside the encrypted store (FOUND-02). Why it matters: it decides whether spec 002 needs one more record kind and whether a backup includes the tray.
+
+## Pending from the ORC directive of 2026-11-21 (not applied)
+
+- **Language setting and pseudo-locale (directive Part D):** held. The directive's decision ID `LANG-01` collides with the existing `LANG-01` (implementation language is Rust, master spec). Needs a new ID from the owner.
+- **Toast time and typed word (directive Part F item 4, Q1 and Q2):** the directive's defaults differ from the values the owner confirmed on 2026-11-21 above (Q1: 8 seconds; Q2: "DELETE"). The directive gives: error toasts never auto-dismiss, other toasts at least 6 seconds and paused on hover or focus; the typed word is the action's own verb from the Fluent catalog, matched ignoring case with leading and trailing spaces trimmed. Q3 (tray in the encrypted store) is the same in both. Held until the owner says which applies.
