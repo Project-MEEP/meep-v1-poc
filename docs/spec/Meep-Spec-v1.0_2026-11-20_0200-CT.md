@@ -534,7 +534,7 @@ v1.0 (names) is clear to start: all Readiness decisions were confirmed by the ow
 | ACCESS-01 | Emergency access to DNR and POA documents vs lock-screen security |
 | ARCH-01 | Worker placement, queues and retry semantics |
 | ARCH-02 | Domain list and namespace boundaries, defined by the owner one at a time |
-| ARCH-03 | Versioning of instance, codename and global account ID |
+| ARCH-03 | Versioning of instance, codename and global account ID. If multiple instances are ever named, the instance segment must be a code-assigned value, never an owner-chosen name. A friendly instance name is display-only and never appears in an address, because addresses are written to the permanent change log. |
 | ARCH-05 | What F(x) means in the F/M/C/V tiers from the whiteboards |
 | CARE-03 | Can a caregiver mark a task done without editing source records? |
 | CARE-05 | Does turning on sharing expose older private journal entries? |
