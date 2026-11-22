@@ -37,12 +37,14 @@ impl FixedClock {
     }
 
     pub fn set(&self, t: OffsetDateTime) {
+        // ERR-01: poison is ignored here only because this holds plain test data; storage never does this.
         *self.0.lock().unwrap_or_else(PoisonError::into_inner) = t;
     }
 }
 
 impl Clock for FixedClock {
     fn now(&self) -> OffsetDateTime {
+        // ERR-01: poison is ignored here only because this holds plain test data; storage never does this.
         *self.0.lock().unwrap_or_else(PoisonError::into_inner)
     }
 }
