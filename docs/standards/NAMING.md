@@ -67,10 +67,11 @@ Global IDs are numbered across the whole project and are never prefixed with a s
 |---|---|---|
 | Acceptance test | `AT-NN` | `AT-28` |
 | Validation rule | `<DOMAIN>VAL-NN` | `NAMEVAL-03`. Future: `DATEVAL-01`, `MEMBERVAL-01` |
-| Diagnostic code | `E-<AREA>-<CONDITION>`, uppercase | `E-STORE-READONLY` |
+| Diagnostic code | `E-<AREA>-<CONDITION>`, uppercase, every multi-word condition hyphenated | `E-STORE-READ-ONLY`, `E-RECORD-NOT-FOUND` |
 
 - **IDs are never reused.** A removed requirement, rule or code keeps its number, marked `Removed`.
 - **Diagnostic codes are permanent.** They appear in owners' exported debug text, so once shipped they never change meaning.
+- **Registry:** every diagnostic code is listed in `specs/002-foundation/contracts/diagnostic-codes.md` with its variant, meaning and owner message ID, and is never reused or redefined.
 
 ---
 
