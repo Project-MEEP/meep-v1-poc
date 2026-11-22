@@ -14,10 +14,24 @@ An entry's body is a JSON object with these members, serialized in a canonical f
 | `actor` | string | `owner` or `system` |
 | `outcome` | string | `ok`, `refused` or `failed` |
 | `kind` | string | A registered event kind |
-| `details` | object | Only keys registered for that kind; values are ids, counts, enums or short fixed phrases, never content or keys |
+| `details` | object | Only keys registered for that kind. Every value is a number, a time or date, or a member of a closed registered set, never free text, content or keys (LOG-01 clarification 2026-11-22); the value type of each key is in "Detail keys" below |
 | `prev_hash` | string | Lowercase hex of the previous entry's hash; 64 zeros for the genesis entry |
 
 `hash` = SHA-256 of the canonical body bytes, stored as lowercase hex. Because `prev_hash` is inside the body, changing, removing or reordering any earlier entry changes every later hash.
+
+## Detail keys
+
+Each registered detail key has exactly one value type. Code builds details from typed values (`DetailValue` in `crates/meep-core/src/detail.rs`), so free text cannot be represented. Stored text is canonical: it is accepted back only if re-encoding the parsed value gives the same text (no leading zeros, no time zone offset). A feature that registers a kind with a new key adds the key here with its type; it never uses an open string.
+
+| Key | Value type | Stored text | Example |
+|---|---|---|---|
+| `format_version` | Whole number, 0 to 4,294,967,295 | Decimal digits | `1` |
+| `address` | A valid five-segment address (R16; ASCII letters, digits and hyphens). Whether it must also belong to a registered address space is an open owner decision | The address as written | `Alpha.Meep.Personal.Notes.Sample` |
+| `changed_parts` | One to 20 pairs of a part role and a position. Role is one of `given`, `given_additional`, `family`, `particle`, `prefix`, `suffix` (spec 001 data-model.md, ID-04); position is the part's `seq`, 0 to 65,535 | `role[position]` pairs joined by commas, no spaces | `family[2],given[1]` |
+| `as_of` | A point in time | UTC RFC 3339 ending in `Z` | `2026-11-22T08:00:00Z` |
+| `date` | A calendar date | `YYYY-MM-DD` | `2026-11-22` |
+| `record_count` | Whole number, 0 to 4,294,967,295 | Decimal digits | `42` |
+| `notice_id` | A member of a closed set, one per tray-notice kind, its code the notice's Fluent message ID. The foundation lists `backup-made`, `backup-failed`, `save-failed`; a feature adds the notices it raises | The code | `backup-failed` |
 
 ## Registered kinds in v1.0 (foundation)
 

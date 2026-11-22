@@ -5,7 +5,7 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use meep_core::clock::{Clock, FixedClock};
-use meep_core::detail::DetailKey;
+use meep_core::detail::{DetailKey, DetailValue, PartRole};
 use meep_core::errors::{AddressReason, Error};
 use meep_core::ids::RecordId;
 use meep_core::ports::{
@@ -27,10 +27,10 @@ fn kind(s: &str) -> EventKind {
     EventKind::new(s)
 }
 
-fn event(k: &str, details: &[(DetailKey, &str)]) -> Event {
+fn event(k: &str, details: &[DetailValue]) -> Event {
     Event {
         kind: kind(k),
-        details: details.iter().map(|(k, v)| (*k, v.to_string())).collect(),
+        details: details.to_vec(),
     }
 }
 
@@ -207,7 +207,10 @@ fn feature_events_land_with_the_record_change_in_the_given_order() {
         b"x".to_vec(),
         Provenance::Entered,
         vec![
-            event("name_added", &[(DetailKey::ChangedParts, "family[2]")]),
+            event(
+                "name_added",
+                &[DetailValue::ChangedParts(vec![(PartRole::Family, 2)])],
+            ),
             event("name_noted", &[]),
         ],
     )
@@ -237,40 +240,17 @@ fn an_invalid_event_fails_the_whole_call_and_changes_nothing() {
             ADDR,
             vec![],
             Provenance::Entered,
-            vec![event("name_added", &[(DetailKey::AsOf, "x")])]
+            vec![event(
+                "name_added",
+                &[DetailValue::AsOf(datetime!(2026-11-22 08:00:00 UTC))]
+            )]
         ),
         Err(Error::DetailRefused {
             key: DetailKey::AsOf
         })
     );
-    // Content-like detail value (free text with spaces).
-    assert_eq!(
-        s.save(
-            ADDR,
-            vec![],
-            Provenance::Entered,
-            vec![event(
-                "name_added",
-                &[(DetailKey::ChangedParts, "Jordan Lee Rivera Okafor")]
-            )]
-        ),
-        Err(Error::DetailRefused {
-            key: DetailKey::ChangedParts
-        })
-    );
-    // Key-like detail value (64 hex characters).
-    let key_like = "a".repeat(64);
-    assert_eq!(
-        s.save(
-            ADDR,
-            vec![],
-            Provenance::Entered,
-            vec![event("name_added", &[(DetailKey::ChangedParts, &key_like)])]
-        ),
-        Err(Error::DetailRefused {
-            key: DetailKey::ChangedParts
-        })
-    );
+    // Free text, a name or a key cannot be built as a detail at all: details are typed values
+    // (detail_key.rs holds the shape tests and the surname canary), so nothing else to refuse.
     assert!(s.list(None).is_empty());
     assert_eq!(s.log_text(), before);
 }
@@ -300,7 +280,7 @@ fn foundation_append_refuses_unknown_kinds_and_bad_details() {
         s.append(
             kind("record_created"),
             None,
-            vec![(DetailKey::AsOf, "2026-11-22".to_string())]
+            vec![DetailValue::AsOf(datetime!(2026-11-22 08:00:00 UTC))]
         ),
         Err(Error::DetailRefused {
             key: DetailKey::AsOf

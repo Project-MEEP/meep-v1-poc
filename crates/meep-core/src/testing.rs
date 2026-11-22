@@ -8,7 +8,7 @@
 
 use crate::address::Address;
 use crate::clock::Clock;
-use crate::detail::DetailKey;
+use crate::detail::{DetailKey, DetailValue};
 use crate::errors::Error;
 use crate::fragment::Snapshot;
 use crate::ids::{AccountId, RecordId};
@@ -166,15 +166,12 @@ impl State {
         Ok(())
     }
 
-    fn validate_details(
-        &self,
-        kind: &EventKind,
-        details: &[(DetailKey, String)],
-    ) -> Result<(), Error> {
+    fn validate_details(&self, kind: &EventKind, details: &[DetailValue]) -> Result<(), Error> {
         let allowed = self.kinds.get(kind.as_str()).ok_or(Error::UnknownKind)?;
-        for (key, value) in details {
-            if !allowed.contains(key) || !key.accepts(value) {
-                return Err(Error::DetailRefused { key: *key });
+        for value in details {
+            let key = value.key();
+            if !allowed.contains(&key) {
+                return Err(Error::DetailRefused { key });
             }
         }
         Ok(())
@@ -185,7 +182,7 @@ impl State {
         ts: OffsetDateTime,
         alias: Option<&str>,
         kind: &str,
-        details: Vec<(DetailKey, String)>,
+        details: Vec<DetailValue>,
     ) {
         let seq = self.log.len() as u64;
         self.log.push(LogEntryView {
@@ -230,7 +227,7 @@ impl State {
                     now,
                     Some(&alias),
                     "record_created",
-                    vec![(DetailKey::Address, envelope.address.as_str().to_string())],
+                    vec![DetailValue::Address(envelope.address.clone())],
                 );
                 self.push_events(now, &alias, events);
                 self.records.insert(
@@ -399,7 +396,7 @@ impl FoundationLog for FakeStore {
         &self,
         kind: EventKind,
         record: Option<RecordId>,
-        details: Vec<(DetailKey, String)>,
+        details: Vec<DetailValue>,
     ) -> Result<(), Error> {
         let mut state = self.lock();
         if state.read_only {

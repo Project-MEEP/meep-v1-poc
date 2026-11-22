@@ -4,7 +4,7 @@
 //! is a separate trait, `FoundationLog`, that features do not use (FOUND-08, FR-014).
 
 use crate::address::Address;
-use crate::detail::DetailKey;
+use crate::detail::{DetailKey, DetailValue};
 use crate::errors::Error;
 use crate::ids::{AccountId, RecordId};
 use std::ops::Range;
@@ -63,7 +63,7 @@ impl EventKind {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Event {
     pub kind: EventKind,
-    pub details: Vec<(DetailKey, String)>,
+    pub details: Vec<DetailValue>,
 }
 
 /// Who or what caused an entry (data-model.md change_log.actor).
@@ -92,7 +92,7 @@ pub struct LogEntryView {
     pub actor: Actor,
     pub outcome: Outcome,
     pub kind: EventKind,
-    pub details: Vec<(DetailKey, String)>,
+    pub details: Vec<DetailValue>,
 }
 
 /// One change inside an atomic batch (FOUND-09, FR-058).
@@ -184,7 +184,7 @@ pub trait FoundationLog {
         &self,
         kind: EventKind,
         record: Option<RecordId>,
-        details: Vec<(DetailKey, String)>,
+        details: Vec<DetailValue>,
     ) -> Result<(), Error>;
 }
 
