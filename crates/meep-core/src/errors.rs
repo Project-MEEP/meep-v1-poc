@@ -3,6 +3,7 @@
 //! no developer text can reach the owner (R10). There are no `From` impls: a library error is
 //! never converted with `?`; the storage layer maps it to a `Cause` (ERR-01 item 3).
 
+use crate::detail::DetailKey;
 use crate::ids::RecordId;
 use crate::messages::{MessageId, OwnerMessage};
 use std::fmt;
@@ -48,7 +49,7 @@ pub enum Error {
     UnknownKind,
     /// The event detail key is not allowed for this kind.
     DetailRefused {
-        key: String,
+        key: DetailKey,
     },
     /// The history chain breaks at entry `first_seq`.
     ChainBroken {
@@ -100,17 +101,30 @@ impl Error {
     /// Codes are permanent once shipped. It never holds record content or a key.
     pub fn diagnostic_code(&self) -> &'static str {
         match self {
-            Error::AddressInvalid { .. } => "E-ADDRESS-INVALID",
-            Error::StoreReadOnly => "E-STORE-READONLY",
-            Error::StoreFailed { .. } => "E-STORE-FAILED",
+            Error::AddressInvalid {
+                reason: AddressReason::WrongSegmentCount,
+            } => "E-ADDRESS-SEGMENT-COUNT",
+            Error::AddressInvalid {
+                reason: AddressReason::BadSegment,
+            } => "E-ADDRESS-SEGMENT-CHARS",
+            Error::StoreReadOnly => "E-STORE-READ-ONLY",
+            Error::StoreFailed { .. } => "E-STORE-WRITE-FAILED",
             Error::Stale => "E-RECORD-STALE",
-            Error::NotFound => "E-RECORD-NOTFOUND",
+            Error::NotFound => "E-RECORD-NOT-FOUND",
             Error::Unreadable { .. } => "E-RECORD-UNREADABLE",
             Error::KindExists => "E-KIND-EXISTS",
             Error::UnknownKind => "E-KIND-UNKNOWN",
             Error::DetailRefused { .. } => "E-DETAIL-REFUSED",
-            Error::ChainBroken { .. } => "E-HISTORY-BROKEN",
-            Error::RecordKeyDestroyed => "E-RECORD-DESTROYED",
+            Error::ChainBroken { .. } => "E-HISTORY-UNVERIFIED",
+            Error::RecordKeyDestroyed => "E-RECORD-DELETED",
+        }
+    }
+
+    /// The refused detail key, for the diagnostic log only (ERR-01 item 4).
+    pub fn detail_key(&self) -> Option<DetailKey> {
+        match self {
+            Error::DetailRefused { key } => Some(*key),
+            _ => None,
         }
     }
 

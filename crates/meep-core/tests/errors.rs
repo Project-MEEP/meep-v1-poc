@@ -1,5 +1,6 @@
 //! Error to message mapping and the stable diagnostic code (FR-025, PLAN-26, ERR-01).
 
+use meep_core::detail::DetailKey;
 use meep_core::errors::{AddressReason, Cause, Error};
 use meep_core::ids::RecordId;
 use meep_core::messages::MessageId;
@@ -28,7 +29,7 @@ fn every_error() -> Vec<Error> {
         Error::KindExists,
         Error::UnknownKind,
         Error::DetailRefused {
-            key: "secret-key-name".to_string(),
+            key: DetailKey::Address,
         },
         Error::ChainBroken { first_seq: 17 },
         Error::RecordKeyDestroyed,
@@ -88,7 +89,7 @@ fn programmer_errors_share_one_generic_message_with_a_diagnostic_code() {
         (Error::UnknownKind, "E-KIND-UNKNOWN"),
         (
             Error::DetailRefused {
-                key: "x".to_string(),
+                key: DetailKey::NoticeId,
             },
             "E-DETAIL-REFUSED",
         ),
@@ -123,7 +124,7 @@ fn diagnostic_codes_are_uppercase_area_condition_and_unique() {
         // Address reasons share one code by design; everything else is unique.
         seen.insert(code);
     }
-    assert_eq!(seen.len(), 11);
+    assert_eq!(seen.len(), 12);
 }
 
 #[test]
@@ -132,10 +133,10 @@ fn display_never_carries_a_record_id_or_a_key_name() {
     let text = Error::Unreadable { id }.to_string();
     assert!(!text.contains(&id.to_string()));
     let text = Error::DetailRefused {
-        key: "secret-key-name".to_string(),
+        key: DetailKey::Address,
     }
     .to_string();
-    assert!(!text.contains("secret-key-name"));
+    assert!(!text.contains("address"));
 }
 
 /// ERR-01 item 3: the cause is content-free, Copy, and never shown in Display.
@@ -157,4 +158,72 @@ fn a_storage_failure_carries_a_content_free_cause() {
         .cause(),
         Cause::Sqlite(10)
     );
+}
+
+/// ERR-01 / NAMING.md section 2: the exact registered codes, hyphenated multi-word conditions.
+#[test]
+fn the_registered_codes_are_exactly_these() {
+    let table: Vec<(Error, &str)> = vec![
+        (
+            Error::AddressInvalid {
+                reason: AddressReason::WrongSegmentCount,
+            },
+            "E-ADDRESS-SEGMENT-COUNT",
+        ),
+        (
+            Error::AddressInvalid {
+                reason: AddressReason::BadSegment,
+            },
+            "E-ADDRESS-SEGMENT-CHARS",
+        ),
+        (Error::StoreReadOnly, "E-STORE-READ-ONLY"),
+        (
+            Error::StoreFailed { cause: Cause::None },
+            "E-STORE-WRITE-FAILED",
+        ),
+        (Error::Stale, "E-RECORD-STALE"),
+        (Error::NotFound, "E-RECORD-NOT-FOUND"),
+        (
+            Error::Unreadable {
+                id: RecordId::new(),
+            },
+            "E-RECORD-UNREADABLE",
+        ),
+        (Error::KindExists, "E-KIND-EXISTS"),
+        (Error::UnknownKind, "E-KIND-UNKNOWN"),
+        (
+            Error::DetailRefused {
+                key: DetailKey::Address,
+            },
+            "E-DETAIL-REFUSED",
+        ),
+        (Error::ChainBroken { first_seq: 1 }, "E-HISTORY-UNVERIFIED"),
+        (Error::RecordKeyDestroyed, "E-RECORD-DELETED"),
+    ];
+    for (e, code) in table {
+        assert_eq!(e.diagnostic_code(), code);
+    }
+}
+
+/// The registry in contracts/diagnostic-codes.md lists every code exactly once.
+#[test]
+fn the_code_registry_lists_every_code() {
+    let registry = std::fs::read_to_string(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../specs/002-foundation/contracts/diagnostic-codes.md"
+    ))
+    .expect("registry file");
+    let mut codes = BTreeSet::new();
+    for e in every_error() {
+        codes.insert(e.diagnostic_code());
+    }
+    codes.insert("E-ADDRESS-SEGMENT-COUNT");
+    codes.insert("E-ADDRESS-SEGMENT-CHARS");
+    for code in codes {
+        assert_eq!(
+            registry.matches(&format!("`{code}`")).count(),
+            1,
+            "{code} must appear once in the registry"
+        );
+    }
 }

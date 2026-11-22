@@ -35,7 +35,7 @@ Every message the foundation shows or returns, with its Fluent message ID (R10, 
 | `record-deleted` | The record's key was destroyed (FR-010, ports.md `RecordKeyDestroyed`) | "This item was deleted, and its contents can no longer be recovered." |
 | `internal-error` | A programmer error reached the owner: `KindExists`, `UnknownKind` or `DetailRefused` (FR-025) | "Something went wrong inside Meep, and nothing was changed. If this keeps happening, report this code: {code}" |
 
-The last five were added on the owner's instruction (2026-11-21): the four record messages, and one generic message with a diagnostic code (`kind-exists`, `unknown-kind`, `detail-refused`) in place of wording for each programmer error. The wording is a draft for owner review; only the two fixed texts below are owner-specified.
+The last five were added on the owner's instruction (2026-11-21): the four record messages, and one generic message with a diagnostic code (`E-KIND-EXISTS`, `E-KIND-UNKNOWN`, `E-DETAIL-REFUSED`; registry in diagnostic-codes.md) in place of wording for each programmer error. The wording is a draft for owner review; only the two fixed texts below are owner-specified.
 
 ## Rules
 
