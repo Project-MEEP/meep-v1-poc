@@ -1,7 +1,7 @@
 # Verification of the "Verify" claims in the Access Review
 
 - **Date:** 2026-11-20
-- **Source:** section 5 of [Meep-Access-Review_2026-11-20_0848-CT.md](Meep-Access-Review_2026-11-20_0848-CT.md)
+- **Source:** section 5 of [Meep-Review-Access_2026-11-20_0848-CT.md](Meep-Review-Access_2026-11-20_0848-CT.md)
 - **Status:** Research record, not a decision. Nothing here is binding. It records what was checked, against what, and how strong the evidence is. Three AI research agents did the reading; their sources are listed so the owner can re-check them. Pages read through a summarizing fetch are marked as such.
 - **Effect on v1.0:** none of these results changes a Confirmed v1.0 decision. The Windows result matters to T139 (spec 002); the rest concern vNext sign-in (AUTH-01) and the recovery-key format (PLAN-29).
 

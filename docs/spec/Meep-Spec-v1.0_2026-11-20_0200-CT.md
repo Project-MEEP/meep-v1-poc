@@ -205,7 +205,7 @@ v1 keeps all 17 whiteboard Definition of Done lines, adds identity and names, an
 | DOD-13 | Pharmacy | Confirmed | No dispensing or prescribing |
 | DOD-14 | Home health | Confirmed | External source of record stays authoritative |
 | DOD-15 | Patient journal: photo, video, text, date-time, ID | Confirmed | Retention and deletion (DATA-01) |
-| DOD-16 | UX: Tsalagi, English, Spanish, "American"; themes; fonts; menu sizes; text reader; haptics; **web + Android** | Confirmed, platforms revised | UX-02; Spanish gender-neutral copy |
+| DOD-16 | UX: Tsalagi, English, Spanish, "American"; themes; fonts; menu sizes; text reader; haptics; **web + Android**; **timing (LANG-02): the Language setting exists from v1.0 and only English ships until the first stable LTS is accepted, then more languages follow** | Confirmed, platforms revised | UX-02; Spanish gender-neutral copy |
 | DOD-17 | User ownership, bounded caregiver access, secure records, one working persona | Confirmed | Acceptance gates |
 | ID | Identity and names (next section); v1.0 | Confirmed | ID-06 |
 | DELEG | Delegation levels Read, Read + Update, Complete; owner can always revoke | Confirmed | ROLE-04 |

@@ -57,6 +57,7 @@ mod active {
     pub fn set(name: &str, action: Action) {
         registry()
             .lock()
+            // ERR-01: poison is ignored here only because this holds plain test data; storage never does this.
             .unwrap_or_else(PoisonError::into_inner)
             .insert(name.to_string(), action);
     }
@@ -64,6 +65,7 @@ mod active {
     pub fn remove(name: &str) {
         registry()
             .lock()
+            // ERR-01: poison is ignored here only because this holds plain test data; storage never does this.
             .unwrap_or_else(PoisonError::into_inner)
             .remove(name);
     }
@@ -81,6 +83,7 @@ mod active {
     pub fn hit(name: &str) -> io::Result<()> {
         let action = registry()
             .lock()
+            // ERR-01: poison is ignored here only because this holds plain test data; storage never does this.
             .unwrap_or_else(PoisonError::into_inner)
             .get(name)
             .copied();

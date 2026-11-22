@@ -3,7 +3,7 @@
 One short record per owner decision. Only the owner marks a decision Confirmed.
 Every future confirmation lands as a reviewable pull request (ENG-03).
 
-R5 (no sign-in in v1.0) was confirmed earlier and is recorded in the spec.
+Naming rules for IDs, files and statuses: [STD-01](STD-01.md) (Proposed) and [NAMING.md](../standards/NAMING.md).
 
 | ID | Decision | Status | Date |
 | --- | --- | --- | --- |
@@ -67,6 +67,13 @@ R5 (no sign-in in v1.0) was confirmed earlier and is recorded in the spec.
 | [PLAN-28](PLAN-28.md) | Logging design: change log fields, encrypted diagnostic file, alias alphabet, typed log API | Confirmed | 2026-11-20 |
 | [LOG-01](LOG-01.md) | Logging: History log and Diagnostic log, content-free, FieldRef and record alias | Confirmed | 2026-11-20 |
 | [SEC-05](SEC-05.md) | Input validation and injection: static SQL, autoescape, localhost hardening, name input rules, hostile-input tests | Confirmed | 2026-11-20 |
+| [LANG-02](LANG-02.md) | UI language: Language setting from v1.0, English only until LTS; never affects names; English fallback; test-only pseudo-locale | Confirmed | 2026-11-21 |
+| [VAL-01](VAL-01.md) | Shared field validation: server is the authority, all failures at once, input kept | Confirmed | 2026-11-21 |
+| [STD-01](STD-01.md) | Meep naming standards (docs/standards/NAMING.md) | Proposed | 2026-11-21 |
+| [LANG-01](LANG-01.md) | Implementation language is Rust | Confirmed | not stated in the master spec |
+| [ENG-03](ENG-03.md) | Pull requests only, enforced by branch protection on main | Confirmed | 2026-11-19 |
+| [ARCH-02](ARCH-02.md) | Domain list and namespace boundaries (open question in the master spec) | Proposed | 2026-11-21 |
+| [ERR-01](ERR-01.md) | Error and panic handling: no panics, Display is a diagnostic code, content-free cause | Confirmed | 2026-11-21 |
 | [BUILD-01](BUILD-01.md) | v1.0 build order: spec 002, then 010, then names screens; no throwaway placeholders | Confirmed | 2026-11-19 |
 | [NAMES-05](NAMES-05.md) | Checklist resolutions (CHK001 to CHK039) | Confirmed | 2026-11-19 |
 | [NAMES-07](NAMES-07.md) | Keystone changes: plain or typed confirmation, a toast and a tray entry | Confirmed | 2026-11-20 |
@@ -76,6 +83,7 @@ R5 (no sign-in in v1.0) was confirmed earlier and is recorded in the spec.
 | [FOUND-01](FOUND-01.md) | Spec 002 ownership of key, storage, log-format and export-envelope primitives | Confirmed | 2026-11-19 |
 | [CONST-27](CONST-27.md) | Principle 27 (no lock-in) confirmed | Confirmed | 2026-11-19 |
 | [PRON-01a](PRON-01a.md) | Pronoun visibility in v1.0 (Only me / Included in exports; JSON backup always includes) | Confirmed | 2026-11-19 |
+| [R5](R5.md) | Sign-in in v1.0 | Confirmed | 2026-11-19 |
 | [R6](R6.md) | First domain address for names (ARCH-02) | Confirmed | 2026-11-19 |
 | [R7](R7.md) | Database key custody with no login | Confirmed | 2026-11-19 |
 | [R8](R8.md) | Deleting a name while the change log is append-only | Confirmed | 2026-11-19 |
@@ -94,3 +102,32 @@ R5 (no sign-in in v1.0) was confirmed earlier and is recorded in the spec.
 - **v2 entry condition (HCP-X):** a "Don't share this name outside Meep" control before any automatic outbound sharing (NAMES-01).
 - **Delegation entry condition:** edits made by someone other than the owner keep the prior wording visible to the owner (NAMES-02).
 - **R7, before v1.1:** recovery drill from the printed key; decide on a hardware key as a second unlock.
+
+## Prefix registry (STD-01, from NAMING.md section 1)
+
+New prefixes need owner approval and are added here in the same PR. `R` (R1 to R17) is a closed series.
+
+| Prefix | Covers |
+|---|---|
+| ACCESS | Access layers: custody, local access, identity, authorization |
+| AUTH | Sign-in and identity (vNext) |
+| BUILD | Build order and release sequencing |
+| COMMIT | Commit identity (existing file `COMMIT-ID.md` keeps its name) |
+| CONST | Constitution principles |
+| DRAFT | Unsaved-change drafts (vNext) |
+| ENG | Engineering process rules |
+| ERR | Error and panic handling |
+| FOUND | Foundation (spec 002) |
+| LANG | Language: implementation language (LANG-01) and UI language and localization (LANG-02+) |
+| LOCK | App auto-lock (vNext) |
+| LOG | Logging |
+| NAMES | Names feature (spec 001) |
+| PLAN | Implementation-plan choices |
+| PRON | Pronouns |
+| R | v1.0 readiness, closed series |
+| SEC | Security controls |
+| STD | Standards, including this one |
+| UI | Shared interface behavior (spec 010) |
+| USER | User model (vNext) |
+| VAL | Field validation pattern |
+| VZ | Vulnerability gate and AI review |
