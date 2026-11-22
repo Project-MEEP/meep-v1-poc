@@ -8,7 +8,7 @@
 
 **Input**: User description: "Spec 010: shared UI elements for v1.0 (BUILD-01: after spec 002, before the names screens in spec 001), from the master spec rows for 010 plus the theme toggle, toasts, the notification tray, NAMES-07 confirmation dialogs and the shared form-error pattern."
 
-**Binding rule**: only items marked Confirmed are binding here (CLAUDE.md rule 2). Q1 to Q3 below were confirmed by the owner on 2026-11-21 as proposed.
+**Binding rule**: only items marked Confirmed are binding here (CLAUDE.md rule 2). Q1 and Q2 under "Decisions confirmed by the owner" were decided by the owner on 2026-11-22 and Q3 was confirmed on 2026-11-21.
 
 **Build order (BUILD-01, Confirmed)**: spec 002 (foundation) first, then this spec, then the spec 001 screens on the real elements from this spec. No throwaway placeholders. This spec describes what the owner sees and can do; it names no technology (technology choices belong to the plan).
 
@@ -73,7 +73,8 @@ When something notable happens, a toast appears briefly. The same notice is kept
 **Acceptance Scenarios**:
 
 1. **Given** a notice is raised, **When** it appears, **Then** a toast shows and is announced to screen-reader users without taking focus.
-2. **Given** a toast is showing, **When** the owner does nothing, **Then** it goes away by itself and the tray entry remains (UI-02, UI-03).
+2. **Given** an info or success toast is showing, **When** the owner does nothing, **Then** it goes away by itself after 8 seconds (never under 5) and the tray entry remains (UI-02, UI-03).
+2a. **Given** an error toast is showing, **When** the owner does nothing, **Then** it stays until the owner closes it, and the tray entry remains.
 3. **Given** a toast with a button or link, **When** the owner moves the pointer or keyboard focus onto it, **Then** it stays until they leave it, so no one is timed out mid-action.
 4. **Given** the tray, **When** it is opened, **Then** each entry shows its message and its date and time.
 5. **Given** a tray entry, **When** the owner dismisses it, **Then** it disappears from the tray and one `notice_dismissed` entry (carrying only the notice's enumerated ID) is appended through the foundation (UI-03, LOG-01 item 7, spec 002 T136).
@@ -127,7 +128,7 @@ When a field fails a validation rule, the same pattern appears on every form: a 
 - The theme setting cannot be saved: the theme still applies for the session and the owner is told once.
 - Text is enlarged by the browser to 200 percent: no element loses content or function (WCAG 2.2 AA).
 - A notice's message is not in the catalog: the build fails; a toast never shows a raw ID.
-- The owner types the confirming word with different capitalization or extra spaces: see Q2 (the match ignores capitalization and surrounding spaces).
+- The owner types the confirming word with different capitalization or extra spaces: it still matches (Q2). If the action has no verb in the chosen language's catalog, the English verb shows (FR-036).
 
 ## Requirements *(mandatory)*
 
@@ -150,8 +151,8 @@ When a field fails a validation rule, the same pattern appears on every form: a 
 
 **Toasts (UI-02)**
 
-- **FR-010**: A toast MUST be a transient notice: it appears, is announced to assistive technology without taking focus, and goes away by itself (UI-02).
-- **FR-011**: A toast that holds an action MUST NOT go away while the pointer or keyboard focus is on it.
+- **FR-010**: A toast MUST be a notice that is announced to assistive technology without taking focus. An info or success toast goes away by itself after 8 seconds, never under 5, and stays while the pointer or keyboard focus is on it. An error toast never goes away by itself: the owner closes it (UI-02, Q1).
+- **FR-011**: A toast that holds an action MUST NOT go away while the pointer or keyboard focus is on it, whatever its kind.
 - **FR-012**: Every toast MUST also create a tray entry, so a missed toast is never lost (NAMES-07, UI-03).
 
 **Notification tray (UI-03)**
@@ -238,13 +239,9 @@ When a field fails a validation rule, the same pattern appears on every form: a 
 - Examples in tests and documents use synthetic data only (CLAUDE.md rule 4).
 - Dependencies: spec 002 (BUILD-01); spec 001 FR-001d for rule IDs and FR-035 for the keystone list.
 
-## Decisions confirmed by the owner (2026-11-21)
+## Decisions confirmed by the owner (2026-11-21 and 2026-11-22)
 
-- **Q1 (toast time)**: How long does a toast stay before it goes away? **Confirmed**: 8 seconds, never shorter than 5, and it stays while the pointer or keyboard focus is on it (FR-011). Why it matters: too short and a message is missed; WCAG 2.2.1 timing applies.
-- **Q2 (typed word)**: What word does the owner type to confirm an irreversible action, and is it case-sensitive? **Confirmed**: the English word "DELETE" shown in the dialog, compared without regard to capitalization and surrounding spaces, so a mistyped capital never blocks someone who clearly meant it. Why it matters: it is the last guard before data loss, and it must be easy for someone with limited dexterity.
+- **Q1 (toast timing, hybrid)**: **Confirmed (owner, 2026-11-22; supersedes the 2026-11-21 default and the directive's)**: info and success toasts stay 8 seconds, never under 5, paused while hovered or focused; error toasts never auto-dismiss and the owner closes them; every toast is also recorded in the notification tray (UI-03).
+- **Q2 (typed word)**: **Confirmed (owner, 2026-11-22; replaces "DELETE")**: the owner types the action's own verb (for example "delete", "replace", "restore"), taken from the Fluent catalog in the UI language; matching ignores capitalization and surrounding spaces.
 - **Q3 (tray storage)**: Do tray entries live in the foundation's store (so they are encrypted and travel with a backup) or only on this computer's browser? **Confirmed**: the foundation's store, so nothing about the owner's activity sits outside the encrypted store (FOUND-02). Why it matters: it decides whether spec 002 needs one more record kind and whether a backup includes the tray.
 
-## Pending from the ORC directive of 2026-11-21 (not applied)
-
-- **Language setting and pseudo-locale:** applied as FR-034 to FR-038 under LANG-02 (the owner chose the ID on 2026-11-22; the directive's `LANG-01` was already the implementation language).
-- **Toast time and typed word (directive Part F item 4, Q1 and Q2):** the directive's defaults differ from the values the owner confirmed on 2026-11-21 above (Q1: 8 seconds; Q2: "DELETE"). The directive gives: error toasts never auto-dismiss, other toasts at least 6 seconds and paused on hover or focus; the typed word is the action's own verb from the Fluent catalog, matched ignoring case with leading and trailing spaces trimmed. Q3 (tray in the encrypted store) is the same in both. Held until the owner says which applies.
