@@ -121,9 +121,11 @@ impl FakeStore {
 
     /// A point-in-time view for backup fragments (FR-041).
     pub fn snapshot(&self) -> FakeSnapshot {
+        // Sample the clock while holding the lock so the cutoff and the state are one instant (FOUND-06).
+        let guard = self.lock();
         FakeSnapshot {
             as_of: self.clock.now(),
-            state: self.lock().clone(),
+            state: guard.clone(),
         }
     }
 
@@ -190,6 +192,10 @@ impl State {
             }
             let key = value.key();
             if !allowed.contains(&key) {
+                return Err(Error::DetailRefused { key });
+            }
+            // A value that would not survive its own stored round trip is refused (e.g. empty or over-long ChangedParts).
+            if !key.accepts(&value.to_stored()) {
                 return Err(Error::DetailRefused { key });
             }
         }

@@ -402,3 +402,31 @@ fn a_batch_of_one_behaves_like_the_single_call() {
     assert_eq!(done.len(), 1);
     assert_eq!(s.read(done[0].id).unwrap().content, b"x");
 }
+
+/// Codex P2: a value that cannot survive its own stored round trip is refused at the port.
+#[test]
+fn changed_parts_outside_one_to_twenty_pairs_are_refused() {
+    let (s, _) = store();
+    s.register_kind(kind("name_added"), &[DetailKey::ChangedParts])
+        .unwrap();
+    for parts in [vec![], vec![(PartRole::Family, 1); 21]] {
+        assert_eq!(
+            s.append(
+                kind("name_added"),
+                None,
+                vec![DetailValue::ChangedParts(parts)]
+            ),
+            Err(Error::DetailRefused {
+                key: DetailKey::ChangedParts
+            })
+        );
+    }
+    assert!(
+        s.append(
+            kind("name_added"),
+            None,
+            vec![DetailValue::ChangedParts(vec![(PartRole::Family, 1); 20])]
+        )
+        .is_ok()
+    );
+}
