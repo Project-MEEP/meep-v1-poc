@@ -1,5 +1,8 @@
 //! Message catalog tests (R10, FR-035, FR-042, PLAN-26).
 
+// ERR-01: helpers outside #[test] functions may unwrap and expect in test code.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use meep_core::messages::MessageId;
 use std::collections::{BTreeMap, BTreeSet};
 use std::fs;
