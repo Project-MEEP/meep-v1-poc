@@ -8,7 +8,7 @@
 
 **Input**: User description: "Spec 010: shared UI elements for v1.0 (BUILD-01: after spec 002, before the names screens in spec 001), from the master spec rows for 010 plus the theme toggle, toasts, the notification tray, NAMES-07 confirmation dialogs and the shared form-error pattern."
 
-**Binding rule**: only items marked Confirmed are binding here (CLAUDE.md rule 2). Anything else appears under "Open questions" with a proposed default, which is not binding until the owner confirms it.
+**Binding rule**: only items marked Confirmed are binding here (CLAUDE.md rule 2). Q1 to Q3 below were confirmed by the owner on 2026-11-21 as proposed.
 
 **Build order (BUILD-01, Confirmed)**: spec 002 (foundation) first, then this spec, then the spec 001 screens on the real elements from this spec. No throwaway placeholders. This spec describes what the owner sees and can do; it names no technology (technology choices belong to the plan).
 
@@ -127,7 +127,7 @@ When a field fails a validation rule, the same pattern appears on every form: a 
 - The theme setting cannot be saved: the theme still applies for the session and the owner is told once.
 - Text is enlarged by the browser to 200 percent: no element loses content or function (WCAG 2.2 AA).
 - A notice's message is not in the catalog: the build fails; a toast never shows a raw ID.
-- The owner types the confirming word with different capitalization or extra spaces: see Open question Q2.
+- The owner types the confirming word with different capitalization or extra spaces: see Q2 (the match ignores capitalization and surrounding spaces).
 
 ## Requirements *(mandatory)*
 
@@ -159,7 +159,7 @@ When a field fails a validation rule, the same pattern appears on every form: a 
 - **FR-013**: The tray MUST keep timestamped entries, newest first, until the owner dismisses them (UI-03).
 - **FR-014**: Dismissing an entry MUST record one `notice_dismissed` entry in the History log through the foundation, carrying only the notice's enumerated ID, never its text (UI-03, LOG-01 item 7, spec 002 T136).
 - **FR-015**: If the dismissal cannot be recorded, the owner MUST be told and the entry MUST NOT be silently lost (spec 002 FR-015 all-or-nothing writes).
-- **FR-016**: Tray entries survive closing and reopening Meep until dismissed. Whether they are stored in the foundation or elsewhere is a planning matter; see Open question Q3.
+- **FR-016**: Tray entries survive closing and reopening Meep until dismissed. Whether they are stored in the foundation or elsewhere is a planning matter; Q3 (Confirmed) puts them in the foundation store.
 
 **Confirmations (NAMES-07)**
 
@@ -217,8 +217,8 @@ When a field fails a validation rule, the same pattern appears on every form: a 
 - Examples in tests and documents use synthetic data only (CLAUDE.md rule 4).
 - Dependencies: spec 002 (BUILD-01); spec 001 FR-001d for rule IDs and FR-035 for the keystone list.
 
-## Open questions (Proposed defaults; not binding until the owner confirms)
+## Decisions confirmed by the owner (2026-11-21)
 
-- **Q1 (toast time)**: How long does a toast stay before it goes away? **Proposed**: 8 seconds, never shorter than 5, and it stays while the pointer or keyboard focus is on it (FR-011). Why it matters: too short and a message is missed; WCAG 2.2.1 timing applies.
-- **Q2 (typed word)**: What word does the owner type to confirm an irreversible action, and is it case-sensitive? **Proposed**: the English word "DELETE" shown in the dialog, compared without regard to capitalization and surrounding spaces, so a mistyped capital never blocks someone who clearly meant it. Why it matters: it is the last guard before data loss, and it must be easy for someone with limited dexterity.
-- **Q3 (tray storage)**: Do tray entries live in the foundation's store (so they are encrypted and travel with a backup) or only on this computer's browser? **Proposed**: the foundation's store, so nothing about the owner's activity sits outside the encrypted store (FOUND-02). Why it matters: it decides whether spec 002 needs one more record kind and whether a backup includes the tray.
+- **Q1 (toast time)**: How long does a toast stay before it goes away? **Confirmed**: 8 seconds, never shorter than 5, and it stays while the pointer or keyboard focus is on it (FR-011). Why it matters: too short and a message is missed; WCAG 2.2.1 timing applies.
+- **Q2 (typed word)**: What word does the owner type to confirm an irreversible action, and is it case-sensitive? **Confirmed**: the English word "DELETE" shown in the dialog, compared without regard to capitalization and surrounding spaces, so a mistyped capital never blocks someone who clearly meant it. Why it matters: it is the last guard before data loss, and it must be easy for someone with limited dexterity.
+- **Q3 (tray storage)**: Do tray entries live in the foundation's store (so they are encrypted and travel with a backup) or only on this computer's browser? **Confirmed**: the foundation's store, so nothing about the owner's activity sits outside the encrypted store (FOUND-02). Why it matters: it decides whether spec 002 needs one more record kind and whether a backup includes the tray.
