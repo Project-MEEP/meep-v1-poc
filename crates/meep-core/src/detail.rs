@@ -221,7 +221,11 @@ fn parse_part(pair: &str) -> Result<(PartRole, u16), StoredValueError> {
     let malformed = StoredValueError::Malformed;
     let (role, rest) = pair.split_once('[').ok_or(malformed)?;
     let position = rest.strip_suffix(']').ok_or(malformed)?;
-    let position = position.parse().map_err(|_| malformed)?;
+    let position: u16 = position.parse().map_err(|_| malformed)?;
+    // Canonical spelling only (no leading zeros or plus sign), so malformed wins over an unknown role.
+    if position.to_string() != rest.strip_suffix(']').unwrap_or_default() {
+        return Err(malformed);
+    }
     Ok((PartRole::from_code(role)?, position))
 }
 
