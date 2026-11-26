@@ -29,3 +29,5 @@ Item 3 gained the boot log (owner). It replaces the earlier in-memory-only handl
 ## Notes
 
 The owner first sent this as "LOG-01" plus "LOG-02, extends LOG-01" and then folded both into this one record; there is no LOG-02.
+
+**Clarification (owner, 2026-11-22):** every detail value in a log entry is a number, a time or date, or a member of a closed registered set. There are no open vocabularies. Details are built from typed values in code, so free text, a name or a key cannot be represented as a detail; text is checked only when a stored entry is read back or a backup is imported (spec 002 contracts/change-log-entry.md, `crates/meep-core/src/detail.rs`).

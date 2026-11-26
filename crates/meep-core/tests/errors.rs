@@ -19,6 +19,12 @@ fn every_error() -> Vec<Error> {
         Error::AddressInvalid {
             reason: AddressReason::BadSegment,
         },
+        Error::AddressInvalid {
+            reason: AddressReason::Unregistered,
+        },
+        Error::AddressInvalid {
+            reason: AddressReason::AlreadyRegistered,
+        },
         Error::StoreReadOnly,
         Error::StoreFailed { cause: Cause::None },
         Error::Stale,
@@ -124,7 +130,7 @@ fn diagnostic_codes_are_uppercase_area_condition_and_unique() {
         // Address reasons share one code by design; everything else is unique.
         seen.insert(code);
     }
-    assert_eq!(seen.len(), 12);
+    assert_eq!(seen.len(), 14);
 }
 
 #[test]

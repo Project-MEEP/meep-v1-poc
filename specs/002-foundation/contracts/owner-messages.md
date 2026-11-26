@@ -43,3 +43,5 @@ The last five were added on the owner's instruction (2026-11-21): the four recor
 - Messages never contain a key, a recovery key (except the one-time display messages, which show it in a separate element), record content, or an implication of an intruder (FR-033).
 - `history-does-not-verify` and `store-damaged-readonly` are different messages: one is about history, the other about unreadable data (FR-033).
 - A lint test fails the build if any foundation code path produces owner-visible text that is not one of these IDs (R10).
+
+Any new tray notice adds a NoticeId variant in the same PR; a notice without a variant cannot be dismissed (notice_dismissed logs the NoticeId).
