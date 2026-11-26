@@ -295,7 +295,7 @@ impl State {
                 // Only the date is kept for a deletion (R8, FR-048).
                 let date_only = now.replace_time(Time::MIDNIGHT);
                 self.push(date_only, Some(&alias), "record_deleted", Vec::new());
-                self.push_events(now, &alias, events);
+                self.push_events(date_only, &alias, events);
                 self.records.remove(&id);
                 self.keys.remove(&id);
                 self.destroyed.insert(id);

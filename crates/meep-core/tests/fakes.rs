@@ -430,3 +430,31 @@ fn changed_parts_outside_one_to_twenty_pairs_are_refused() {
         .is_ok()
     );
 }
+
+/// Codex P2 / R8, FR-011: every log entry a delete writes keeps the date only, including the
+/// feature's own deletion event.
+#[test]
+fn every_log_entry_written_by_a_delete_has_a_date_only_time() {
+    let (s, _) = store();
+    s.register_kind(kind("name_deleted"), &[DetailKey::Date])
+        .unwrap();
+    let e = save(&s, b"content");
+    let before = s.read_log(0..u64::MAX).len();
+    s.delete(
+        e.id,
+        vec![event(
+            "name_deleted",
+            &[DetailValue::Date(time::macros::date!(2026 - 11 - 22))],
+        )],
+    )
+    .unwrap();
+    let written: Vec<_> = s.read_log(0..u64::MAX).into_iter().skip(before).collect();
+    assert!(written.len() >= 2, "{written:?}");
+    for entry in written {
+        assert_eq!(
+            entry.ts.to_offset(time::UtcOffset::UTC).time(),
+            time::Time::MIDNIGHT,
+            "{entry:?}"
+        );
+    }
+}
