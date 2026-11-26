@@ -173,9 +173,7 @@ impl DetailValue {
             DetailKey::Address => {
                 DetailValue::Address(Address::parse(text).map_err(|_| malformed)?)
             }
-            DetailKey::ChangedParts => {
-                DetailValue::ChangedParts(parse_parts(text).ok_or(malformed)?)
-            }
+            DetailKey::ChangedParts => DetailValue::ChangedParts(parse_parts(text)?),
             DetailKey::AsOf => DetailValue::AsOf(parse_rfc3339(text).map_err(|_| malformed)?),
             DetailKey::Date => DetailValue::Date(parse_date(text).ok_or(malformed)?),
             DetailKey::NoticeId => DetailValue::NoticeId(NoticeId::from_code(text)?),
@@ -197,18 +195,34 @@ impl DetailKey {
     }
 }
 
-fn parse_parts(text: &str) -> Option<Vec<(PartRole, u16)>> {
+fn parse_parts(text: &str) -> Result<Vec<(PartRole, u16)>, StoredValueError> {
     let pairs: Vec<&str> = text.split(',').collect();
-    if pairs.is_empty() || pairs.len() > MAX_CHANGED_PARTS {
-        return None;
+    if pairs.len() > MAX_CHANGED_PARTS {
+        return Err(StoredValueError::Malformed);
     }
-    pairs.into_iter().map(parse_part).collect()
+    let mut parts = Vec::with_capacity(pairs.len());
+    let mut unknown = false;
+    for pair in pairs {
+        match parse_part(pair) {
+            Ok(part) => parts.push(part),
+            Err(StoredValueError::UnknownCode) => unknown = true,
+            Err(StoredValueError::Malformed) => return Err(StoredValueError::Malformed),
+        }
+    }
+    // Malformed anywhere wins; otherwise a well-formed role from a newer version is unknown (LOG-02 B).
+    if unknown {
+        Err(StoredValueError::UnknownCode)
+    } else {
+        Ok(parts)
+    }
 }
 
-fn parse_part(pair: &str) -> Option<(PartRole, u16)> {
-    let (role, rest) = pair.split_once('[')?;
-    let position = rest.strip_suffix(']')?;
-    Some((PartRole::from_code(role).ok()?, position.parse().ok()?))
+fn parse_part(pair: &str) -> Result<(PartRole, u16), StoredValueError> {
+    let malformed = StoredValueError::Malformed;
+    let (role, rest) = pair.split_once('[').ok_or(malformed)?;
+    let position = rest.strip_suffix(']').ok_or(malformed)?;
+    let position = position.parse().map_err(|_| malformed)?;
+    Ok((PartRole::from_code(role)?, position))
 }
 
 /// `YYYY-MM-DD`, a real calendar date.

@@ -294,3 +294,32 @@ fn every_notice_id_has_fluent_message() {
         assert!(ids.contains(notice.as_str()), "no message for {notice}");
     }
 }
+
+/// Codex P2 on LOG-02 B: a well-formed role from a newer version is unknown, not malformed.
+#[test]
+fn from_stored_unknown_part_role_is_unknown() {
+    let k = DetailKey::ChangedParts;
+    assert_eq!(
+        DetailValue::from_stored(k, "new_role[1]"),
+        Err(StoredValueError::UnknownCode)
+    );
+    assert_eq!(
+        DetailValue::from_stored(k, "family[1],new_role[2]"),
+        Err(StoredValueError::UnknownCode)
+    );
+    for bad in [
+        "family[x]",
+        "family[02]",
+        "new_role[x]",
+        "new_role[1],family[x]",
+        "",
+        "Role[1]",
+        "family",
+    ] {
+        assert_eq!(
+            DetailValue::from_stored(k, bad),
+            Err(StoredValueError::Malformed),
+            "{bad:?}"
+        );
+    }
+}
