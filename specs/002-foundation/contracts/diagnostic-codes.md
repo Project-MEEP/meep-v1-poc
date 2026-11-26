@@ -1,3 +1,5 @@
+| `E-ADDRESS-UNREGISTERED` | `AddressInvalid` (`Unregistered`) | The address is well formed but no feature registered it (FOUND-13) | `internal-error` |
+| `E-ADDRESS-ALREADY-REGISTERED` | `AddressInvalid` (`AlreadyRegistered`) | A feature registered the same address twice (a programmer error) | `internal-error` |
 # Contract: Diagnostic codes (foundation)
 
 The registry of every diagnostic code the foundation can produce (ERR-01, NAMING.md section 2). A code is `E-<AREA>-<CONDITION>`, uppercase, with every multi-word condition hyphenated. It is the `Display` text of its `Error` variant (`Error::diagnostic_code()`), so it is also what developers and support see in the Diagnostic log and in the owner's exported debug text.

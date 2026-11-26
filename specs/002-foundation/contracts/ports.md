@@ -24,6 +24,7 @@ Rules: addresses go through the shared checker on every save and update (FR-008)
 | Operation | Behavior | Fails with |
 |---|---|---|
 | `register_kind(kind, allowed_detail_keys)` | A feature declares an event kind and the only detail keys it may carry | `KindExists` |
+| `register_address(address)` | A feature declares a whole address it owns (FOUND-13). `save`, `update` and every Address-type event detail are accepted only for a registered address, compared ignoring ASCII case; the original case is kept. `Address::parse` stays syntax-only and `from_stored` has no registry access | `AddressInvalid{AlreadyRegistered}` on a second registration; `AddressInvalid{Unregistered}` (`E-ADDRESS-UNREGISTERED`) on save, update or an event detail |
 | `append(kind, record_id?, details)` (the foundation stores the record's alias, not the id, FR-048) | **Foundation-internal** (store-level kinds such as `store_created`, `backup_made`, `restored_from_rescue_backup`); features do not call it. Appends one entry at the end, linked to the previous; refuses detail keys that were not registered or that look like content or keys (FR-014) | `UnknownKind`; `DetailRefused{key}`; `StoreReadOnly` |
 | `verify()` | Recomputes the chain from the genesis entry; returns the number of entries checked, or the first broken `seq` (FR-013) | `ChainBroken{first_seq}` |
 | `read(range)` | Returns entries; there is no operation to change or remove an entry (FR-014) | none |

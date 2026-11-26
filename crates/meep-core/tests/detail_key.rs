@@ -1,8 +1,14 @@
-//! The closed set of event detail keys (ERR-01 item 4, contracts/change-log-entry.md).
+//! Detail keys and typed detail values (ERR-01 item 4, LOG-01, contracts/change-log-entry.md).
+//! Rule: every detail value is a number, a time or date, or a member of a closed registered set.
+//! No open vocabularies, so free text cannot be represented at all.
 
-use meep_core::detail::DetailKey;
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
+use meep_core::address::Address;
+use meep_core::detail::{DetailKey, DetailValue, NoticeId, PartRole, StoredValueError};
 use meep_core::errors::Error;
 use std::collections::BTreeSet;
+use time::macros::{date, datetime};
 
 #[test]
 fn detail_keys_are_copy_and_display_as_their_stable_code() {
@@ -35,4 +41,285 @@ fn a_refused_detail_names_its_key_only_in_the_diagnostic_log() {
     assert_eq!(e.to_string(), "E-DETAIL-REFUSED");
     assert_eq!(e.detail_key(), Some(DetailKey::AsOf));
     assert_eq!(Error::Stale.detail_key(), None);
+}
+
+/// Spec 001 data-model.md, part `role` (ID-04): exactly these six.
+#[test]
+fn part_roles_are_exactly_the_names_data_model_roles() {
+    let codes: Vec<&str> = PartRole::ALL.iter().map(|r| r.as_str()).collect();
+    assert_eq!(
+        codes,
+        [
+            "given",
+            "given_additional",
+            "family",
+            "particle",
+            "prefix",
+            "suffix"
+        ]
+    );
+}
+
+#[test]
+fn notice_ids_are_a_closed_set_mirroring_their_fluent_message_ids() {
+    let codes: Vec<&str> = NoticeId::ALL.iter().map(|n| n.as_str()).collect();
+    assert_eq!(codes, ["backup-made", "backup-failed", "save-failed"]);
+}
+
+#[test]
+fn a_typed_value_knows_its_key_and_stores_as_canonical_text() {
+    let cases = [
+        (DetailValue::FormatVersion(1), DetailKey::FormatVersion, "1"),
+        (DetailValue::RecordCount(42), DetailKey::RecordCount, "42"),
+        (
+            DetailValue::Address(Address::parse("Alpha.Meep.Personal.Notes.Sample").unwrap()),
+            DetailKey::Address,
+            "Alpha.Meep.Personal.Notes.Sample",
+        ),
+        (
+            DetailValue::ChangedParts(vec![(PartRole::Family, 2), (PartRole::GivenAdditional, 1)]),
+            DetailKey::ChangedParts,
+            "family[2],given_additional[1]",
+        ),
+        (
+            DetailValue::AsOf(datetime!(2026-11-22 08:00:00 UTC)),
+            DetailKey::AsOf,
+            "2026-11-22T08:00:00Z",
+        ),
+        (
+            DetailValue::Date(date!(2026 - 11 - 22)),
+            DetailKey::Date,
+            "2026-11-22",
+        ),
+        (
+            DetailValue::NoticeId(NoticeId::BackupFailed),
+            DetailKey::NoticeId,
+            "backup-failed",
+        ),
+    ];
+    for (value, key, text) in cases {
+        assert_eq!(value.key(), key);
+        assert_eq!(value.to_stored(), text);
+        // Defensive read path: the stored text parses back to the same typed value.
+        assert_eq!(DetailValue::from_stored(key, text), Ok(value));
+        assert!(key.accepts(text));
+    }
+}
+
+/// `DetailKey::accepts` is the defensive check used when reading stored entries or importing a
+/// backup, where text arrives instead of typed values.
+#[test]
+fn each_key_accepts_only_canonical_text_of_its_own_type() {
+    let cases: &[(DetailKey, &[&str], &[&str])] = &[
+        (
+            DetailKey::FormatVersion,
+            &["1", "12"],
+            &["", "v1", "1.0", "01", "4294967296"],
+        ),
+        (
+            DetailKey::Address,
+            &["Alpha.Meep.Personal.Notes.Sample"],
+            &[
+                "Okafor",
+                "Alpha.Meep",
+                "Alpha.Meep.Personal.Notes.Sample extra",
+            ],
+        ),
+        (
+            DetailKey::ChangedParts,
+            &["family[2]", "given[1],family[1]", "particle[10]"],
+            &[
+                "Jordan",
+                "okafor[1]",
+                "rivera[1]",
+                "family",
+                "family[x]",
+                "Family[2]",
+                "family[2],",
+                "family[02]",
+                "family[65536]",
+                "Jordan Lee",
+            ],
+        ),
+        (
+            DetailKey::AsOf,
+            &["2026-11-22T08:00:00Z"],
+            &[
+                "yesterday",
+                "2026-11-22",
+                "Jordan",
+                "2026-11-22T08:00:00+05:00",
+            ],
+        ),
+        (
+            DetailKey::RecordCount,
+            &["0", "42"],
+            &["", "-1", "4.2", "4294967296"],
+        ),
+        (
+            DetailKey::Date,
+            &["2026-11-22"],
+            &["2026-13-01", "2026-11-31", "11/22/2026", "Okafor"],
+        ),
+        (
+            DetailKey::NoticeId,
+            &["backup-made", "save-failed"],
+            &[
+                "",
+                "Backup Failed",
+                "name-changed",
+                "okafor",
+                "backup-made ",
+            ],
+        ),
+    ];
+    for (key, good, bad) in cases {
+        for v in *good {
+            assert!(key.accepts(v), "{key} should accept {v:?}");
+        }
+        for v in *bad {
+            assert!(!key.accepts(v), "{key} should refuse {v:?}");
+        }
+    }
+}
+
+#[test]
+fn a_key_shaped_value_is_refused_for_every_key() {
+    let hex = "a".repeat(64);
+    let b64 = "QUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVo0MTIz";
+    for key in DetailKey::ALL {
+        assert!(!key.accepts(&hex), "{key}");
+        assert!(!key.accepts(b64), "{key}");
+    }
+}
+
+/// Canary: synthetic surnames from the spec 001 fixtures (Okafor, Rivera, Pak) are refused under
+/// every key, whether bare, lowercased or dressed as another key's shape.
+#[test]
+fn synthetic_surnames_are_refused_under_every_detail_key() {
+    for surname in ["Okafor", "Rivera", "Pak", "Garcia"] {
+        let lower = surname.to_lowercase();
+        let dressed = [
+            surname.to_string(),
+            lower.clone(),
+            format!("{lower}[1]"),
+            format!("{surname}[1]"),
+            format!("family[1],{lower}[2]"),
+            format!("{lower}-{lower}"),
+        ];
+        for key in DetailKey::ALL {
+            for text in &dressed {
+                assert!(!key.accepts(text), "{key} accepted {text:?}");
+            }
+        }
+    }
+}
+
+/// S4: an unknown but well-formed code is newer data; anything else is malformed. The caller
+/// (history reading) never treats the first as tampering.
+#[test]
+fn from_stored_unknown_notice_code_is_unknown() {
+    assert_eq!(
+        DetailValue::from_stored(DetailKey::NoticeId, "backup-restored"),
+        Err(StoredValueError::UnknownCode)
+    );
+    assert_eq!(
+        NoticeId::from_code("backup-restored"),
+        Err(StoredValueError::UnknownCode)
+    );
+    assert_eq!(NoticeId::from_code("save-failed"), Ok(NoticeId::SaveFailed));
+}
+
+#[test]
+fn from_stored_garbage_is_malformed() {
+    for text in [
+        "",
+        "Backup Failed",
+        "9lives",
+        "backup_made",
+        "backup-made ",
+        "-x",
+    ] {
+        assert_eq!(
+            DetailValue::from_stored(DetailKey::NoticeId, text),
+            Err(StoredValueError::Malformed),
+            "{text:?}"
+        );
+    }
+    assert_eq!(
+        DetailValue::from_stored(DetailKey::RecordCount, "x"),
+        Err(StoredValueError::Malformed)
+    );
+}
+
+#[test]
+fn detail_key_unknown_code_is_unknown() {
+    assert_eq!(
+        DetailKey::from_code("retry_count"),
+        Err(StoredValueError::UnknownCode)
+    );
+    assert_eq!(DetailKey::from_code("as_of"), Ok(DetailKey::AsOf));
+}
+
+#[test]
+fn detail_key_garbage_is_malformed() {
+    for text in ["", "As_Of", "as-of", "1st", "as_of ", "_x"] {
+        assert_eq!(
+            DetailKey::from_code(text),
+            Err(StoredValueError::Malformed),
+            "{text:?}"
+        );
+    }
+}
+
+/// S5: every tray notice's code is a message ID in the English catalog, so a notice can always be
+/// shown. Test-only file access; product code does no I/O (PLAN-13).
+#[test]
+fn every_notice_id_has_fluent_message() {
+    let dir = concat!(env!("CARGO_MANIFEST_DIR"), "/../meep-web/locales/en");
+    let mut ids = BTreeSet::new();
+    for entry in std::fs::read_dir(dir).unwrap() {
+        let path = entry.unwrap().path();
+        if path.extension().and_then(|e| e.to_str()) != Some("ftl") {
+            continue;
+        }
+        for line in std::fs::read_to_string(&path).unwrap().lines() {
+            let top_level = !line.starts_with(char::is_whitespace) && !line.starts_with('#');
+            if let (true, Some((id, _))) = (top_level, line.split_once('=')) {
+                ids.insert(id.trim().to_string());
+            }
+        }
+    }
+    for notice in NoticeId::ALL {
+        assert!(ids.contains(notice.as_str()), "no message for {notice}");
+    }
+}
+
+/// Codex P2 on LOG-02 B: a well-formed role from a newer version is unknown, not malformed.
+#[test]
+fn from_stored_unknown_part_role_is_unknown() {
+    let k = DetailKey::ChangedParts;
+    assert_eq!(
+        DetailValue::from_stored(k, "new_role[1]"),
+        Err(StoredValueError::UnknownCode)
+    );
+    assert_eq!(
+        DetailValue::from_stored(k, "family[1],new_role[2]"),
+        Err(StoredValueError::UnknownCode)
+    );
+    for bad in [
+        "family[x]",
+        "family[02]",
+        "new_role[x]",
+        "new_role[1],family[x]",
+        "",
+        "Role[1]",
+        "family",
+    ] {
+        assert_eq!(
+            DetailValue::from_stored(k, bad),
+            Err(StoredValueError::Malformed),
+            "{bad:?}"
+        );
+    }
 }

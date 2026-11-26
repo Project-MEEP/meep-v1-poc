@@ -15,6 +15,10 @@ pub enum AddressReason {
     WrongSegmentCount,
     /// A part does not start with a letter, or holds a character other than letters, digits or hyphens.
     BadSegment,
+    /// Well formed, but no feature registered this address (FOUND-13, registered addresses).
+    Unregistered,
+    /// A feature registered the same address twice (a programmer error).
+    AlreadyRegistered,
 }
 
 /// What went wrong underneath a storage failure, without any message text (ERR-01 item 3).
@@ -79,6 +83,12 @@ impl Error {
             Error::AddressInvalid {
                 reason: AddressReason::BadSegment,
             } => (MessageId::AddressInvalidSegment, Vec::new()),
+            Error::AddressInvalid {
+                reason: AddressReason::Unregistered | AddressReason::AlreadyRegistered,
+            } => (
+                MessageId::InternalError,
+                vec![("code", self.diagnostic_code().to_string())],
+            ),
             Error::StoreReadOnly => (MessageId::StoreReadOnly, Vec::new()),
             Error::StoreFailed { .. } => (MessageId::SaveFailed, Vec::new()),
             Error::ChainBroken { first_seq } => (
@@ -107,6 +117,12 @@ impl Error {
             Error::AddressInvalid {
                 reason: AddressReason::BadSegment,
             } => "E-ADDRESS-SEGMENT-CHARS",
+            Error::AddressInvalid {
+                reason: AddressReason::Unregistered,
+            } => "E-ADDRESS-UNREGISTERED",
+            Error::AddressInvalid {
+                reason: AddressReason::AlreadyRegistered,
+            } => "E-ADDRESS-ALREADY-REGISTERED",
             Error::StoreReadOnly => "E-STORE-READ-ONLY",
             Error::StoreFailed { .. } => "E-STORE-WRITE-FAILED",
             Error::Stale => "E-RECORD-STALE",
