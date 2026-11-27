@@ -3,7 +3,7 @@
 One short record per owner decision. Only the owner marks a decision Confirmed.
 Every future confirmation lands as a reviewable pull request (ENG-03).
 
-Naming rules for IDs, files and statuses: [STD-01](STD-01.md) (Proposed) and [NAMING.md](../standards/NAMING.md).
+Naming rules for IDs, files and statuses: [STD-01](STD-01.md) (Confirmed) and [NAMING.md](../standards/NAMING.md).
 
 | ID | Decision | Status | Date |
 | --- | --- | --- | --- |
@@ -50,6 +50,7 @@ Naming rules for IDs, files and statuses: [STD-01](STD-01.md) (Proposed) and [NA
 | [ACCESS-02](ACCESS-02.md) | Access layers are separate; emergency access is never a backdoor | Confirmed | 2026-11-20 |
 | [CONST-28](CONST-28.md) | Proposed principle 28: separate access layers | Proposed | 2026-11-20 |
 | [FOUND-12](FOUND-12.md) | Key wrapping: one data key, one wrapped copy per unlock method | Confirmed | 2026-11-20 |
+| [FOUND-14](FOUND-14.md) | Owner-backup encryption (v1.1) | Confirmed (vNext) | 2026-11-22 |
 | [FOUND-13](FOUND-13.md) | Registered addresses | Confirmed | 2026-11-22 |
 | [LOG-02](LOG-02.md) | Log content and erasure policy | Confirmed (D, E pending) | 2026-11-22 |
 | [PLAN-29](PLAN-29.md) | Recovery key format: digits, groups, check digits, key ID | Confirmed | 2026-11-20 |
@@ -71,7 +72,7 @@ Naming rules for IDs, files and statuses: [STD-01](STD-01.md) (Proposed) and [NA
 | [SEC-05](SEC-05.md) | Input validation and injection: static SQL, autoescape, localhost hardening, name input rules, hostile-input tests | Confirmed | 2026-11-20 |
 | [LANG-02](LANG-02.md) | UI language: Language setting from v1.0, English only until LTS; never affects names; English fallback; test-only pseudo-locale | Confirmed | 2026-11-21 |
 | [VAL-01](VAL-01.md) | Shared field validation: server is the authority, all failures at once, input kept | Confirmed | 2026-11-21 |
-| [STD-01](STD-01.md) | Meep naming standards (docs/standards/NAMING.md) | Proposed | 2026-11-21 |
+| [STD-01](STD-01.md) | Meep naming standards (docs/standards/NAMING.md) | Confirmed | 2026-11-21 |
 | [STD-02](STD-02.md) | Directive and conformance SOP (docs/standards/SOP-DIRECTIVES.md) | Confirmed | 2026-11-22 |
 | [LANG-01](LANG-01.md) | Implementation language is Rust | Confirmed | not stated in the master spec |
 | [ENG-03](ENG-03.md) | Pull requests only, enforced by branch protection on main | Confirmed | 2026-11-19 |
@@ -80,6 +81,7 @@ Naming rules for IDs, files and statuses: [STD-01](STD-01.md) (Proposed) and [NA
 | [BUILD-01](BUILD-01.md) | v1.0 build order: spec 002, then 010, then names screens; no throwaway placeholders | Confirmed | 2026-11-19 |
 | [NAMES-05](NAMES-05.md) | Checklist resolutions (CHK001 to CHK039) | Confirmed | 2026-11-19 |
 | [NAMES-07](NAMES-07.md) | Keystone changes: plain or typed confirmation, a toast and a tray entry | Confirmed | 2026-11-20 |
+| [UI-01](UI-01.md) | Light/dark toggle button with a sun/moon icon in the app header in v1.0, plus a theme setting | Confirmed | 2026-11-20 |
 | [UI-02](UI-02.md) | Toasts are transient notices | Confirmed | 2026-11-20 |
 | [UI-03](UI-03.md) | Notifications tray: timestamped, dismissible, dismissals in the History log | Confirmed | 2026-11-20 |
 | [NAMES-06](NAMES-06.md) | Reactivating a retired name | Confirmed | 2026-11-19 |
