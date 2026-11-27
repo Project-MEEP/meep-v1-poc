@@ -1,5 +1,8 @@
 //! Error to message mapping and the stable diagnostic code (FR-025, PLAN-26, ERR-01).
 
+// ERR-01: helpers outside #[test] functions may unwrap and expect in test code.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use meep_core::detail::DetailKey;
 use meep_core::errors::{AddressReason, Cause, Error};
 use meep_core::ids::RecordId;
@@ -12,8 +15,8 @@ fn id_of(e: &Error) -> Option<MessageId> {
 }
 
 // 1315#S9.2: these matches have no wildcard arm on purpose. Adding a variant to `Error` or
-// `AddressReason` fails to compile here until it is numbered, which sends the author to
-// `every_error()` and the counts below.
+// `AddressReason` fails to compile here until it is numbered and given its code, and a test fails
+// until `every_error()` has a sample of it. Variant counts are read from `src/errors.rs`.
 
 fn ordinal(e: &Error) -> usize {
     match e {
@@ -37,6 +40,42 @@ fn reason_ordinal(r: AddressReason) -> usize {
         AddressReason::BadSegment => 1,
         AddressReason::Unregistered => 2,
         AddressReason::AlreadyRegistered => 3,
+    }
+}
+
+/// The number of variants `src/errors.rs` declares for `header` (an enum), counted from the
+/// source, so no count is kept by hand.
+fn declared(header: &str) -> usize {
+    let src = std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/src/errors.rs"))
+        .expect("errors.rs");
+    let body = src.split(header).nth(1).expect("enum header");
+    let variant =
+        |l: &&str| l.starts_with("    ") && l[4..].starts_with(|c: char| c.is_ascii_uppercase());
+    body.lines()
+        .skip(1)
+        .take_while(|l| l.trim_end() != "}")
+        .filter(variant)
+        .count()
+}
+
+fn expected_code(e: &Error) -> &'static str {
+    match e {
+        Error::AddressInvalid { reason } => match reason {
+            AddressReason::WrongSegmentCount => "E-ADDRESS-SEGMENT-COUNT",
+            AddressReason::BadSegment => "E-ADDRESS-SEGMENT-CHARS",
+            AddressReason::Unregistered => "E-ADDRESS-UNREGISTERED",
+            AddressReason::AlreadyRegistered => "E-ADDRESS-ALREADY-REGISTERED",
+        },
+        Error::StoreReadOnly => "E-STORE-READ-ONLY",
+        Error::StoreFailed { .. } => "E-STORE-WRITE-FAILED",
+        Error::Stale => "E-RECORD-STALE",
+        Error::NotFound => "E-RECORD-NOT-FOUND",
+        Error::Unreadable { .. } => "E-RECORD-UNREADABLE",
+        Error::KindExists => "E-KIND-EXISTS",
+        Error::UnknownKind => "E-KIND-UNKNOWN",
+        Error::DetailRefused { .. } => "E-DETAIL-REFUSED",
+        Error::ChainBroken { .. } => "E-HISTORY-UNVERIFIED",
+        Error::RecordKeyDestroyed => "E-RECORD-DELETED",
     }
 }
 
@@ -233,7 +272,10 @@ fn the_code_registry_lists_every_code() {
 fn every_error_has_a_sample_of_every_variant_and_address_reason() {
     let samples = every_error();
     let variants: BTreeSet<usize> = samples.iter().map(ordinal).collect();
-    assert_eq!(variants, (0..declared("pub enum Error {")).collect::<BTreeSet<_>>());
+    assert_eq!(
+        variants,
+        (0..declared("pub enum Error {")).collect::<BTreeSet<_>>()
+    );
     let reasons: BTreeSet<usize> = samples
         .iter()
         .filter_map(|e| match e {
@@ -241,5 +283,8 @@ fn every_error_has_a_sample_of_every_variant_and_address_reason() {
             _ => None,
         })
         .collect();
-    assert_eq!(reasons, (0..declared("pub enum AddressReason {")).collect::<BTreeSet<_>>());
+    assert_eq!(
+        reasons,
+        (0..declared("pub enum AddressReason {")).collect::<BTreeSet<_>>()
+    );
 }
