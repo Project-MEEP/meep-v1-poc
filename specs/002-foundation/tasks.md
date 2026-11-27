@@ -260,8 +260,11 @@ Cargo workspace from plan.md: `crates/meep-core/`, `crates/meep-storage/`, `crat
 - [ ] T152 [US1] Implement the recovery-key format and key ID in `crates/meep-storage/src/recovery.rs` per PLAN-29 (Confirmed), and show the key ID at every recovery prompt through the foundation messages (FR-056, FR-032, PLAN-29)
 - [x] T153 Closed: the owner chose option A on 2026-11-20: the exchange route is exempt from the cookie check, the `Origin: null` refusal and the `Sec-Fetch-Site: cross-site` refusal, and the `Host` check still applies (FR-052, FOUND-11). Was: a page opened from a file is cross-site, so the launch-token exchange request may arrive with `Sec-Fetch-Site: cross-site` and without a cookie. FR-052 confirms only the `Origin: null` exemption. Ask the owner whether the exchange route is also exempt from the cookie check and from the `Sec-Fetch-Site: cross-site` refusal (the `Host` check would still apply), or whether the launch file should start the browser differently; T138 and T139 are unblocked (FR-052, FOUND-11, SEC-05)
 - [ ] T154 Backup import refuses records whose address is not registered; the record is listed as not imported with its diagnostic code. (FOUND-13)
-- [ ] T155 Entries with well-formed but unknown kinds, keys or notice codes are kept unchanged and reported once as written by a newer Meep: diagnostic code E-HISTORY-NEWER, owner message ID history-from-newer-version (wording pending owner review). E-HISTORY-UNVERIFIED stays reserved for integrity failures.
+- [ ] T155 Entries with well-formed but unknown kinds, keys or notice codes are kept unchanged and reported once as written by a newer Meep: diagnostic code E-HISTORY-NEWER, owner message ID history-from-newer-version (approved wording: "Some history was written by a newer version of Meep. It is kept unchanged. Update Meep to see it."). E-HISTORY-UNVERIFIED stays reserved for integrity failures.
 - [ ] T156 When meep-web first adds hyper or axum: add cargo-deny bans.features entries denying hyper's client feature and hyper-util's client features; verify the syntax against the installed cargo-deny version.
+- [ ] T157 Each owner backup records the change-log head (seq and full hash) in its manifest (FOUND-10).
+- [ ] T158 The History view shows the current change-log head seq and the first 12 hex characters of its hash (FOUND-10).
+- [ ] T159 Restoring a backup compares its recorded head with the live store's head and, before the owner confirms, says how many entries back or ahead the restore goes (FOUND-10).
 
 ---
 

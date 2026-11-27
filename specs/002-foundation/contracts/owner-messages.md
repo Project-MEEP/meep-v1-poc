@@ -37,6 +37,10 @@ Every message the foundation shows or returns, with its Fluent message ID (R10, 
 
 The last five were added on the owner's instruction (2026-11-21): the four record messages, and one generic message with a diagnostic code (`E-KIND-EXISTS`, `E-KIND-UNKNOWN`, `E-DETAIL-REFUSED`; registry in diagnostic-codes.md) in place of wording for each programmer error. The wording of `record-changed`, `record-not-found`, `record-deleted` and `internal-error` was approved by the owner on 2026-11-22 and is exact (tests assert it). `record-unreadable` is still draft wording. `record-changed` is shown with the owner's typed input still on screen (VAL-01), so they can copy it before reloading.
 
+## Planned messages
+
+history-from-newer-version = Some history was written by a newer version of Meep. It is kept unchanged. Update Meep to see it.
+
 ## Rules
 
 - The two fixed owner-specified texts are `store-already-open` and `backup-changes-after` (with `{time}`); tests assert them exactly.
