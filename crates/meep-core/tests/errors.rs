@@ -233,3 +233,21 @@ fn the_code_registry_lists_every_code() {
         );
     }
 }
+
+/// 1315#S9.2: every `Error` variant and every address reason has a sample in `every_error()`.
+/// `ordinal` and `reason_ordinal` match without a wildcard, so a new variant fails to compile
+/// until it is numbered there, and fails here until it is counted and given a sample.
+#[test]
+fn every_error_has_a_sample_of_every_variant_and_address_reason() {
+    let samples = every_error();
+    let variants: BTreeSet<usize> = samples.iter().map(ordinal).collect();
+    assert_eq!(variants, (0..VARIANT_COUNT).collect::<BTreeSet<_>>());
+    let reasons: BTreeSet<usize> = samples
+        .iter()
+        .filter_map(|e| match e {
+            Error::AddressInvalid { reason } => Some(reason_ordinal(*reason)),
+            _ => None,
+        })
+        .collect();
+    assert_eq!(reasons, (0..REASON_COUNT).collect::<BTreeSet<_>>());
+}
