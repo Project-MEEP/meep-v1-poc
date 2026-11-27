@@ -1,6 +1,6 @@
 # Meep naming standards
 
-Status: Proposed (record as STD-01). Drafted 2026-11-21 21:10 CT.
+Status: Confirmed (STD-01, owner 2026-11-22). Drafted 2026-11-21 21:10 CT.
 
 **Rule zero: codify what exists.** Where the repo already has a working pattern, this file adopts it. Renaming existing things is a separate, explicit task, never a side effect of other work.
 
