@@ -14,8 +14,6 @@ fn id_of(e: &Error) -> Option<MessageId> {
 // 1315#S9.2: these matches have no wildcard arm on purpose. Adding a variant to `Error` or
 // `AddressReason` fails to compile here until it is numbered, which sends the author to
 // `every_error()` and the counts below.
-const VARIANT_COUNT: usize = 11;
-const REASON_COUNT: usize = 4;
 
 fn ordinal(e: &Error) -> usize {
     match e {
@@ -161,7 +159,7 @@ fn diagnostic_codes_are_uppercase_area_condition_and_unique() {
         // Each variant has its own code, and the four address reasons each have a separate one.
         seen.insert(code);
     }
-    assert_eq!(seen.len(), 14);
+    assert_eq!(seen.len(), every_error().len());
 }
 
 #[test]
@@ -197,48 +195,13 @@ fn a_storage_failure_carries_a_content_free_cause() {
     );
 }
 
-/// ERR-01 / NAMING.md section 2: the exact registered codes, hyphenated multi-word conditions.
+/// ERR-01 / NAMING.md section 2: the exact registered codes, one per sample, including every
+/// address reason. `expected_code` matches without a wildcard, so a new variant or reason fails
+/// to compile until its code is written down here.
 #[test]
 fn the_registered_codes_are_exactly_these() {
-    let table: Vec<(Error, &str)> = vec![
-        (
-            Error::AddressInvalid {
-                reason: AddressReason::WrongSegmentCount,
-            },
-            "E-ADDRESS-SEGMENT-COUNT",
-        ),
-        (
-            Error::AddressInvalid {
-                reason: AddressReason::BadSegment,
-            },
-            "E-ADDRESS-SEGMENT-CHARS",
-        ),
-        (Error::StoreReadOnly, "E-STORE-READ-ONLY"),
-        (
-            Error::StoreFailed { cause: Cause::None },
-            "E-STORE-WRITE-FAILED",
-        ),
-        (Error::Stale, "E-RECORD-STALE"),
-        (Error::NotFound, "E-RECORD-NOT-FOUND"),
-        (
-            Error::Unreadable {
-                id: RecordId::new(),
-            },
-            "E-RECORD-UNREADABLE",
-        ),
-        (Error::KindExists, "E-KIND-EXISTS"),
-        (Error::UnknownKind, "E-KIND-UNKNOWN"),
-        (
-            Error::DetailRefused {
-                key: DetailKey::Address,
-            },
-            "E-DETAIL-REFUSED",
-        ),
-        (Error::ChainBroken { first_seq: 1 }, "E-HISTORY-UNVERIFIED"),
-        (Error::RecordKeyDestroyed, "E-RECORD-DELETED"),
-    ];
-    for (e, code) in table {
-        assert_eq!(e.diagnostic_code(), code);
+    for e in every_error() {
+        assert_eq!(e.diagnostic_code(), expected_code(&e));
     }
 }
 
@@ -254,8 +217,6 @@ fn the_code_registry_lists_every_code() {
     for e in every_error() {
         codes.insert(e.diagnostic_code());
     }
-    codes.insert("E-ADDRESS-SEGMENT-COUNT");
-    codes.insert("E-ADDRESS-SEGMENT-CHARS");
     for code in codes {
         assert_eq!(
             registry.matches(&format!("`{code}`")).count(),
@@ -272,7 +233,7 @@ fn the_code_registry_lists_every_code() {
 fn every_error_has_a_sample_of_every_variant_and_address_reason() {
     let samples = every_error();
     let variants: BTreeSet<usize> = samples.iter().map(ordinal).collect();
-    assert_eq!(variants, (0..VARIANT_COUNT).collect::<BTreeSet<_>>());
+    assert_eq!(variants, (0..declared("pub enum Error {")).collect::<BTreeSet<_>>());
     let reasons: BTreeSet<usize> = samples
         .iter()
         .filter_map(|e| match e {
@@ -280,5 +241,5 @@ fn every_error_has_a_sample_of_every_variant_and_address_reason() {
             _ => None,
         })
         .collect();
-    assert_eq!(reasons, (0..REASON_COUNT).collect::<BTreeSet<_>>());
+    assert_eq!(reasons, (0..declared("pub enum AddressReason {")).collect::<BTreeSet<_>>());
 }
