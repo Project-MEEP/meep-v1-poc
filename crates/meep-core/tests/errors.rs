@@ -11,6 +11,37 @@ fn id_of(e: &Error) -> Option<MessageId> {
     e.message().map(|m| m.id)
 }
 
+// 1315#S9.2: these matches have no wildcard arm on purpose. Adding a variant to `Error` or
+// `AddressReason` fails to compile here until it is numbered, which sends the author to
+// `every_error()` and the counts below.
+const VARIANT_COUNT: usize = 11;
+const REASON_COUNT: usize = 4;
+
+fn ordinal(e: &Error) -> usize {
+    match e {
+        Error::AddressInvalid { .. } => 0,
+        Error::StoreReadOnly => 1,
+        Error::StoreFailed { .. } => 2,
+        Error::Stale => 3,
+        Error::NotFound => 4,
+        Error::Unreadable { .. } => 5,
+        Error::KindExists => 6,
+        Error::UnknownKind => 7,
+        Error::DetailRefused { .. } => 8,
+        Error::ChainBroken { .. } => 9,
+        Error::RecordKeyDestroyed => 10,
+    }
+}
+
+fn reason_ordinal(r: AddressReason) -> usize {
+    match r {
+        AddressReason::WrongSegmentCount => 0,
+        AddressReason::BadSegment => 1,
+        AddressReason::Unregistered => 2,
+        AddressReason::AlreadyRegistered => 3,
+    }
+}
+
 fn every_error() -> Vec<Error> {
     vec![
         Error::AddressInvalid {
@@ -127,7 +158,7 @@ fn diagnostic_codes_are_uppercase_area_condition_and_unique() {
             "{code}"
         );
         assert!(code.split('-').count() >= 3, "{code}");
-        // Address reasons share one code by design; everything else is unique.
+        // Each variant has its own code, and the four address reasons each have a separate one.
         seen.insert(code);
     }
     assert_eq!(seen.len(), 14);
