@@ -44,7 +44,7 @@ Naming rules for IDs, files and statuses: [STD-01](STD-01.md) (Confirmed) and [N
 | [PLAN-11](PLAN-11.md) | Identifiers and addresses | Proposed | 2026-11-19 |
 | [PLAN-12](PLAN-12.md) | Test tooling | Proposed | 2026-11-19 |
 | [FOUND-09](FOUND-09.md) | Multi-part changes (for example exactly one Legal name) are one atomic batch operation | Confirmed | 2026-11-20 |
-| [FOUND-10](FOUND-10.md) | Anchor the change-log head outside the store (open question) | Proposed | 2026-11-20 |
+| [FOUND-10](FOUND-10.md) | Anchor the change-log head outside the store: recorded in owner backups and shown in History (option B) | Confirmed | 2026-11-20 |
 | [FOUND-08](FOUND-08.md) | Feature events travel with record writes (save, update, delete), validated by the foundation | Confirmed | 2026-11-20 |
 | [FOUND-11](FOUND-11.md) | Launch-token exchange for local access; amends FOUND-02 item 2 | Confirmed | 2026-11-20 |
 | [ACCESS-02](ACCESS-02.md) | Access layers are separate; emergency access is never a backdoor | Confirmed | 2026-11-20 |
