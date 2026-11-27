@@ -265,6 +265,7 @@ Cargo workspace from plan.md: `crates/meep-core/`, `crates/meep-storage/`, `crat
 - [ ] T157 Each owner backup records the change-log head (seq and full hash) in its manifest (FOUND-10).
 - [ ] T158 The History view shows the current change-log head seq and the first 12 hex characters of its hash (FOUND-10).
 - [ ] T159 Restoring a backup compares its recorded head with the live store's head and, before the owner confirms, says how many entries back or ahead the restore goes (FOUND-10).
+- [ ] T160 LOG-01 item 9: fixtures seed unique canary strings; a test fails if any canary appears in the History log, the Diagnostic log or the boot log output.
 
 ---
 

@@ -81,7 +81,7 @@ Naming rules for IDs, files and statuses: [STD-01](STD-01.md) (Confirmed) and [N
 | [BUILD-01](BUILD-01.md) | v1.0 build order: spec 002, then 010, then names screens; no throwaway placeholders | Confirmed | 2026-11-19 |
 | [NAMES-05](NAMES-05.md) | Checklist resolutions (CHK001 to CHK039) | Confirmed | 2026-11-19 |
 | [NAMES-07](NAMES-07.md) | Keystone changes: plain or typed confirmation, a toast and a tray entry | Confirmed | 2026-11-20 |
-| [UI-01](UI-01.md) | Light/dark toggle button with a sun/moon icon in the app header in v1.0, plus a theme setting | Confirmed | 2026-11-20 |
+| [UI-01](UI-01.md) | Light/dark toggle button with a sun/moon icon in the app header in v1.0, plus a theme setting | Confirmed | 2026-11-19 |
 | [UI-02](UI-02.md) | Toasts are transient notices | Confirmed | 2026-11-20 |
 | [UI-03](UI-03.md) | Notifications tray: timestamped, dismissible, dismissals in the History log | Confirmed | 2026-11-20 |
 | [NAMES-06](NAMES-06.md) | Reactivating a retired name | Confirmed | 2026-11-19 |
