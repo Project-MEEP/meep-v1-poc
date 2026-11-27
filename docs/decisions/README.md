@@ -72,6 +72,7 @@ Naming rules for IDs, files and statuses: [STD-01](STD-01.md) (Proposed) and [NA
 | [LANG-02](LANG-02.md) | UI language: Language setting from v1.0, English only until LTS; never affects names; English fallback; test-only pseudo-locale | Confirmed | 2026-11-21 |
 | [VAL-01](VAL-01.md) | Shared field validation: server is the authority, all failures at once, input kept | Confirmed | 2026-11-21 |
 | [STD-01](STD-01.md) | Meep naming standards (docs/standards/NAMING.md) | Proposed | 2026-11-21 |
+| [STD-02](STD-02.md) | Directive and conformance SOP (docs/standards/SOP-DIRECTIVES.md) | Confirmed | 2026-11-22 |
 | [LANG-01](LANG-01.md) | Implementation language is Rust | Confirmed | not stated in the master spec |
 | [ENG-03](ENG-03.md) | Pull requests only, enforced by branch protection on main | Confirmed | 2026-11-19 |
 | [ARCH-02](ARCH-02.md) | Domain list and namespace boundaries (open question in the master spec) | Proposed | 2026-11-21 |
