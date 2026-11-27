@@ -4,7 +4,7 @@
 // ERR-01: helpers outside #[test] functions may unwrap and expect in test code.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use meep_core::panic_hook::{PANIC_CODE, describe, install};
+use meep_core::panic_hook::{PANIC_CODE, describe, describe_location, install};
 use std::sync::Mutex;
 
 static SEEN: Mutex<Vec<String>> = Mutex::new(Vec::new());
@@ -97,4 +97,10 @@ fn a_windows_toolchain_path_is_never_shown() {
     );
     assert_eq!(line, format!("{PANIC_CODE} <dep>"));
     assert!(!line.contains("bob"), "{line}");
+}
+
+/// 2026-11-27 1415#S1.1: a panic with no location is reported as a dependency panic.
+#[test]
+fn a_panic_without_location_is_dep() {
+    assert_eq!(describe_location(None), format!("{PANIC_CODE} <dep>"));
 }
