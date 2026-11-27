@@ -79,3 +79,22 @@ fn an_ancestor_named_tests_or_crates_does_not_make_a_path_repository_relative() 
         assert!(!line.contains("alice"), "{line}");
     }
 }
+
+/// 1315#S9.1: an absolute Unix path to the workspace holds the user name and is never shown.
+#[test]
+fn an_absolute_unix_workspace_path_is_never_shown() {
+    let line = describe("/home/bob/meep-v1-poc/crates/meep-core/src/clock.rs", 9);
+    assert_eq!(line, format!("{PANIC_CODE} <dep>"));
+    assert!(!line.contains("bob"), "{line}");
+}
+
+/// 1315#S9.1: a Windows toolchain path holds the user name and is never shown.
+#[test]
+fn a_windows_toolchain_path_is_never_shown() {
+    let line = describe(
+        r"C:\Users\bob\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\option.rs",
+        9,
+    );
+    assert_eq!(line, format!("{PANIC_CODE} <dep>"));
+    assert!(!line.contains("bob"), "{line}");
+}
