@@ -1,6 +1,6 @@
 # SOP: directives and conformance audits
 
-Status: Proposed (record as STD-02). Drafted 2026-11-22 11:45 CT.
+Status: Confirmed (STD-02, owner 2026-11-22). Amended 2026-11-27.
 Home: `docs/standards/SOP-DIRECTIVES.md`
 
 ## 1. Purpose
@@ -39,7 +39,7 @@ This SOP covers both: how to **write** directives an agent will execute reliably
 1. **Header:** target branch or PR, **expected head SHA** (the orchestrator stops if it differs), and which earlier directives this one supersedes.
 2. **Owner confirmation line:** which items sending this confirms.
 3. **Standing rules:** a reference to the standing-rules block, or a copy of it.
-4. **Verified facts:** what the reviewer checked, with file paths, so the agent doesn't re-derive them and drift.
+4. **Verified facts:** what the reviewer checked, with sources. This tells the *executing agent* not to re-derive them; if the work shows a fact is false, it stops and reports. It does not limit reviewers or CI, which always verify independently.
 5. **Steps:** numbered, in order, one action per item. Each step has:
    - **Do:** the action, with exact file paths and IDs.
    - **EXACT** blocks for any text that must land verbatim: Fluent strings, record text, task text. Everything outside an EXACT block is instruction, not content.
@@ -61,6 +61,8 @@ This SOP covers both: how to **write** directives an agent will execute reliably
 | "keep it simple", "as appropriate" | A concrete limit or rule | Vague modifiers get ignored |
 | "and also…" inside a step | A separate numbered item | Compound items get done halfway |
 | Notes indented under file content | Notes outside the EXACT block | Indented lines become content (Fluent continuation case) |
+| "open the PR ready for review" | "Open as a draft; mark ready only after all-green (CLAUDE.md rule 11)" | A directive must not contradict the repo's standing rules |
+| "report review findings, don't fix" | "Fix a review finding only if it is under 20 lines and has a test; otherwise answer the thread and stop (CLAUDE.md rule 11)" | Rule 11 requires every review thread fixed or answered before merge |
 
 ### A4. Acceptance checks
 
@@ -85,6 +87,7 @@ Run all of these before the owner sends a directive.
 6. **Truncation:** if the directive is longer than about 60 lines, send it as a file, not a paste.
 7. **Supersession:** say which earlier directives or pastes this one replaces.
 8. **Decisions are closed:** every owner-facing choice was presented as options, consequences and a recommendation, and has been answered.
+9. **Standing rules:** read CLAUDE.md and AGENTS.md at the current head. No step may contradict them; if one must, surface it to the owner as a decision first.
 
 ### A6. Report template (orchestrator to owner)
 
@@ -161,3 +164,6 @@ File: `docs/reviews/Meep-Review-Conformance-<scope>_<date>_<HHMM>-CT.md`, contai
 | Fluent notes indented under content | Directive | A3 EXACT blocks |
 | The same report re-sent; answers re-issued twice | Context | A1 directive files plus IDs make re-sends idempotent |
 | Directive defaults sent as Confirmed on the owner's behalf | Directive | A2.2 an explicit owner-confirmation line |
+| Directive said "ready for review"; CLAUDE.md rule 11 says draft first (#47) | Directive | A5.9 standing-rules check; A3 row |
+| Directive said "don't fix" review findings; rule 11 requires fix or answer (#44) | Directive | A5.9; A3 row |
+| "Don't re-derive" read by Codex as telling reviewers to skip checks (#44) | Directive | A2.4 scoped to the executor |
