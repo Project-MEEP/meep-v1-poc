@@ -558,7 +558,7 @@ v1.0 (names) is clear to start: all Readiness decisions were confirmed by the ow
 | ROLE-08 | Relabel the POA access role; record financial POA and healthcare proxy separately? |
 | SCOPE-SM | Boundary between DOD-04 social media and Exec Mgmt social media management |
 | SEC-01 | May the persona ever see plaintext secrets? |
-| SEC-02 | Vault and encryption formats, and provider API feasibility. Revisit owner-backup encryption before v1.1 insurance intake (FOUND-02, SEC-02). |
+| SEC-02 | Vault and encryption formats, and provider API feasibility. Revisit owner-backup encryption before v1.1 insurance intake (FOUND-02, SEC-02). Resolved: FOUND-14 (owner, 2026-11-22). |
 | SEC-03 | SSO and 2FA vs passkeys; recovery without a master backdoor |
 | SEC-04 | What hidden Admin may see or do, given owner-held keys |
 | UX-02 | What "American" means as a language option; quality floor for Tsalagi and Spanish |

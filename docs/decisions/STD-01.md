@@ -1,7 +1,7 @@
 # STD-01: Meep naming standards
 
 - **ID:** STD-01
-- **Status:** Proposed
+- **Status:** Confirmed (owner, 2026-11-22)
 - **Date:** 2026-11-21
 - **Owner:** Owner (drafted 2026-11-21 21:10 CT)
 

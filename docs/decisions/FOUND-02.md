@@ -12,3 +12,5 @@
 3. The recovery key is shown once and cannot be replaced after setup in v1.0. The owner backup is the protection against losing the normal key as well. The v1.1 revisit of key custody (R7) may reopen this.
 
 Cross-reference (2026-11-20): item 2 is amended by FOUND-11; access layers are ACCESS-02; key wrapping is FOUND-12.
+
+See FOUND-14 for owner-backup encryption from v1.1.
