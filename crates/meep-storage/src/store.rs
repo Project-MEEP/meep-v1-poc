@@ -193,9 +193,17 @@ enum Start {
     Failed(Cause),
 }
 
-/// The opening order (directive S4.2 steps 2 to 7), shared by create and open.
+/// The opening order, shared by create and open (directive S4.2 as changed by the orchestrator
+/// after the S4.4 finding): memory security first, then the key (keyed path only), then the
+/// remaining pragmas, the first read and the read-back.
 fn start(conn: &Connection, key: Option<&DbKey>) -> Result<(), Start> {
     let failed = |e: rusqlite::Error| Start::Failed(sqlite_cause(&e));
+    // SQLCipher's memory wipe is a process-wide switch that only turns on. It is set before the key
+    // statement so that every allocation made for that statement is wiped when it is freed.
+    #[cfg(test)]
+    trace("memory-security");
+    conn.execute_batch("PRAGMA cipher_memory_security = ON;")
+        .map_err(failed)?;
     if let Some(key) = key {
         #[cfg(test)]
         trace("key");
@@ -204,10 +212,6 @@ fn start(conn: &Connection, key: Option<&DbKey>) -> Result<(), Start> {
     #[cfg(test)]
     trace("cipher-compatibility");
     conn.execute_batch("PRAGMA cipher_compatibility = 4;")
-        .map_err(failed)?;
-    #[cfg(test)]
-    trace("memory-security");
-    conn.execute_batch("PRAGMA cipher_memory_security = ON;")
         .map_err(failed)?;
     // The first read: this is where SQLCipher finds out whether the key fits the file.
     #[cfg(test)]
@@ -272,9 +276,15 @@ fn read_settings(conn: &Connection) -> Result<StoreSettings, rusqlite::Error> {
 
 /// The one place SQL is built at run time (SEC-05 item 1, owner decision D11-A): SQLCipher cannot
 /// take its key as a bound parameter. The statement holds only the key's 64 lowercase hex
-/// characters, in one buffer that is wiped when this function returns. SQLite keeps its own copy
-/// of the statement text while it prepares it; that copy is outside this function's reach (see
-/// the PR for the rusqlite and SQLCipher findings, D11).
+/// characters, in one buffer that is wiped when this function returns.
+///
+/// What else holds the text, and what covers it (D11, the S4.4 finding): SQLite copies the
+/// statement while it prepares it and keeps a copy in the prepared statement until it is
+/// finalized, which happens inside `execute_batch`. `start` turns SQLCipher's memory security on
+/// before this runs, so those copies are overwritten when freed. Not covered: rusqlite copies the
+/// text into the error value if a prepare fails with a syntax error (unwiped; the key statement
+/// has a fixed form, so this should not occur), and the caller's own `[u8; 32]` passed to
+/// `DbKey::from_bytes`.
 fn apply_key(conn: &Connection, key: &DbKey) -> Result<(), rusqlite::Error> {
     let mut stmt = Zeroizing::new(String::from(KEY_PREFIX));
     // Make all the room first, so the key characters are never copied to a new allocation.
