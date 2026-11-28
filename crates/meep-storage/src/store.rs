@@ -264,7 +264,9 @@ fn read_settings(conn: &Connection) -> Result<StoreSettings, rusqlite::Error> {
 
 /// The one place SQL is built at run time (SEC-05 item 1, owner decision D11-A): SQLCipher cannot
 /// take its key as a bound parameter. The statement holds only the key's 64 lowercase hex
-/// characters, in one buffer that is wiped when this function returns.
+/// characters, in one buffer that is wiped when this function returns. SQLite keeps its own copy
+/// of the statement text while it prepares it; that copy is outside this function's reach (see
+/// the PR for the rusqlite and SQLCipher findings, D11).
 fn apply_key(conn: &Connection, key: &DbKey) -> Result<(), rusqlite::Error> {
     let mut stmt = Zeroizing::new(String::from(KEY_PREFIX));
     // Make all the room first, so the key characters are never copied to a new allocation.
