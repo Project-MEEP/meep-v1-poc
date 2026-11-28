@@ -26,6 +26,8 @@ The data key (called the store key elsewhere in this document, FOUND-12) is neve
 | `created_at` | When the store was created | UTC, RFC 3339 |
 | `last_successful_backup_at` | Time of the last verified backup | Written only after a backup is verified and renamed (FR-044); null until the first |
 
+**Layout (owner, 2026-11-28, D9):** `format_version` starts at 1. The table is `STRICT` and holds exactly one row (`id INTEGER PRIMARY KEY CHECK (id = 1)`). `store_id`, `account_id` and `created_at` are `TEXT NOT NULL` (UUID v4 in hyphenated form; UTC RFC 3339) and `format_version` is `INTEGER NOT NULL`. `last_successful_backup_at` is `TEXT`, NULL until the first verified backup, and is created with the table so the backup task needs no layout change.
+
 ### `key_slots` (one row per unlock method, FOUND-12)
 
 | Field | Meaning | Rule |

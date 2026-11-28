@@ -25,5 +25,9 @@ The registry of every diagnostic code the foundation can produce (ERR-01, NAMING
 | `E-KIND-UNKNOWN` | `UnknownKind` | The event kind is not registered (programmer error) | `internal-error` |
 | `E-DETAIL-REFUSED` | `DetailRefused` | A detail key is not allowed for this event kind; the `DetailKey` goes to the Diagnostic log only (programmer error) | `internal-error` |
 | `E-HISTORY-UNVERIFIED` | `ChainBroken` | The history chain does not verify; carries the first broken entry number | `history-does-not-verify` |
+| `E-STORE-KEY-REJECTED` | `StoreKeyRejected` | No key, a wrong key, or a file that is not a Meep store; SQLCipher cannot tell these apart, and telling them apart would reveal something about the file (FR-003) | `store-wrong-key` |
+| `E-STORE-MISSING` | `StoreMissing` | The store file to open does not exist | `store-unreadable` |
+| `E-STORE-EXISTS` | `StoreExists` | Create was asked to write where a store already exists, and refused so nothing is overwritten (programmer error) | `internal-error` |
+| `E-STORE-OPEN-FAILED` | `StoreOpenFailed` | Creating or opening the store failed for another reason (permission, disk I/O, locked); carries a content-free `Cause` | `store-unreadable` |
 
 Not an `Error` variant: `E-PANIC` is the fixed code the panic hook writes (ERR-01 item 1), followed by a repository path and line, or `<dep>` for a panic outside the repository.

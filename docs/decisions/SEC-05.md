@@ -6,6 +6,7 @@
 - **Owner:** Owner
 - **Update 2026-11-20:** the full-name box byte cap is **1,536 bytes** (384 graphemes x 4, the same ratio as the 512-byte name-part cap), Confirmed by the owner.
 - **Update 2026-11-20 (owner):** CI also bans `String::leak` and `Vec::leak`; validation order is NFC first, then the caps; Fluent isolation is confirmed on by default and tested.
+- **Update 2026-11-28 (owner, D11-A):** one exception to item 1. SQLCipher cannot take its key as a bound parameter, so the key statement `PRAGMA key = "x'…'"` is the only SQL not written as static text. It is built in one function in `crates/meep-storage/src/store.rs`, from the key's 64 lowercase hex characters only, in a buffer that is wiped after use; CI fails on any other SQL that is not static text.
 - **Note:** The owner called this SEC-01; SEC-01 is already the master spec's open question on plaintext secrets, so it is SEC-05.
 
 ## Decision
