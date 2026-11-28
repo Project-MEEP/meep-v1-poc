@@ -17,12 +17,17 @@ const DEPENDENCY: &str = "<dep>";
 /// Install the hook. `sink` receives the line built by [`describe`].
 pub fn install(sink: fn(&str)) {
     panic::set_hook(Box::new(move |info| {
-        let line = match info.location() {
-            Some(loc) => describe(loc.file(), loc.line()),
-            None => format!("{PANIC_CODE} {DEPENDENCY}"),
-        };
-        sink(&line);
+        let at = info.location().map(|loc| (loc.file(), loc.line()));
+        sink(&describe_location(at));
     }));
+}
+
+/// The log line for a panic location, which may be missing: a missing one is `<dep>`.
+pub fn describe_location(location: Option<(&str, u32)>) -> String {
+    match location {
+        Some((file, line)) => describe(file, line),
+        None => format!("{PANIC_CODE} {DEPENDENCY}"),
+    }
 }
 
 /// The log line for a panic at `file:line`: a relative repository path with forward slashes, or

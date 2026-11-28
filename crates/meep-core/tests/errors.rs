@@ -1,5 +1,8 @@
 //! Error to message mapping and the stable diagnostic code (FR-025, PLAN-26, ERR-01).
 
+// ERR-01: helpers outside #[test] functions may unwrap and expect in test code.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use meep_core::detail::DetailKey;
 use meep_core::errors::{AddressReason, Cause, Error};
 use meep_core::ids::RecordId;
@@ -9,6 +12,71 @@ use std::io::ErrorKind;
 
 fn id_of(e: &Error) -> Option<MessageId> {
     e.message().map(|m| m.id)
+}
+
+// 1315#S9.2: these matches have no wildcard arm on purpose. Adding a variant to `Error` or
+// `AddressReason` fails to compile here until it is numbered and given its code, and a test fails
+// until `every_error()` has a sample of it. Variant counts are read from `src/errors.rs`.
+
+fn ordinal(e: &Error) -> usize {
+    match e {
+        Error::AddressInvalid { .. } => 0,
+        Error::StoreReadOnly => 1,
+        Error::StoreFailed { .. } => 2,
+        Error::Stale => 3,
+        Error::NotFound => 4,
+        Error::Unreadable { .. } => 5,
+        Error::KindExists => 6,
+        Error::UnknownKind => 7,
+        Error::DetailRefused { .. } => 8,
+        Error::ChainBroken { .. } => 9,
+        Error::RecordKeyDestroyed => 10,
+    }
+}
+
+fn reason_ordinal(r: AddressReason) -> usize {
+    match r {
+        AddressReason::WrongSegmentCount => 0,
+        AddressReason::BadSegment => 1,
+        AddressReason::Unregistered => 2,
+        AddressReason::AlreadyRegistered => 3,
+    }
+}
+
+/// The number of variants `src/errors.rs` declares for `header` (an enum), counted from the
+/// source, so no count is kept by hand.
+fn declared(header: &str) -> usize {
+    let src = std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/src/errors.rs"))
+        .expect("errors.rs");
+    let body = src.split(header).nth(1).expect("enum header");
+    let variant =
+        |l: &&str| l.starts_with("    ") && l[4..].starts_with(|c: char| c.is_ascii_uppercase());
+    body.lines()
+        .skip(1)
+        .take_while(|l| l.trim_end() != "}")
+        .filter(variant)
+        .count()
+}
+
+fn expected_code(e: &Error) -> &'static str {
+    match e {
+        Error::AddressInvalid { reason } => match reason {
+            AddressReason::WrongSegmentCount => "E-ADDRESS-SEGMENT-COUNT",
+            AddressReason::BadSegment => "E-ADDRESS-SEGMENT-CHARS",
+            AddressReason::Unregistered => "E-ADDRESS-UNREGISTERED",
+            AddressReason::AlreadyRegistered => "E-ADDRESS-ALREADY-REGISTERED",
+        },
+        Error::StoreReadOnly => "E-STORE-READ-ONLY",
+        Error::StoreFailed { .. } => "E-STORE-WRITE-FAILED",
+        Error::Stale => "E-RECORD-STALE",
+        Error::NotFound => "E-RECORD-NOT-FOUND",
+        Error::Unreadable { .. } => "E-RECORD-UNREADABLE",
+        Error::KindExists => "E-KIND-EXISTS",
+        Error::UnknownKind => "E-KIND-UNKNOWN",
+        Error::DetailRefused { .. } => "E-DETAIL-REFUSED",
+        Error::ChainBroken { .. } => "E-HISTORY-UNVERIFIED",
+        Error::RecordKeyDestroyed => "E-RECORD-DELETED",
+    }
 }
 
 fn every_error() -> Vec<Error> {
@@ -127,10 +195,10 @@ fn diagnostic_codes_are_uppercase_area_condition_and_unique() {
             "{code}"
         );
         assert!(code.split('-').count() >= 3, "{code}");
-        // Address reasons share one code by design; everything else is unique.
+        // Each variant has its own code, and the four address reasons each have a separate one.
         seen.insert(code);
     }
-    assert_eq!(seen.len(), 14);
+    assert_eq!(seen.len(), every_error().len());
 }
 
 #[test]
@@ -166,48 +234,13 @@ fn a_storage_failure_carries_a_content_free_cause() {
     );
 }
 
-/// ERR-01 / NAMING.md section 2: the exact registered codes, hyphenated multi-word conditions.
+/// ERR-01 / NAMING.md section 2: the exact registered codes, one per sample, including every
+/// address reason. `expected_code` matches without a wildcard, so a new variant or reason fails
+/// to compile until its code is written down here.
 #[test]
 fn the_registered_codes_are_exactly_these() {
-    let table: Vec<(Error, &str)> = vec![
-        (
-            Error::AddressInvalid {
-                reason: AddressReason::WrongSegmentCount,
-            },
-            "E-ADDRESS-SEGMENT-COUNT",
-        ),
-        (
-            Error::AddressInvalid {
-                reason: AddressReason::BadSegment,
-            },
-            "E-ADDRESS-SEGMENT-CHARS",
-        ),
-        (Error::StoreReadOnly, "E-STORE-READ-ONLY"),
-        (
-            Error::StoreFailed { cause: Cause::None },
-            "E-STORE-WRITE-FAILED",
-        ),
-        (Error::Stale, "E-RECORD-STALE"),
-        (Error::NotFound, "E-RECORD-NOT-FOUND"),
-        (
-            Error::Unreadable {
-                id: RecordId::new(),
-            },
-            "E-RECORD-UNREADABLE",
-        ),
-        (Error::KindExists, "E-KIND-EXISTS"),
-        (Error::UnknownKind, "E-KIND-UNKNOWN"),
-        (
-            Error::DetailRefused {
-                key: DetailKey::Address,
-            },
-            "E-DETAIL-REFUSED",
-        ),
-        (Error::ChainBroken { first_seq: 1 }, "E-HISTORY-UNVERIFIED"),
-        (Error::RecordKeyDestroyed, "E-RECORD-DELETED"),
-    ];
-    for (e, code) in table {
-        assert_eq!(e.diagnostic_code(), code);
+    for e in every_error() {
+        assert_eq!(e.diagnostic_code(), expected_code(&e));
     }
 }
 
@@ -223,8 +256,6 @@ fn the_code_registry_lists_every_code() {
     for e in every_error() {
         codes.insert(e.diagnostic_code());
     }
-    codes.insert("E-ADDRESS-SEGMENT-COUNT");
-    codes.insert("E-ADDRESS-SEGMENT-CHARS");
     for code in codes {
         assert_eq!(
             registry.matches(&format!("`{code}`")).count(),
@@ -232,4 +263,28 @@ fn the_code_registry_lists_every_code() {
             "{code} must appear once in the registry"
         );
     }
+}
+
+/// 1315#S9.2: every `Error` variant and every address reason has a sample in `every_error()`.
+/// `ordinal` and `reason_ordinal` match without a wildcard, so a new variant fails to compile
+/// until it is numbered there, and fails here until it is counted and given a sample.
+#[test]
+fn every_error_has_a_sample_of_every_variant_and_address_reason() {
+    let samples = every_error();
+    let variants: BTreeSet<usize> = samples.iter().map(ordinal).collect();
+    assert_eq!(
+        variants,
+        (0..declared("pub enum Error {")).collect::<BTreeSet<_>>()
+    );
+    let reasons: BTreeSet<usize> = samples
+        .iter()
+        .filter_map(|e| match e {
+            Error::AddressInvalid { reason } => Some(reason_ordinal(*reason)),
+            _ => None,
+        })
+        .collect();
+    assert_eq!(
+        reasons,
+        (0..declared("pub enum AddressReason {")).collect::<BTreeSet<_>>()
+    );
 }
