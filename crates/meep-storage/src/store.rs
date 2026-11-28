@@ -197,13 +197,21 @@ enum Start {
 fn start(conn: &Connection, key: Option<&DbKey>) -> Result<(), Start> {
     let failed = |e: rusqlite::Error| Start::Failed(sqlite_cause(&e));
     if let Some(key) = key {
+        #[cfg(test)]
+        trace("key");
         apply_key(conn, key).map_err(failed)?;
     }
+    #[cfg(test)]
+    trace("cipher-compatibility");
     conn.execute_batch("PRAGMA cipher_compatibility = 4;")
         .map_err(failed)?;
+    #[cfg(test)]
+    trace("memory-security");
     conn.execute_batch("PRAGMA cipher_memory_security = ON;")
         .map_err(failed)?;
     // The first read: this is where SQLCipher finds out whether the key fits the file.
+    #[cfg(test)]
+    trace("first-read");
     conn.query_row("SELECT count(*) FROM sqlite_master", [], |r| {
         r.get::<_, i64>(0)
     })
@@ -348,3 +356,61 @@ fn store_failed(e: &rusqlite::Error) -> Error {
 #[cfg(feature = "plaintext-test-store")]
 #[used]
 static PLAINTEXT_TEST_STORE_MARKER: &str = "MEEP_TEST_FEATURE_PLAINTEXT_STORE";
+
+// Test-only record of the statement kinds `start` issues, in order, per test thread. It is the
+// seam the order test reads; it is not compiled into any other build, and holds no key material.
+#[cfg(test)]
+thread_local! {
+    static TRACE: std::cell::RefCell<Vec<&'static str>> = const { std::cell::RefCell::new(Vec::new()) };
+}
+
+#[cfg(test)]
+fn trace(step: &'static str) {
+    TRACE.with(|t| t.borrow_mut().push(step));
+}
+
+#[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
+mod tests {
+    use super::*;
+    use meep_core::clock::{FixedClock, parse_rfc3339};
+
+    fn clock() -> FixedClock {
+        FixedClock::new(parse_rfc3339("2026-11-28T07:30:00Z").unwrap())
+    }
+
+    fn take_trace() -> Vec<&'static str> {
+        TRACE.with(|t| t.take())
+    }
+
+    /// PLAN-14 (D11, S4.4 finding): SQLCipher's memory wipe is a process-wide switch, so it must
+    /// be on before the key statement is built and run, or the first open leaves the statement's
+    /// copies unwiped. Create and open, keyed and plaintext, all issue it first.
+    #[test]
+    fn memory_security_is_on_before_the_key_is_applied() {
+        let keyed = [
+            "memory-security",
+            "key",
+            "cipher-compatibility",
+            "first-read",
+        ];
+
+        let dir = tempfile::tempdir().unwrap();
+        let key = DbKey::from_bytes([0x11; 32]);
+        take_trace();
+        drop(Store::create(dir.path(), &key, &clock()).unwrap());
+        assert_eq!(take_trace(), keyed, "create");
+        drop(Store::open(dir.path(), &key).unwrap());
+        assert_eq!(take_trace(), keyed, "open");
+
+        #[cfg(feature = "plaintext-test-store")]
+        {
+            let plain = ["memory-security", "cipher-compatibility", "first-read"];
+            let dir = tempfile::tempdir().unwrap();
+            drop(Store::create_plaintext(dir.path(), &clock()).unwrap());
+            assert_eq!(take_trace(), plain, "create_plaintext");
+            drop(Store::open_plaintext(dir.path()).unwrap());
+            assert_eq!(take_trace(), plain, "open_plaintext");
+        }
+    }
+}
