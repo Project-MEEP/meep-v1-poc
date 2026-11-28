@@ -31,6 +31,10 @@ fn ordinal(e: &Error) -> usize {
         Error::DetailRefused { .. } => 8,
         Error::ChainBroken { .. } => 9,
         Error::RecordKeyDestroyed => 10,
+        Error::StoreKeyRejected => 11,
+        Error::StoreMissing => 12,
+        Error::StoreExists => 13,
+        Error::StoreOpenFailed { .. } => 14,
     }
 }
 
@@ -76,6 +80,10 @@ fn expected_code(e: &Error) -> &'static str {
         Error::DetailRefused { .. } => "E-DETAIL-REFUSED",
         Error::ChainBroken { .. } => "E-HISTORY-UNVERIFIED",
         Error::RecordKeyDestroyed => "E-RECORD-DELETED",
+        Error::StoreKeyRejected => "E-STORE-KEY-REJECTED",
+        Error::StoreMissing => "E-STORE-MISSING",
+        Error::StoreExists => "E-STORE-EXISTS",
+        Error::StoreOpenFailed { .. } => "E-STORE-OPEN-FAILED",
     }
 }
 
@@ -107,6 +115,10 @@ fn every_error() -> Vec<Error> {
         },
         Error::ChainBroken { first_seq: 17 },
         Error::RecordKeyDestroyed,
+        Error::StoreKeyRejected,
+        Error::StoreMissing,
+        Error::StoreExists,
+        Error::StoreOpenFailed { cause: Cause::None },
     ]
 }
 
@@ -131,6 +143,27 @@ fn write_failures_map_to_their_messages() {
         }),
         Some(MessageId::SaveFailed)
     );
+}
+
+/// D10, D12-A (002:T023): the store open and create failures and the owner message each shows.
+#[test]
+fn store_open_failures_map_to_their_messages() {
+    assert_eq!(
+        id_of(&Error::StoreKeyRejected),
+        Some(MessageId::StoreWrongKey)
+    );
+    assert_eq!(
+        id_of(&Error::StoreMissing),
+        Some(MessageId::StoreUnreadable)
+    );
+    let exists = Error::StoreExists.message().unwrap();
+    assert_eq!(exists.id, MessageId::InternalError);
+    assert_eq!(exists.args, vec![("code", "E-STORE-EXISTS".to_string())]);
+    let failed = Error::StoreOpenFailed {
+        cause: Cause::Sqlite(14),
+    };
+    assert_eq!(id_of(&failed), Some(MessageId::StoreUnreadable));
+    assert_eq!(failed.cause(), Cause::Sqlite(14));
 }
 
 #[test]
