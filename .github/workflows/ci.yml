@@ -65,6 +65,8 @@ jobs:
           toolchain: stable
       - if: hashFiles('Cargo.toml') != ''
         run: cargo test --workspace
+      - if: hashFiles('Cargo.toml') != ''
+        run: cargo test -p meep-storage --features plaintext-test-store
       - if: hashFiles('Cargo.toml') == ''
         run: echo "No Cargo.toml yet; unit tests skipped."
 
