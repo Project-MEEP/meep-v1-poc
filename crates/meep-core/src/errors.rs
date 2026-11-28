@@ -61,6 +61,16 @@ pub enum Error {
     },
     /// The record key was destroyed.
     RecordKeyDestroyed,
+    /// No key, a wrong key, or not a Meep store; SQLCipher cannot tell these apart (FR-003).
+    StoreKeyRejected,
+    /// The store file to open does not exist.
+    StoreMissing,
+    /// Create was asked to write where a store already exists (a programmer error).
+    StoreExists,
+    /// Creating or opening the store failed for another reason; the cause is content-free.
+    StoreOpenFailed {
+        cause: Cause,
+    },
 }
 
 impl fmt::Display for Error {
@@ -73,7 +83,8 @@ impl std::error::Error for Error {}
 
 impl Error {
     /// The owner-facing message for this failure. Programmer errors (`KindExists`, `UnknownKind`,
-    /// `DetailRefused`) share the generic `internal-error` message and carry the diagnostic code.
+    /// `DetailRefused`, `StoreExists`) share the generic `internal-error` message and carry the
+    /// diagnostic code.
     /// Always `Some` today; the `Option` leaves room for a failure that is never shown.
     pub fn message(&self) -> Option<OwnerMessage> {
         let (id, args) = match self {
@@ -99,7 +110,14 @@ impl Error {
             Error::NotFound => (MessageId::RecordNotFound, Vec::new()),
             Error::Unreadable { .. } => (MessageId::RecordUnreadable, Vec::new()),
             Error::RecordKeyDestroyed => (MessageId::RecordDeleted, Vec::new()),
-            Error::KindExists | Error::UnknownKind | Error::DetailRefused { .. } => (
+            Error::StoreKeyRejected => (MessageId::StoreWrongKey, Vec::new()),
+            Error::StoreMissing | Error::StoreOpenFailed { .. } => {
+                (MessageId::StoreUnreadable, Vec::new())
+            }
+            Error::KindExists
+            | Error::UnknownKind
+            | Error::DetailRefused { .. }
+            | Error::StoreExists => (
                 MessageId::InternalError,
                 vec![("code", self.diagnostic_code().to_string())],
             ),
@@ -133,6 +151,10 @@ impl Error {
             Error::DetailRefused { .. } => "E-DETAIL-REFUSED",
             Error::ChainBroken { .. } => "E-HISTORY-UNVERIFIED",
             Error::RecordKeyDestroyed => "E-RECORD-DELETED",
+            Error::StoreKeyRejected => "E-STORE-KEY-REJECTED",
+            Error::StoreMissing => "E-STORE-MISSING",
+            Error::StoreExists => "E-STORE-EXISTS",
+            Error::StoreOpenFailed { .. } => "E-STORE-OPEN-FAILED",
         }
     }
 
@@ -140,7 +162,20 @@ impl Error {
     pub fn detail_key(&self) -> Option<DetailKey> {
         match self {
             Error::DetailRefused { key } => Some(*key),
-            _ => None,
+            Error::AddressInvalid { .. }
+            | Error::StoreReadOnly
+            | Error::StoreFailed { .. }
+            | Error::Stale
+            | Error::NotFound
+            | Error::Unreadable { .. }
+            | Error::KindExists
+            | Error::UnknownKind
+            | Error::ChainBroken { .. }
+            | Error::RecordKeyDestroyed
+            | Error::StoreKeyRejected
+            | Error::StoreMissing
+            | Error::StoreExists
+            | Error::StoreOpenFailed { .. } => None,
         }
     }
 
@@ -148,8 +183,20 @@ impl Error {
     /// variant wraps no underlying failure.
     pub fn cause(&self) -> Cause {
         match self {
-            Error::StoreFailed { cause } => *cause,
-            _ => Cause::None,
+            Error::StoreFailed { cause } | Error::StoreOpenFailed { cause } => *cause,
+            Error::AddressInvalid { .. }
+            | Error::StoreReadOnly
+            | Error::Stale
+            | Error::NotFound
+            | Error::Unreadable { .. }
+            | Error::KindExists
+            | Error::UnknownKind
+            | Error::DetailRefused { .. }
+            | Error::ChainBroken { .. }
+            | Error::RecordKeyDestroyed
+            | Error::StoreKeyRejected
+            | Error::StoreMissing
+            | Error::StoreExists => Cause::None,
         }
     }
 }
